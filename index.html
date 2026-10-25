@@ -404,10 +404,14 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
   var W = WATCH.map(function (r) { return toItem(r, "watch"); });
   var T1 = TRANSFERS.map(function (r) { return toItem(r, "t"); });
   var T2 = TRANSFERS_COACH.map(function (r) { return toItem(r, "t"); });
+  var PK = P.filter(function (it) { return /South Korea/.test(it.sub); });
+  var KR_TEAMS = /^(T1|KIWOOM DRX|Nongshim RedForce|Gen\.G|DRX)$/i;
+  var CK = CO.filter(function (it) { return KR_TEAMS.test(it.team); });
 
   var TABS = [
     { id: "players", label: "선수", mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
     { id: "coaches", label: "코치·스태프", mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
+    { id: "korea", label: "한국", mode: "entry", status: true, size: PK.length + CK.length, hint: "국적이 South Korea인 선수와 한국 팀(T1, KIWOOM DRX, Nongshim RedForce) 소속 코치·스태프입니다.", groups: [{ title: "선수", items: PK }, { title: "코치·스태프", items: CK }] },
     { id: "transfers", label: "이적 완료", mode: "entry", size: T1.length + T2.length, hint: "이전 소속 팀 기준으로 묶었습니다.", groups: [{ title: "선수", items: T1 }, { title: "코치·스태프", items: T2 }] },
     { id: "watch", label: "지켜볼 팀", mode: "watch", size: W.length, hint: "계약 만료나 존속 여부가 정해지지 않은 팀입니다.", groups: [{ items: W }] },
     { id: "schedule", label: "일정", mode: "schedule", size: SCHEDULE.length },
@@ -595,7 +599,7 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     $("filters").hidden = sched || tab.mode === "suggest";
     $("summary").hidden = !tab.status;
     if (tab.status) {
-      var base = tab.groups[0].items;
+      var base = [].concat.apply([], tab.groups.map(function (g) { return g.items; }));
       $("summary").innerHTML = STATUS_LABELS.map(function (s) {
         var n = s[0] === "all" ? base.length : base.filter(function (it) { return cls(it) === s[0]; }).length;
         return '<button type="button" class="sum ' + s[0] + '" data-status="' + s[0] + '" aria-pressed="' + (state.status === s[0]) + '"><span class="v">' + n + '</span><span class="k">' + s[1] + "</span></button>";
