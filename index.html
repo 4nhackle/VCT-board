@@ -152,6 +152,21 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
 .linkbtn { background: none; border: 0; padding: 0; color: var(--accent); font-size: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .addr { font-weight: 700; user-select: all; overflow-wrap: anywhere; }
 
+.order { display: flex; gap: 4px 16px; }
+.date.new { color: var(--accent); font-weight: 700; }
+.date.new::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: currentColor; vertical-align: 1px; }
+.th { margin: 0; padding: 16px 0 0; border-top: 1px solid var(--line); font-size: 14px; font-weight: 700; color: var(--mute); }
+.rh + .th { border-top: 0; padding-top: 12px; }
+.th .n { margin-left: 6px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.th + .list > .row:first-child { border-top: 0; padding-top: 2px; }
+.reg { margin-left: 8px; color: var(--mute); font-size: 13px; }
+.fresh { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.fresh b { color: var(--accent); }
+.dd { display: inline-block; margin-top: 4px; padding: 0 7px; border-radius: 4px; font-size: 12.5px; font-weight: 700; background: var(--left-bg); color: var(--left-fg); }
+.dd.soon { background: var(--open-bg); color: var(--open-fg); }
+.dd.now { background: var(--accent); color: var(--bg); }
+.row.sch .when .dd { display: table; }
+.row.sch.past .when, .row.sch.past .detail { opacity: .6; }
 .note-lfx { display: none; }
 
 @media (max-width: 600px) {
@@ -195,6 +210,7 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
 
   <div class="filters" id="filters">
     <div class="regions" id="regions" role="group" aria-label="지역"></div>
+    <div class="order" id="order" role="group" aria-label="정렬"></div>
     <input class="search" id="q" type="search" placeholder="이름이나 팀 검색" aria-label="검색" autocomplete="off">
   </div>
 
@@ -454,7 +470,8 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
   ];
   var STATUS_LABELS = [["all", "전체"], ["open", "구직 중"], ["signed", "새 팀 합류"], ["left", "팀 떠남"]];
 
-  var state = { tab: "players", region: "all", status: "all", q: "" };
+  var state = { tab: "players", region: "all", status: "all", q: "", order: "team" };
+  try { if (localStorage.getItem("vct-order") === "recent") state.order = "recent"; } catch (e) {}
   try {
     var h = (location.hash || "").replace("#", "");
     if (TABS.some(function (t) { return t.id === h; })) state.tab = h;
@@ -470,6 +487,21 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     if (typeof n !== "number") return esc(n);
     var d = new Date(Date.UTC(1899, 11, 30) + n * 864e5);
     return (d.getUTCMonth() + 1) + "/" + d.getUTCDate();
+  }
+  // 오늘(한국 시간)을 시트와 같은 날짜 일련번호로. 최근 사흘(오늘·어제·그제) 보도를 새 소식으로 본다.
+  var TODAY = Math.floor((Date.now() + 9 * 36e5) / 864e5) + 25569;
+  function isNew(it) { return typeof it.date === "number" && TODAY - it.date >= 0 && TODAY - it.date <= 2; }
+  function isoOf(n) { return new Date(Date.UTC(1899, 11, 30) + n * 864e5).toISOString().slice(0, 10); }
+  function dayWord(n) {
+    var d = TODAY - n;
+    if (d === 0) return "오늘";
+    if (d === 1) return "어제";
+    if (d > 1 && d < 7) return d + "일 전";
+    return fmtDate(n);
+  }
+  function relDate(n) {
+    if (typeof n !== "number") return esc(n);
+    return '<time datetime="' + isoOf(n) + '" title="' + isoOf(n) + '">' + dayWord(n) + "</time>";
   }
   function tabById(id) { return TABS.filter(function (t) { return t.id === id; })[0]; }
 
@@ -491,7 +523,7 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     return s ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">출처: ' + esc(s[0]) + "</a>" : "";
   }
 
-  function rowHTML(it, tab) {
+  function rowHTML(it, tab, opt) {
     if (tab.mode === "watch") {
       return '<li class="row"><div class="main"><span class="name">' + esc(it.team) + '</span></div><p class="detail">대상: ' + esc(it.name) + ". " + esc(it.note) + srcHTML(it.src) + "</p></li>";
     }
@@ -499,10 +531,13 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     var prefix = "";
     if (it.sub) prefix += esc(it.sub) + ". ";
     if (!it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status)) prefix += esc(it.status) + ". ";
-    return '<li class="row"><div class="main"><span class="name">' + esc(it.name) + '</span><span class="team">' + esc(it.team) + "</span></div>" +
+    opt = opt || {};
+    return '<li class="row"><div class="main"><span class="name">' + esc(it.name) + "</span>" +
+      (opt.noTeam ? "" : '<span class="team">' + esc(it.team) + "</span>") +
+      (opt.region ? '<span class="reg">' + REGION_KO[it.region] + "</span>" : "") + "</div>" +
       '<div class="state"><span class="pill ' + p[0] + '">' + esc(p[1]) + "</span>" +
       (it.conf === "R" ? '<span class="tag">단일 출처</span>' : "") +
-      '<span class="date">' + fmtDate(it.date) + " 보도</span></div>" +
+      '<span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + " 보도</span></div>" +
       '<p class="detail">' + prefix + esc(it.note) + srcHTML(it.src) + "</p></li>";
   }
 
@@ -522,14 +557,72 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
       var inReg = items.filter(function (it) { return it.region === reg; });
       if (!inReg.length) return;
       out += '<div class="rh"><h2>' + REGION_KO[reg] + '</h2><span class="en">' + reg + '</span><span class="n">' + inReg.length + "건</span></div>";
-      out += '<ul class="list">' + inReg.map(function (it) { return rowHTML(it, tab); }).join("") + "</ul>";
+      if (tab.mode !== "entry") {
+        out += '<ul class="list">' + inReg.map(function (it) { return rowHTML(it, tab); }).join("") + "</ul>";
+        return;
+      }
+      // 팀별로: 팀 이름 알파벳순, 팀마다 작은 머리글.
+      var teams = [];
+      inReg.forEach(function (it) { if (teams.indexOf(it.team) < 0) teams.push(it.team); });
+      teams.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
+      teams.forEach(function (t) {
+        var inTeam = inReg.filter(function (it) { return it.team === t; });
+        out += '<h3 class="th">' + esc(t) + (inTeam.length > 1 ? '<span class="n">' + inTeam.length + "명</span>" : "") + "</h3>";
+        out += '<ul class="list">' + inTeam.map(function (it) { return rowHTML(it, tab, { noTeam: true }); }).join("") + "</ul>";
+      });
     });
     return out;
   }
 
+  // 최근 소식순: 보도 날짜별로 묶어 최신부터.
+  function recentHTML(items, tab) {
+    var days = [];
+    items.forEach(function (it) { if (days.indexOf(it.date) < 0) days.push(it.date); });
+    days.sort(function (a, b) { return (typeof b === "number" ? b : -1) - (typeof a === "number" ? a : -1); });
+    var WD = ["일", "월", "화", "수", "목", "금", "토"];
+    return days.map(function (n) {
+      var inDay = items.filter(function (it) { return it.date === n; });
+      inDay.sort(function (a, b) { return REGIONS.indexOf(a.region) - REGIONS.indexOf(b.region) || a.team.toLowerCase().localeCompare(b.team.toLowerCase()); });
+      var head = "날짜 미상", sub = "";
+      if (typeof n === "number") {
+        var d = new Date(Date.UTC(1899, 11, 30) + n * 864e5);
+        var full = (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 (" + WD[d.getUTCDay()] + ")";
+        var w = dayWord(n);
+        if (w === fmtDate(n)) head = full; else { head = w; sub = full; }
+      }
+      return '<div class="rh"><h2>' + head + '</h2><span class="en">' + sub + '</span><span class="n">' + inDay.length + "건</span></div>" +
+        '<ul class="list">' + inDay.map(function (it) { return rowHTML(it, tab, { region: state.region === "all" }); }).join("") + "</ul>";
+    }).join("");
+  }
+
+  // 일정 칸의 날짜(일련번호나 "11/5–11/8", "2027-01-14 ~ 02-07" 같은 글)에서 시작일과 끝일을 뽑는다.
+  function spanOf(v) {
+    if (typeof v === "number") return [v, v];
+    var re = /(?:(\d{4})-)?(\d{1,2})[\/-](\d{1,2})/g, m, y = null, out = [];
+    var base = new Date(Date.UTC(1899, 11, 30) + TODAY * 864e5).getUTCFullYear();
+    while ((m = re.exec(String(v)))) {
+      if (m[1]) y = +m[1];
+      var best = null;
+      (y ? [y] : [base - 1, base, base + 1]).forEach(function (yy) {
+        var s = Math.round((Date.UTC(yy, +m[2] - 1, +m[3]) - Date.UTC(1899, 11, 30)) / 864e5);
+        if (best === null || Math.abs(s - TODAY) < Math.abs(best - TODAY)) best = s;
+      });
+      out.push(best);
+    }
+    if (!out.length) return null;
+    return [Math.min.apply(null, out), Math.max.apply(null, out)];
+  }
+  function ddHTML(sp) {
+    if (!sp) return "";
+    var a = sp[0] - TODAY, b = sp[1] - TODAY;
+    if (b < 0) return '<span class="dd">끝남</span>';
+    if (a <= 0) return '<span class="dd now">' + (sp[0] === sp[1] ? "오늘" : "진행 중") + "</span>";
+    return '<span class="dd' + (a <= 7 ? " soon" : "") + '">D-' + a + "</span>";
+  }
   function scheduleHTML() {
     return '<ul class="list">' + SCHEDULE.map(function (r) {
-      return '<li class="row sch"><span class="when">' + fmtDate(r[0]) + '</span><p class="detail" style="color:var(--ink);font-size:15px">' + esc(r[1]) + " <span style=\"color:var(--mute);font-size:13px\">(" + esc(r[2]) + ")</span></p></li>";
+      var sp = spanOf(r[0]);
+      return '<li class="row sch' + (sp && sp[1] < TODAY ? " past" : "") + '"><span class="when">' + fmtDate(r[0]) + ddHTML(sp) + '</span><p class="detail" style="color:var(--ink);font-size:15px">' + esc(r[1]) + " <span style=\"color:var(--mute);font-size:13px\">(" + esc(r[2]) + ")</span></p></li>";
     }).join("") + "</ul>";
   }
 
@@ -642,15 +735,17 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     if (tab.mode === "schedule") {
       html = scheduleHTML();
     } else {
-      var total = 0;
+      var total = 0, fresh = 0, recent = state.order === "recent" && tab.mode === "entry";
       tab.groups.forEach(function (g) {
         var items = g.items.filter(function (it) { return matches(it, tab); });
         total += items.length;
+        fresh += items.filter(isNew).length;
         if (!items.length) return;
         if (g.title) html += '<h2 class="kind">' + g.title + "</h2>";
-        html += regionsHTML(items, tab);
+        html += recent ? recentHTML(items, tab) : regionsHTML(items, tab);
       });
       if (!total) html = '<div class="empty">조건에 맞는 항목이 없습니다. 지역이나 상태를 바꾸거나 검색어를 지워 보세요.</div>';
+      else if (fresh && tab.mode === "entry" && !recent) html = '<p class="hint fresh"><span>최근 사흘 새 소식 <b>' + fresh + '건</b></span><button type="button" class="linkbtn" data-order="recent">최근 소식순으로 보기</button></p>' + html;
       if (tab.hint) html = '<p class="hint">' + tab.hint + "</p>" + html;
     }
     $("view").innerHTML = html;
@@ -675,6 +770,10 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     $("regions").innerHTML = ["all"].concat(REGIONS).map(function (r) {
       return '<button type="button" class="chip" data-region="' + r + '" aria-pressed="' + (state.region === r) + '">' + (r === "all" ? "모든 지역" : REGION_KO[r]) + "</button>";
     }).join("");
+    $("order").hidden = tab.mode !== "entry";
+    $("order").innerHTML = [["team", "팀별로"], ["recent", "최근 소식순"]].map(function (o) {
+      return '<button type="button" class="chip" data-order="' + o[0] + '" aria-pressed="' + (state.order === o[0]) + '">' + o[1] + "</button>";
+    }).join("");
     ["tabs", "regions"].forEach(function (id) {
       var box = $(id), cur = box.querySelector('[aria-pressed="true"]');
       if (cur && box.scrollWidth > box.clientWidth) box.scrollLeft = cur.offsetLeft - (box.clientWidth - cur.offsetWidth) / 2;
@@ -689,6 +788,10 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     if (b.dataset.tab) { tabChanged = b.dataset.tab !== state.tab; state.tab = b.dataset.tab; }
     else if (b.dataset.region) state.region = b.dataset.region;
     else if (b.dataset.status) state.status = b.dataset.status;
+    else if (b.dataset.order) {
+      state.order = b.dataset.order;
+      try { localStorage.setItem("vct-order", state.order); } catch (e) {}
+    }
     else return;
     renderChrome();
     renderView();
