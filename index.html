@@ -1,0 +1,628 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light} body{margin:0} [hidden]{display:none!important} img{max-width:100%}</style></head><body><title>VCT LFT·FA 현황</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: 한 줄 설명, 탭, 상태별 인원(필터 겸용), 지역 선택, 그 아래 지역별 목록. 한 열, 왼쪽 정렬, 최대 폭 860px.
+   Color: 연한 잔디빛 바탕에 짙은 초록 잉크. 상태는 말(구직 중, 새 팀 합류, 팀 떠남)과 색을 같이 쓴다. */
+:root {
+  --bg: #F5F8F5;
+  --ink: #14251C;
+  --mute: #566860;
+  --line: #D9E2DB;
+  --accent: #0E6B4E;
+  --open-bg: #FFEBC2;
+  --open-fg: #6B4300;
+  --signed-bg: #D2EFE1;
+  --signed-fg: #0A5A3A;
+  --left-bg: #E3E8EB;
+  --left-fg: #3C4A53;
+  --font: "IBM Plex Sans KR", "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1915;
+    --ink: #E8F0EB;
+    --mute: #9BAFA4;
+    --line: #26392F;
+    --accent: #5FD3A6;
+    --open-bg: #3B2D0C;
+    --open-fg: #F4C873;
+    --signed-bg: #123B2B;
+    --signed-fg: #7ADBAE;
+    --left-bg: #25333C;
+    --left-fg: #B8C6CF;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1915;
+  --ink: #E8F0EB;
+  --mute: #9BAFA4;
+  --line: #26392F;
+  --accent: #5FD3A6;
+  --open-bg: #3B2D0C;
+  --open-fg: #F4C873;
+  --signed-bg: #123B2B;
+  --signed-fg: #7ADBAE;
+  --left-bg: #25333C;
+  --left-fg: #B8C6CF;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.6;
+  word-break: keep-all;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 860px; margin-inline: auto; display: flex; flex-direction: column; gap: 24px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; margin: 0 0 10px; text-wrap: balance; }
+.lede { margin: 0; max-width: 60ch; color: var(--mute); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 4px 22px; border-bottom: 1px solid var(--line); }
+.tab { background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 6px 1px 8px; font-size: 1.05rem; color: var(--mute); font-weight: 500; }
+.tab:hover { color: var(--ink); }
+.tab[aria-pressed="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--accent); }
+.tab .n { margin-left: 5px; font-size: .85em; font-weight: 400; font-variant-numeric: tabular-nums; }
+
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 14px; }
+.sum { background: none; border: 0; border-bottom: 3px solid var(--line); padding: 4px 2px 8px; text-align: left; }
+.sum:hover { border-bottom-color: var(--mute); }
+.sum[aria-pressed="true"] { border-bottom-color: var(--ink); }
+.sum .v { display: block; font-size: 2rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.sum .k { font-size: 14px; color: var(--mute); }
+.sum[aria-pressed="true"] .k { color: var(--ink); font-weight: 700; }
+.sum.open .v { color: var(--open-fg); }
+.sum.signed .v { color: var(--signed-fg); }
+.sum.left .v { color: var(--left-fg); }
+
+.filters { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: end; justify-content: space-between; }
+.regions { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.chip { background: none; border: 0; border-bottom: 2px solid transparent; padding: 3px 1px; font-size: 14px; color: var(--mute); }
+.chip:hover { color: var(--ink); }
+.chip[aria-pressed="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--ink); }
+.search { flex: 0 1 15rem; min-width: 0; width: 100%; background: transparent; border: 0; border-bottom: 2px solid var(--ink); padding: 4px 2px; font-size: 14px; }
+.search::placeholder { color: var(--mute); }
+
+.rh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 28px 0 0; padding-bottom: 8px; border-bottom: 3px solid var(--ink); }
+.rh h2 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+.rh .en, .rh .n { color: var(--mute); font-size: 14px; }
+.rh .n { margin-left: auto; font-variant-numeric: tabular-nums; }
+.kind { margin: 20px 0 -12px; font-size: 1.05rem; font-weight: 700; color: var(--mute); }
+.hint { margin: 0; color: var(--mute); font-size: 14px; }
+
+.list { list-style: none; margin: 0; padding: 0; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: baseline; padding: 12px 0; border-top: 1px solid var(--line); }
+.rh + .list > .row:first-child { border-top: 0; }
+.main { min-width: 0; overflow-wrap: anywhere; }
+.name { font-size: 17px; font-weight: 700; }
+.team { margin-left: 8px; color: var(--mute); font-size: 14px; }
+.state { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 2px 10px; text-align: right; }
+.pill { display: inline-block; padding: 1px 9px; border-radius: 4px; font-size: 13px; font-weight: 700; background: var(--bg-c); color: var(--fg-c); }
+.pill.open { --bg-c: var(--open-bg); --fg-c: var(--open-fg); }
+.pill.signed { --bg-c: var(--signed-bg); --fg-c: var(--signed-fg); }
+.pill.left { --bg-c: var(--left-bg); --fg-c: var(--left-fg); }
+.tag { font-size: 12.5px; color: var(--mute); }
+.date { font-size: 13px; color: var(--mute); font-variant-numeric: tabular-nums; }
+.detail { grid-column: 1 / -1; margin: 0; max-width: 70ch; color: var(--mute); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.detail a { margin-left: 8px; white-space: nowrap; }
+
+.row.sch { grid-template-columns: 11rem minmax(0, 1fr); }
+.row.sch .when { font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.row.sch .detail { grid-column: 2; }
+
+.empty { margin-top: 28px; padding-top: 14px; border-top: 3px solid var(--ink); color: var(--mute); }
+.notes { border-top: 1px solid var(--line); padding-top: 14px; color: var(--mute); font-size: 14px; }
+.notes ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 4px; }
+
+.sg { display: flex; flex-direction: column; gap: 16px; max-width: 560px; margin-top: 8px; }
+.sg label { display: flex; flex-direction: column; gap: 6px; font-weight: 700; font-size: 14px; }
+.sg select, .sg textarea, .sg input { width: 100%; box-sizing: border-box; background: transparent; border: 1px solid var(--mute); border-radius: 4px; padding: 9px 11px; font-size: 15px; font-weight: 400; }
+.sg textarea { min-height: 8.5rem; resize: vertical; line-height: 1.6; }
+.sg .btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { display: inline-block; background: var(--ink); color: var(--bg); border: 1px solid var(--ink); border-radius: 4px; padding: 9px 16px; font-weight: 700; font-size: 15px; text-decoration: none; }
+.btn.alt { background: transparent; color: var(--ink); }
+.btn[aria-disabled="true"] { opacity: .4; pointer-events: none; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); font-size: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.addr { font-weight: 700; user-select: all; overflow-wrap: anywhere; }
+
+@media (max-width: 600px) {
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .state { justify-content: flex-start; text-align: left; }
+  .state { grid-row: 2; }
+  .detail { grid-row: 3; }
+  .row.sch { grid-template-columns: minmax(0, 1fr); }
+  .row.sch .detail { grid-column: 1; grid-row: auto; }
+}
+</style>
+
+<div class="page">
+  <header>
+    <h1>발로란트 VCT 선수 이적 현황</h1>
+    <p class="lede">2026 시즌이 끝나면서 팀을 떠나거나 새 팀을 찾는 선수와 코치를 정리했습니다. LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다. 2026-10-25 13:42 기준입니다.</p>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="보기 선택"></nav>
+
+  <div class="summary" id="summary" role="group" aria-label="상태별 인원"></div>
+
+  <div class="filters" id="filters">
+    <div class="regions" id="regions" role="group" aria-label="지역"></div>
+    <input class="search" id="q" type="search" placeholder="이름이나 팀 검색" aria-label="검색" autocomplete="off">
+  </div>
+
+  <main id="view"></main>
+
+  <section class="notes" aria-label="참고">
+    <ul>
+      <li>공개 보도와 선수 본인의 게시를 바탕으로 했습니다. 계약이 끝나는 선수 전체 명단은 아닙니다.</li>
+      <li>단일 출처는 한 매체의 보도만 있다는 뜻입니다. 공식 발표 전이라 바뀔 수 있습니다.</li>
+      <li>2부 선수와 아카데미 팀은 제외했습니다.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function () {
+  var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
+
+  var S = {
+    inven: ["Inven Global", "https://www.invenglobal.com/articles/27506/tenz-signals-valorant-comeback-with-lft-post"],
+    jackk: ["VLR", "https://www.vlr.gg/777488/cloud9-allows-initiator-jackk-to-explore-options-while-under-contract"],
+    v1c: ["VLR", "https://www.vlr.gg/777970/cloud9-allows-v1c-to-explore-options"],
+    oxy: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-oxy-set-to-join-sentinels-for-vct-americas-2027/en"],
+    ion: ["VLR", "https://www.vlr.gg/769367/ion-enters-restricted-free-agency"],
+    pley: ["Pley.gg", "https://pley.gg/valorant/riot-confirm-all-32-vct-partners-for-2027-as-t1-and-paper-rex-stay-in-and-drx-miss-out/"],
+    shyy: ["VLR", "https://www.vlr.gg/778056/shyy-basic-and-artzin-enter-free-agency-after-furia-stints"],
+    koala: ["VLR", "https://www.vlr.gg/762001/koalanoob-and-c0m-enter-restricted-free-agency"],
+    mwzera: ["VLR", "https://www.vlr.gg/761911/kr-allows-mwzera-to-explore-options"],
+    kyu: ["VLR", "https://www.vlr.gg/777472/kyu-enters-free-agency-after-second-run-with-m80"],
+    egw: ["EGamersWorld", "https://egamersworld.com/blog/valorant-roster-changes-after-champions-2026-bL_BRlux42"],
+    log: ["VLR 이적 로그", "https://www.vlr.gg/transfers"],
+    mibr: ["Sheep Esports", "https://www.sheepesports.com/en/articles/mibr-allows-its-roster-to-explore-options-ahead-of-2027-vct-season/en"],
+    keiko: ["VLR", "https://www.vlr.gg/778864/keiko-to-leave-nrg-after-one-season-becomes-restricted-free-agent"],
+    zander: ["VLR", "https://www.vlr.gg/772672/zander-set-to-leave-shopify-rebellion-black-after-one-year"],
+    nature: ["VLR", "https://www.vlr.gg/757970/shopify-rebellion-black-allows-nature-to-explore-options"],
+    net: ["VLR", "https://www.vlr.gg/769206/net-leaves-giantx-after-one-split"],
+    liqui: ["Liquipedia", "https://liquipedia.net/valorant/Portal:Transfers"],
+    qpert: ["VLR", "https://www.vlr.gg/770954/pcific-igl-qpert-to-enter-free-agency"],
+    wo0t: ["VLR", "https://www.vlr.gg/778860/wo0t-leaves-team-heretics-ending-three-year-run"],
+    nats: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-nats-set-to-continue-with-team-liquid-ahead-of-vct-2027-season/en"],
+    trexx: ["VLR", "https://www.vlr.gg/778895/trexx-set-to-depart-team-liquid-for-the-second-time"],
+    purp0: ["VLR", "https://www.vlr.gg/757200/purp0-searching-for-new-team-following-team-liquid-benching"],
+    derke: ["VLR", "https://www.vlr.gg/779807/derke-leaving-vitality"],
+    d3ffo: ["VLR", "https://www.vlr.gg/774843/ex-gambit-m3c-player-d3ffo-leaves-boom-esports-after-one-year"],
+    meiy: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-meiy-set-to-return-to-crazy-raccoon-for-2027-vct-pacific-season/en"],
+    kr1r: ["VLR", "https://www.vlr.gg/779280/reports-full-sense-to-sign-kr1stal-for-vct-2027"],
+    global: ["VLR", "https://www.vlr.gg/777318/global-esports-exits-esports-to-begin-anew-as-ai-studio"],
+    kr1s: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-kr1stal-set-to-join-full-sense-for-2027-vct-pacific-season/en"],
+    xavi: ["VLR", "https://www.vlr.gg/778104/udotan-xavi8k-announce-free-agency-from-global-esports"],
+    udotan: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-udotan-set-to-join-nonghsim-redforce-for-the-vct-2027-season/en"],
+    krx: ["VLR", "https://www.vlr.gg/778910/krx-announces-mass-exodus-following-partnership-snub"],
+    dambi: ["VLR", "https://www.vlr.gg/778098/nongshim-redforce-allows-dambi-to-explore-options"],
+    prx: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-paper-rex-set-to-retain-f0rsaken-and-something-for-2027-vct-season/en"],
+    xan: ["VLR", "https://www.vlr.gg/767709/xan-leaves-rex-regum-qeon"],
+    munch: ["Sheep Esports (X)", "https://x.com/Sheep_VALORANT/status/2112906988430492140"],
+    zeta: ["VLR", "https://www.vlr.gg/779869/zeta-division-allows-eko-syouta-and-absol-to-explore-options"],
+    xdll: ["VLR", "https://www.vlr.gg/767715/zeta-division-allows-xdll-to-explore-options"],
+    hvoya: ["VLR", "https://www.vlr.gg/772669/xi-lai-gaming-allows-hvoya-to-explore-options-again"],
+    rarga: ["VLR", "https://www.vlr.gg/773446/xi-lai-gaming-allows-rarga-to-explore-options"],
+    noman: ["VLR", "https://www.vlr.gg/773734/xi-lai-set-to-enter-offseason-rebuild-without-mr-3k-noman"],
+    veer: ["VLR", "https://www.vlr.gg/777953/cloud9-head-coach-veer-set-to-enter-free-agency"],
+    faded: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-faded-set-to-join-rex-regum-qeon-ahead-of-2027-vct-season/en"],
+    balax: ["VLR", "https://www.vlr.gg/778901/balax-departs-loud-after-assisting-in-champions-winning-run"],
+    vlad: ["VLR", "https://www.vlr.gg/773071/fut-esports-allows-head-coach-vlad-to-explore-options"],
+    kundi: ["VLR", "https://www.vlr.gg/778820/gentle-mates-to-part-with-head-coach-kundikundi"],
+    vorz: ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-vorz-set-to-join-crazy-raccoon-as-head-coach-for-2027-vct-pacific-season/en"],
+    sungmin: ["VLR", "https://www.vlr.gg/778095/sungmin-parts-with-nongshim-redforce-original-sin-prisa-core"],
+    vcttracker: ["VCT Roster Tracker (X)", "https://x.com/VCTTracker"],
+    spike: ["TheSpike", "https://www.thespike.gg/valorant/news/fns-s0m-florescent-form-new-superteam-for-vct-2027-open-qualifiers/9105"],
+    teamsout: ["Sheep Esports", "https://www.sheepesports.com/en/articles/teams-left-out-of-the-vct-partnership-who-is-staying-in-valorant-and-who-is-leaving/en"],
+    outofcontract: ["Sheep Esports", "https://www.sheepesports.com/en/articles/vct-pacific-all-players-out-of-contract-in-2026/en"],
+    fpx: ["VLR", "https://www.vlr.gg/778064/funplus-phoenix-signs-77even-ahead-of-china-threshold"],
+    meteor: ["VLR", "https://www.vlr.gg/778872/meteor-to-leave-t1-with-contract-set-to-expire"]
+  };
+
+  var EGN = "EG는 11/2 운영 종료. 이미 타팀과 대화 가능";
+  var FUR = "계약은 2027까지였으나 방출. FURIA 현재 엑티브 로스터 0명, 팀 존속 미정";
+  var MIB = "MIBR 전 로스터 비활성화(공식 성명 10/23). 계약은 유지(이적은 MIBR과 협상). 전 지역 오픈 여부 미확인. 계약 2027까지";
+  var M80 = "VLR 이적 로그 10/19 이탈. M80 존속 불투명";
+  var S8 = "VLR 이적 로그 10/19 이탈. S8UL 발로란트 철수 시사";
+  var RO = "VLR 이적 로그 10/19 이탈. 파트너십 탈락. 진로 미확인";
+  var GLB = "Global Esports 철수로 로스터 전원 방출";
+  var HER = "시즌 종료 후 결별(정확한 날짜 미확인)";
+  var PCI = "VLR qpert 기사에서 언급";
+  var C = "C", R = "R";
+
+  // [region, team, name, position, nationality, status, date(serial), confidence, note, source]
+  var PLAYERS = [
+    ["Americas", "(은퇴 · 전 Sentinels)", "TenZ", "", "Canada", "LFT 게시", 46316, C, "2024 은퇴, 현재 T1 콘텐츠 크리에이터. 'LFT 👀' 한 줄만 게시, 팀·지역 미정. 복귀 확정 아님", "inven"],
+    ["Americas", "Cloud9", "Jackk", "Initiator", "United States", "탐색 허가(계약 중)", 46314, C, "C9 비파트너 탈락 후 허가", "jackk"],
+    ["Americas", "Cloud9", "v1c", "", "United States", "탐색 허가", 46314, C, "두 번째 C9 생활 마무리", "v1c"],
+    ["Americas", "Cloud9", "OXY", "Duelist", "United States", "계약 완료(Sentinels)", 46320, R, "C9 3년 만에 이탈, SEN 합류 보도. 계약은 C9 2028까지. 공식 발표 전 (Sheep 10/24 16:30 UTC)", "oxy"],
+    ["Americas", "ENVY", "ion", "", "", "제한적 FA", 46303, C, "", "ion"],
+    ["Americas", "Evil Geniuses", "Paincakes", "", "", "FA(11/2) · 협상 가능", 46315, C, EGN, "pley"],
+    ["Americas", "Evil Geniuses", "supamen", "", "", "FA(11/2) · 협상 가능", 46315, C, EGN, "pley"],
+    ["Americas", "Evil Geniuses", "bao", "", "", "FA(11/2) · 협상 가능", 46315, C, EGN, "pley"],
+    ["Americas", "Evil Geniuses", "dgzin", "", "", "FA(11/2) · 협상 가능", 46315, C, EGN, "pley"],
+    ["Americas", "Evil Geniuses", "zerona", "", "", "FA(11/2) · 협상 가능", 46315, C, EGN, "pley"],
+    ["Americas", "FURIA", "Shyy", "", "Chile", "FA(무제한)", 46315, C, FUR, "shyy"],
+    ["Americas", "FURIA", "basic", "", "Brazil", "FA(무제한)", 46315, C, FUR, "shyy"],
+    ["Americas", "FURIA", "artzin", "", "Brazil", "FA(무제한)", 46315, C, FUR, "shyy"],
+    ["Americas", "FURIA", "koalanoob", "", "", "탐색 허가(제한적 FA)", 46293, C, "시즌 중 탐색 허가", "koala"],
+    ["Americas", "FURIA", "C0M", "", "", "탐색 허가(제한적 FA)", 46293, C, "시즌 중 탐색 허가", "koala"],
+    ["Americas", "KRÜ Esports", "mwzera", "", "", "탐색 허가", 46293, C, "2026 시즌 부진 후", "mwzera"],
+    ["Americas", "M80", "Kyu", "", "", "FA", 46314, C, "M80의 발로란트 존속 불투명", "kyu"],
+    ["Americas", "M80", "Boni", "", "", "팀 이탈", 46314, R, "EGamersWorld가 VLR 이적 로그를 인용", "egw"],
+    ["Americas", "M80", "alvinboy", "", "", "팀 이탈", 46314, R, M80, "log"],
+    ["Americas", "M80", "Spaz", "", "", "팀 이탈", 46314, R, M80, "log"],
+    ["Americas", "MIBR", "tex", "", "", "탐색 허가(비활성 로스터)", 46318, C, "MIBR 전 로스터 비활성화(10/23). 계약은 2026 말 만료(VCT 계약 DB). 기존: 1년 만에 결별", "mibr"],
+    ["Americas", "MIBR", "aspas", "Duelist", "Brazil", "탐색 허가(비활성 로스터)", 46318, C, MIB, "mibr"],
+    ["Americas", "MIBR", "zekken", "Duelist", "United States", "탐색 허가(비활성 로스터)", 46318, C, MIB, "mibr"],
+    ["Americas", "MIBR", "Mazino", "", "", "탐색 허가(비활성 로스터)", 46318, C, MIB, "mibr"],
+    ["Americas", "MIBR", "Verno", "", "", "탐색 허가(비활성 로스터)", 46318, C, MIB, "mibr"],
+    ["Americas", "NRG", "keiko", "Duelist/Flex", "United Kingdom", "제한적 FA", 46317, C, "계약은 2027까지. 전 지역 오픈 여부는 미확인", "keiko"],
+    ["Americas", "Sentinels", "Jerrwin", "", "", "탐색 허가(계약 중)", 46320, R, "2026.3 합류, 계약은 2028까지였으나 탐색 허가. 날짜 불명확: Sheep OXY 기사(10/24)에서 언급되어 그 보도일로 기록", "oxy"],
+    ["Americas", "Shopify Rebellion Black", "zander", "", "", "FA 진입 예정", 46308, C, "1년 후 이탈", "zander"],
+    ["Americas", "Shopify Rebellion Black", "NaturE", "IGL", "", "탐색 허가", 46286, C, "", "nature"],
+
+    ["EMEA", "GIANTX", "neT", "", "United States", "팀 이탈", 46303, R, "GIANTX는 비파트너로 탈락. 제목만 확인", "net"],
+    ["EMEA", "GIANTX", "Jesse", "", "", "팀 이탈", 46303, R, "neT와 함께 이탈 발표", "net"],
+    ["EMEA", "GIANTX", "ara", "", "Romania", "팀 이탈(비활성)", 46319, R, "Liquipedia 이적 로그 10/24 GIANTX 비활성 등재. 기사 원문 미확인·시각 불명확해 24시간 내로 판단. GIANTX는 비파트너 탈락", "liqui"],
+    ["EMEA", "PCIFIC Esports", "qpert", "IGL", "", "FA 탐색", 46305, C, "컨트롤러/플렉스 IGL 희망, 전 지역 이주 가능. PCIFIC은 2026 0-17", "qpert"],
+    ["EMEA", "PCIFIC Esports", "al0rante", "", "", "탐색 허가", 46305, C, PCI, "qpert"],
+    ["EMEA", "PCIFIC Esports", "NINJA", "", "", "탐색 허가", 46305, C, PCI, "qpert"],
+    ["EMEA", "PCIFIC Esports", "waddle", "", "", "탐색 허가", 46305, C, PCI, "qpert"],
+    ["EMEA", "Team Heretics", "Wo0t", "Duelist", "Turkey", "팀 이탈", 46317, C, "3년 만에 결별", "wo0t"],
+    ["EMEA", "Team Heretics", "koshmaras", "", "", "팀 이탈", 46317, C, HER, "wo0t"],
+    ["EMEA", "Team Heretics", "Boo", "", "", "팀 이탈", 46317, C, HER, "wo0t"],
+    ["EMEA", "Team Liquid", "nAts", "IGL / Sentinel", "Russia", "계약 완료(Team Liquid 잔류)", 46319, R, "탐색 허가 후 타 지역 관심 있었으나 불발, 2027 Liquid 잔류 (Sheep 보도 10/23 17:35 UTC, Liquid 공식 발표 전)", "nats"],
+    ["EMEA", "Team Liquid", "trexx", "Initiator (IGL/보조 콜러)", "Russia", "LFT 선언", 46317, C, "계약 11/2 만료, 전 지역 오픈", "trexx"],
+    ["EMEA", "Team Liquid", "purp0", "Duelist", "Russia", "탐색 허가(벤치)", 46283, C, "Champions 직전 GSR에 밀림. 계약은 2027까지. Barça 이적설(Sheep). 이미 LFT가 아닐 수 있음", "purp0"],
+    ["EMEA", "Team Vitality", "Derke", "Duelist", "Finland", "팀 이탈", 46320, C, "Vitality 공식 발표(10/24)로 2년 만에 결별. Champions 2026 준우승. 11/2 이후 협상 가능. 진로 미정", "derke"],
+
+    ["Pacific", "BOOM Esports", "d3ffo", "", "", "LFT", 46312, C, "전 Gambit/M3C, Masters Berlin 우승 경력", "d3ffo"],
+    ["Pacific", "DetonatioN FocusMe", "Meiy", "", "Japan", "계약 완료(Crazy Raccoon)", 46319, R, "DFM 비파트너 탈락. 2022 CR 출신으로 복귀 보도. 공식 발표 전 (Sheep 10/24 13:00 UTC)", "meiy"],
+    ["Pacific", "FULL SENSE", "primmie", "", "Thailand", "팀 이탈", 46318, R, "VLR 이적 로그 10/23 이탈. Kr1stal 영입 보도로 2027 새 팀 탐색 중(Sheep 인용)", "kr1r"],
+    ["Pacific", "Global Esports", "PatMen", "", "", "방출", 46313, C, GLB, "global"],
+    ["Pacific", "Global Esports", "Kr1stal", "", "", "계약 완료(FULL SENSE)", 46319, R, "Global 철수로 방출 후 FULL SENSE 합류 보도(Sheep 10/23), 공식 발표 전. primmie 자리 대체", "kr1s"],
+    ["Pacific", "Global Esports", "Autumn", "", "", "방출", 46313, C, GLB, "global"],
+    ["Pacific", "Global Esports", "xavi8k", "IGL", "Philippines", "FA 선언", 46315, C, "IGL, 전 지역 오픈", "xavi"],
+    ["Pacific", "Global Esports", "UdoTan", "", "South Korea", "계약 완료(Nongshim RedForce)", 46318, R, "Pacific Stage 2 MVP. Nongshim 합류 보도(Sheep 10/23), 공식 발표 전", "udotan"],
+    ["Pacific", "KIWOOM DRX", "MaKo", "IGL", "South Korea", "방출", 46317, C, "2021년부터 VS/DRX 핵심. 11개 국제 대회", "krx"],
+    ["Pacific", "KIWOOM DRX", "BeYN", "", "South Korea", "방출", 46317, C, "2022년부터 DRX", "krx"],
+    ["Pacific", "KIWOOM DRX", "free1ng", "Initiator(Tejo)", "South Korea", "방출", 46317, C, "2025년 합류", "krx"],
+    ["Pacific", "KIWOOM DRX", "HYUNMIN", "Duelist", "South Korea", "방출", 46317, C, "2025년 합류", "krx"],
+    ["Pacific", "Nongshim RedForce", "Dambi", "", "South Korea", "탐색 허가", 46315, C, "Masters Santiago MVP. NS와 대화 중", "dambi"],
+    ["Pacific", "Paper Rex", "d4v41", "", "Malaysia", "LFT 선언", 46319, C, "본인 X 'LFT' 게시(10/24). 2021년부터 PRX. 계약 곧 만료", "prx"],
+    ["Pacific", "Paper Rex", "Jinggg", "Duelist", "Singapore", "계약 만료·타팀 탐색(협상 중)", 46319, R, "계약 2026 만료. PRX와 재계약 협상 중이면서 타팀도 탐색(Sheep). 잔류 가능성 있음", "prx"],
+    ["Pacific", "Rex Regum Qeon", "Xan", "", "", "LFT", 46301, C, "반 시즌 만에 이탈", "xan"],
+    ["Pacific", "RIDDLE ORDER", "JoXJo", "", "South Korea", "팀 이탈", 46314, R, RO, "log"],
+    ["Pacific", "RIDDLE ORDER", "gyen", "", "Japan", "팀 이탈", 46314, R, RO, "log"],
+    ["Pacific", "S8UL", "RvK", "", "India", "팀 이탈", 46314, R, S8, "log"],
+    ["Pacific", "S8UL", "Yuvi", "", "", "팀 이탈", 46314, R, S8, "log"],
+    ["Pacific", "S8UL", "SkRossi", "", "India", "팀 이탈", 46315, R, "VLR 이적 로그 10/20 이탈. S8UL 발로란트 철수 시사", "log"],
+    ["Pacific", "T1", "Meteor", "Sentinel/보조 Duelist", "South Korea", "LFT 선언", 46317, C, "한국·중국·일본 오픈. 계약 11/2 만료", "meteor"],
+    ["Pacific", "T1", "Munchkin", "IGL", "South Korea", "이탈 보도(미확정)", 46316, R, "Sheep 'SOURCES' 보도, T1 공식 확인 전", "munch"],
+    ["Pacific", "T1", "DH", "", "South Korea", "팀 이탈", 46317, C, "VLR 이적 로그 10/22 이탈 등재(Sheep 10/21 보도). 진로 미정", "log"],
+    ["Pacific", "Team Secret", "STYRON", "", "", "팀 이탈", 46315, R, "VLR 이적 로그 10/20 이탈. 진로 미확인", "log"],
+    ["Pacific", "ZETA DIVISION", "Xdll", "", "", "탐색 허가", 46301, C, "2년 만에 결별", "xdll"],
+    ["Pacific", "ZETA DIVISION", "eKo", "", "South Korea", "탐색 허가(FA 선언)", 46320, C, "본인 X 게시로 FA 선언. 2025 스탠드인 출신 풀타임. ZETA는 2027 파트너 유지·로스터 재건", "zeta"],
+    ["Pacific", "ZETA DIVISION", "Syouta", "Controller(보조)/Sentinel", "", "탐색 허가(FA 선언)", 46320, C, "본인 X 게시로 FA 선언. 2025.12 ZETA 복귀", "zeta"],
+    ["Pacific", "ZETA DIVISION", "Absol", "Duelist", "Japan", "탐색 허가(FA 선언)", 46320, C, "본인 X 게시로 FA 선언. 스탠드인 출신 풀타임. Xdll에 이어 ZETA 3번째", "zeta"],
+
+    ["China", "Xi Lai Gaming", "hvoya", "", "", "탐색 허가", 46308, C, "2년 연속 계약 만료", "hvoya"],
+    ["China", "Xi Lai Gaming", "Rarga", "", "", "탐색 허가", 46311, C, "XLG 3시즌 만에", "rarga"],
+    ["China", "Xi Lai Gaming", "NoMan", "", "", "탐색 허가", 46311, C, "Mr. 3K'", "noman"]
+  ];
+
+  // [region, team, name, role, status, date, confidence, note, source]
+  var COACHES = [
+    ["Americas", "Cloud9", "Veer", "헤드 코치", "FA 진입 예정", 46314, C, "", "veer"],
+    ["Americas", "Evil Geniuses", "potter", "헤드 코치", "FA(11/2)", 46315, C, "EG 운영 종료", "pley"],
+    ["Americas", "Evil Geniuses", "Faded", "코치", "계약 완료(Rex Regum Qeon)", 46318, R, "EG 운영 종료 후 RRQ 합류 (Sheep 보도 10/23 14:30 UTC, RRQ 공식 발표 전)", "faded"],
+    ["Americas", "FlyQuest", "quail", "어시스턴트 코치", "팀 이탈", 46314, R, "VLR 이적 로그 10/19 이탈. FlyQuest 비파트너", "log"],
+    ["Americas", "LOUD", "balax", "애널리스트", "LFT", 46317, C, "Champions 우승 합류 후 계약 만료. 어느 지역·직책도 가능", "balax"],
+    ["Americas", "M80", "kaplan", "헤드 코치", "팀 이탈", 46314, R, M80, "log"],
+    ["EMEA", "FUT Esports", "Vlad", "헤드 코치", "탐색 허가", 46310, C, "", "vlad"],
+    ["EMEA", "G2 Esports", "shhhack", "어시스턴트 코치", "팀 이탈(비활성)", 46319, R, "Liquipedia 이적 로그 10/24 Inactive Coach 등재. 시각 불명확해 24시간 내로 판단", "liqui"],
+    ["EMEA", "Gentle Mates", "KUNDIKUNDI", "헤드 코치", "결별", 46317, C, "", "kundi"],
+    ["EMEA", "GIANTX", "pipsoN", "헤드 코치", "팀 이탈", 46314, R, "VLR 이적 로그 10/19 이탈. GIANTX 비파트너", "log"],
+    ["EMEA", "PCIFIC Esports", "thinkii", "코치", "탐색 허가/이탈", 46286, C, "", "qpert"],
+    ["EMEA", "PCIFIC Esports", "ZaeS", "코치", "탐색 허가", 46305, C, "", "qpert"],
+    ["Pacific", "DetonatioN FocusMe", "Vorz", "헤드 코치", "계약 완료(Crazy Raccoon)", 46319, R, "DFM 비파트너 탈락 후 CR 헤드 코치 합류 보도 (Sheep 10/24 12:45 UTC, 공식 발표 전)", "vorz"],
+    ["Pacific", "KIWOOM DRX", "termi", "헤드 코치", "방출", 46317, C, "Vision Strikers 시절부터 조직과 함께", "krx"],
+    ["Pacific", "KIWOOM DRX", "Argency", "코치", "방출", 46317, C, "Vision Strikers 시절부터", "krx"],
+    ["Pacific", "Nongshim RedForce", "Sungmin", "헤드 코치", "LFT", 46315, C, "어시스턴트 코치 자리 희망", "sungmin"],
+    ["Pacific", "Nongshim RedForce", "yoman", "코치", "팀 이탈", 46318, R, "VLR 이적 로그 10/23 이탈", "log"],
+    ["Pacific", "Paper Rex", "Wendler", "어시스턴트 코치", "팀 이탈", 46319, R, "Liquipedia 10/24 이탈 등재(VLR 이적 로그에는 10/31자로 선등재). PRX는 2027 파트너 유지", "log"],
+    ["Pacific", "T1", "CheongGak", "어시스턴트 코치", "팀 이탈", 46317, R, "VLR 이적 로그 10/22 이탈", "log"]
+  ];
+
+  // [region, team, targets, situation, source]
+  var WATCH = [
+    ["Americas", "FURIA / M80 / FlyQuest", "소속 선수", "존속 여부 미정", "egw"],
+    ["Americas", "LYON", "소속 선수 전원", "발로란트 철수 발표. 선수 명단·FA 상태 미확인", "vcttracker"],
+    ["Americas", "NRG", "skuba, brawk", "계약 11/2 만료 (NRG는 파트너 유지)", "keiko"],
+    ["Americas", "s0m·FNS 팀(팀명 미정)", "s0m, FNS(코치), florescent, Marved, Shanks, Subroza", "NA 오픈 예선(11/5~) 참가 슈퍼팀 결성 발표(10/25 KST). 은퇴·휴식 복귀 중심, LFT/FA 아님", "spike"],
+    ["EMEA", "NAVI, Eintracht, FOKUS, KOI, GIANTX", "소속 선수", "파트너십 탈락. 개별 LFT 미확인", "pley"],
+    ["EMEA", "Team Heretics", "benjyfishy, RieNs", "계약 11/2 만료. 연장 또는 이탈", "wo0t"],
+    ["Pacific", "DFM, RIDDLE ORDER, S8UL 등", "소속 선수", "파트너십 탈락. S8UL은 발로란트 철수 시사", "teamsout"],
+    ["Pacific", "Nongshim RedForce", "선수 전원(Dambi 제외 별도 표기)", "계약 11/2 만료. SilKanoN 감독만 2027 계약. 팀은 오픈 예선 참가 예정", "pley"],
+    ["Pacific", "Paper Rex", "Jinggg (d4v41은 LFT 선수 탭에 반영)", "Jinggg: 계약 2026 만료, 재계약 협상과 타팀 탐색(보도). f0rsakeN·something 잔류 보도, invy 2027 계약", "prx"],
+    ["Pacific", "RRQ", "Kushy, monyet", "계약 만료 예정", "outofcontract"],
+    ["Pacific", "T1", "stax, BuZz", "계약 11/2 만료 (진로 미발표)", "meteor"],
+    ["Pacific", "Team Secret", "STYRON, naTz, Sylvan", "계약 2026 만료(Sheep 보도). STYRON은 LFT 선수 탭에 반영", "outofcontract"],
+    ["China", "FunPlus Phoenix, Nova, Titan, Wolves, DRG", "소속 선수", "파트너십 탈락. FPX는 77even 영입, China Threshold 진행 중", "fpx"]
+  ];
+
+  // [region, name, previous team, new team, type, date, confidence, note, source]
+  var TRANSFERS = [
+    ["Americas", "OXY", "Cloud9", "Sentinels", "이적", 46320, R, "C9 비파트너 탈락 후 이탈 보도. Duelist. 공식 발표 전 (Sheep 10/24 16:30 UTC)", "oxy"],
+    ["EMEA", "nAts", "Team Liquid", "Team Liquid", "잔류(재계약)", 46319, R, "탐색 허가 후 잔류. 공식 발표 전 (Sheep 10/23 17:35 UTC)", "nats"],
+    ["Pacific", "Meiy", "DetonatioN FocusMe", "Crazy Raccoon", "이적(복귀)", 46319, R, "DFM 비파트너 탈락. 2022 CR 출신. 공식 발표 전 (Sheep 10/24 13:00 UTC)", "meiy"],
+    ["Pacific", "Kr1stal", "Global Esports", "FULL SENSE", "이적", 46318, R, "Global 철수로 방출 후 합류 보도. 공식 발표 전. primmie 자리 대체. (1부 팀 간 이적만 포함, Champions 2026 종료 10/18 이후)", "kr1s"],
+    ["Pacific", "UdoTan", "Global Esports", "Nongshim RedForce", "이적", 46318, R, "Pacific Stage 2 MVP. 공식 발표 전", "udotan"]
+  ];
+  var TRANSFERS_COACH = [
+    ["Pacific", "Vorz", "DetonatioN FocusMe", "Crazy Raccoon", "이적", 46319, R, "DFM 헤드 코치 → CR 헤드 코치. 공식 발표 전 (Sheep 10/24 12:45 UTC)", "vorz"],
+    ["Pacific", "Faded", "Evil Geniuses", "Rex Regum Qeon", "이적", 46318, R, "Americas→Pacific. 공식 발표 전 (Sheep 10/23 14:30 UTC)", "faded"]
+  ];
+
+  var SCHEDULE = [
+    [46328, "2026 시즌 종료, 대부분의 VCT 계약 만료", "Pley.gg"],
+    [46329, "FA 본격 개시 (Cloud9 발표 기준)", "Pley.gg"],
+    ["11/5–11/8, 11/12–11/15", "Americas(북미)·Europe 오픈 예선 1·2차", "Pley.gg"],
+    ["11/20–12/6", "북미 예선 플레이오프 (11/20–22, 12/1–6)", "Pley.gg"],
+    ["11/26–12/5", "Europe/Türkiye 예선 플레이오프", "Pley.gg"],
+    ["2027-01-14 ~ 02-07", "4개 지역 Kickoff (상파울루·베를린·방콕·항저우)", "Pley.gg"]
+  ];
+
+  var REGION_KO = { Americas: "아메리카", EMEA: "유럽·중동·아프리카", Pacific: "아시아태평양", China: "중국" };
+
+  function toItem(r, kind) {
+    if (kind === "player") return { region: r[0], team: r[1], name: r[2], sub: [r[3], r[4]].filter(Boolean).join(", "), status: r[5], date: r[6], conf: r[7], note: r[8], src: S[r[9]] };
+    if (kind === "coach") return { region: r[0], team: r[1], name: r[2], sub: r[3], status: r[4], date: r[5], conf: r[6], note: r[7], src: S[r[8]] };
+    if (kind === "watch") return { region: r[0], team: r[1], name: r[2], note: r[3], src: S[r[4]] };
+    return { region: r[0], team: r[2], name: r[1], sub: "", status: r[4], next: r[3], moved: true, date: r[5], conf: r[6], note: r[7], src: S[r[8]] };
+  }
+  var P = PLAYERS.map(function (r) { return toItem(r, "player"); });
+  var CO = COACHES.map(function (r) { return toItem(r, "coach"); });
+  var W = WATCH.map(function (r) { return toItem(r, "watch"); });
+  var T1 = TRANSFERS.map(function (r) { return toItem(r, "t"); });
+  var T2 = TRANSFERS_COACH.map(function (r) { return toItem(r, "t"); });
+
+  var TABS = [
+    { id: "players", label: "선수", mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
+    { id: "coaches", label: "코치·스태프", mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
+    { id: "transfers", label: "이적 완료", mode: "entry", size: T1.length + T2.length, hint: "이전 소속 팀 기준으로 묶었습니다.", groups: [{ title: "선수", items: T1 }, { title: "코치·스태프", items: T2 }] },
+    { id: "watch", label: "지켜볼 팀", mode: "watch", size: W.length, hint: "계약 만료나 존속 여부가 정해지지 않은 팀입니다.", groups: [{ items: W }] },
+    { id: "schedule", label: "일정", mode: "schedule", size: SCHEDULE.length },
+    { id: "suggest", label: "건의", mode: "suggest" }
+  ];
+  var STATUS_LABELS = [["all", "전체"], ["open", "구직 중"], ["signed", "새 팀 합류"], ["left", "팀 떠남"]];
+
+  var state = { tab: "players", region: "all", status: "all", q: "" };
+  try {
+    var h = (location.hash || "").replace("#", "");
+    if (TABS.some(function (t) { return t.id === h; })) state.tab = h;
+  } catch (e) {}
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function fmtDate(n) {
+    if (typeof n !== "number") return esc(n);
+    var d = new Date(Date.UTC(1899, 11, 30) + n * 864e5);
+    return (d.getUTCMonth() + 1) + "/" + d.getUTCDate();
+  }
+  function tabById(id) { return TABS.filter(function (t) { return t.id === id; })[0]; }
+
+  // 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남.
+  function pillOf(it) {
+    if (it.moved) return ["signed", /잔류/.test(it.status) ? "잔류" : it.next + " 합류"];
+    var s = it.status;
+    if (/계약 완료/.test(s)) {
+      var m = s.match(/\((.+)\)/);
+      return ["signed", m ? (/잔류/.test(m[1]) ? m[1] : m[1] + " 합류") : "새 팀 합류"];
+    }
+    if (/방출/.test(s)) return ["left", "방출"];
+    if (/이탈|결별/.test(s)) return ["left", "팀 떠남"];
+    return ["open", "구직 중"];
+  }
+  function cls(it) { return pillOf(it)[0]; }
+
+  function srcHTML(s) {
+    return s ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">출처: ' + esc(s[0]) + "</a>" : "";
+  }
+
+  function rowHTML(it, tab) {
+    if (tab.mode === "watch") {
+      return '<li class="row"><div class="main"><span class="name">' + esc(it.team) + '</span></div><p class="detail">대상: ' + esc(it.name) + ". " + esc(it.note) + srcHTML(it.src) + "</p></li>";
+    }
+    var p = pillOf(it);
+    var prefix = "";
+    if (it.sub) prefix += esc(it.sub) + ". ";
+    if (!it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status)) prefix += esc(it.status) + ". ";
+    return '<li class="row"><div class="main"><span class="name">' + esc(it.name) + '</span><span class="team">' + esc(it.team) + "</span></div>" +
+      '<div class="state"><span class="pill ' + p[0] + '">' + esc(p[1]) + "</span>" +
+      (it.conf === "R" ? '<span class="tag">단일 출처</span>' : "") +
+      '<span class="date">' + fmtDate(it.date) + " 보도</span></div>" +
+      '<p class="detail">' + prefix + esc(it.note) + srcHTML(it.src) + "</p></li>";
+  }
+
+  function matches(it, tab) {
+    if (state.region !== "all" && it.region !== state.region) return false;
+    if (tab.status && state.status !== "all" && cls(it) !== state.status) return false;
+    if (state.q) {
+      var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, REGION_KO[it.region]].join(" ").toLowerCase();
+      if (hay.indexOf(state.q.toLowerCase()) < 0) return false;
+    }
+    return true;
+  }
+
+  function regionsHTML(items, tab) {
+    var out = "";
+    REGIONS.forEach(function (reg) {
+      var inReg = items.filter(function (it) { return it.region === reg; });
+      if (!inReg.length) return;
+      out += '<div class="rh"><h2>' + REGION_KO[reg] + '</h2><span class="en">' + reg + '</span><span class="n">' + inReg.length + "건</span></div>";
+      out += '<ul class="list">' + inReg.map(function (it) { return rowHTML(it, tab); }).join("") + "</ul>";
+    });
+    return out;
+  }
+
+  function scheduleHTML() {
+    return '<ul class="list">' + SCHEDULE.map(function (r) {
+      return '<li class="row sch"><span class="when">' + fmtDate(r[0]) + '</span><p class="detail" style="color:var(--ink);font-size:15px">' + esc(r[1]) + " <span style=\"color:var(--mute);font-size:13px\">(" + esc(r[2]) + ")</span></p></li>";
+    }).join("") + "</ul>";
+  }
+
+  var MAIL = "4nhackle@gmail.com";
+
+  function suggestHTML() {
+    return '<form class="sg" id="sg" autocomplete="off">' +
+      '<p class="hint" style="max-width:56ch">잘못된 정보, 빠진 선수나 팀, 바라는 기능을 알려 주세요. 내용을 쓰고 메일 앱에서 보내면 전달됩니다.</p>' +
+      '<label for="sgType">종류<select id="sgType"><option>정보 오류</option><option>빠진 선수·팀</option><option>기능 제안</option><option>기타</option></select></label>' +
+      '<label for="sgText">내용<textarea id="sgText" maxlength="1500" placeholder="선수 이름, 팀, 바로잡을 내용을 적어 주세요."></textarea></label>' +
+      '<label for="sgLink">근거 링크 (선택)<input id="sgLink" type="url" placeholder="https://"></label>' +
+      '<div class="btns"><a class="btn" id="sgSend" href="#" aria-disabled="true">메일 앱으로 보내기</a><button type="button" class="btn alt" id="sgCopy">내용 복사</button></div>' +
+      '<p class="hint" id="sgMsg" role="status"></p>' +
+      '<p class="hint">메일 앱이 열리지 않으면 내용을 복사해 <span class="addr" id="sgAddr">' + MAIL + '</span> 로 보내 주세요. <button type="button" class="linkbtn" id="sgCopyAddr">주소 복사</button></p>' +
+      "</form>";
+  }
+
+  function bindSuggest() {
+    function composed() {
+      var t = $("sgText").value.trim(), l = $("sgLink").value.trim();
+      return {
+        subject: "[VCT 현황 건의] " + $("sgType").value,
+        body: t + (l ? "\n\n근거 링크: " + l : "") + "\n\n(VCT LFT·FA 현황 페이지에서 작성)"
+      };
+    }
+    function sync() {
+      var ok = $("sgText").value.trim().length > 0, a = $("sgSend");
+      a.setAttribute("aria-disabled", ok ? "false" : "true");
+      if (ok) {
+        var c = composed();
+        a.href = "mailto:" + MAIL + "?subject=" + encodeURIComponent(c.subject) + "&body=" + encodeURIComponent(c.body.replace(/\n/g, "\r\n"));
+      } else {
+        a.href = "#";
+      }
+    }
+    function say(m) { $("sgMsg").textContent = m; }
+    function copy(text, okMsg, fallbackEl) {
+      var fail = function () {
+        if (fallbackEl) {
+          try {
+            var r = document.createRange();
+            r.selectNodeContents(fallbackEl);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(r);
+          } catch (e) {}
+        }
+        say("자동 복사가 되지 않았습니다. 선택된 글자를 직접 복사해 주세요.");
+      };
+      try {
+        navigator.clipboard.writeText(text).then(function () { say(okMsg); }, fail);
+      } catch (e) { fail(); }
+    }
+    ["sgType", "sgText", "sgLink"].forEach(function (id) { $(id).addEventListener("input", sync); });
+    $("sgSend").addEventListener("click", function (e) {
+      if (this.getAttribute("aria-disabled") === "true") { e.preventDefault(); return; }
+      say("메일 앱이 열리면 보내기를 눌러 주세요. 보내기를 눌러야 전달됩니다.");
+    });
+    $("sgCopy").addEventListener("click", function () {
+      if (!$("sgText").value.trim()) { say("복사할 내용을 먼저 적어 주세요."); return; }
+      var c = composed();
+      copy(c.subject + "\n\n" + c.body, "내용을 복사했습니다. 메일에 붙여 넣어 보내 주세요.", $("sgText"));
+    });
+    $("sgCopyAddr").addEventListener("click", function () {
+      copy(MAIL, "주소를 복사했습니다.", $("sgAddr"));
+    });
+    $("sg").addEventListener("submit", function (e) { e.preventDefault(); });
+  }
+
+  function renderView() {
+    var tab = tabById(state.tab);
+    var html = "";
+    if (tab.mode === "suggest") {
+      $("view").innerHTML = suggestHTML();
+      bindSuggest();
+      return;
+    }
+    if (tab.mode === "schedule") {
+      html = scheduleHTML();
+    } else {
+      var total = 0;
+      tab.groups.forEach(function (g) {
+        var items = g.items.filter(function (it) { return matches(it, tab); });
+        total += items.length;
+        if (!items.length) return;
+        if (g.title) html += '<h2 class="kind">' + g.title + "</h2>";
+        html += regionsHTML(items, tab);
+      });
+      if (!total) html = '<div class="empty">조건에 맞는 항목이 없습니다. 지역이나 상태를 바꾸거나 검색어를 지워 보세요.</div>';
+      if (tab.hint) html = '<p class="hint">' + tab.hint + "</p>" + html;
+    }
+    $("view").innerHTML = html;
+  }
+
+  function renderChrome() {
+    var tab = tabById(state.tab);
+    $("tabs").innerHTML = TABS.map(function (t) {
+      return '<button type="button" class="tab" data-tab="' + t.id + '" aria-pressed="' + (state.tab === t.id) + '">' + t.label + (t.size != null ? '<span class="n">' + t.size + "</span>" : "") + "</button>";
+    }).join("");
+
+    var sched = tab.mode === "schedule";
+    $("filters").hidden = sched || tab.mode === "suggest";
+    $("summary").hidden = !tab.status;
+    if (tab.status) {
+      var base = tab.groups[0].items;
+      $("summary").innerHTML = STATUS_LABELS.map(function (s) {
+        var n = s[0] === "all" ? base.length : base.filter(function (it) { return cls(it) === s[0]; }).length;
+        return '<button type="button" class="sum ' + s[0] + '" data-status="' + s[0] + '" aria-pressed="' + (state.status === s[0]) + '"><span class="v">' + n + '</span><span class="k">' + s[1] + "</span></button>";
+      }).join("");
+    }
+    $("regions").innerHTML = ["all"].concat(REGIONS).map(function (r) {
+      return '<button type="button" class="chip" data-region="' + r + '" aria-pressed="' + (state.region === r) + '">' + (r === "all" ? "모든 지역" : REGION_KO[r]) + "</button>";
+    }).join("");
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.tab) state.tab = b.dataset.tab;
+    else if (b.dataset.region) state.region = b.dataset.region;
+    else if (b.dataset.status) state.status = b.dataset.status;
+    else return;
+    renderChrome();
+    renderView();
+  });
+  $("q").addEventListener("input", function (e) {
+    state.q = e.target.value.trim();
+    renderView();
+  });
+
+  renderChrome();
+  renderView();
+})();
+</script>
+</body></html>
