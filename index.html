@@ -102,12 +102,13 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
 .sum.signed .v { color: var(--signed-fg); }
 .sum.left .v { color: var(--left-fg); }
 
-.filters { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: end; justify-content: space-between; }
+.filters { display: flex; flex-direction: column; gap: 12px; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: end; }
 .regions { position: relative; display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .chip { background: none; border: 0; border-bottom: 2px solid transparent; padding: 3px 1px; font-size: 14px; color: var(--mute); }
 .chip:hover { color: var(--ink); }
 .chip[aria-pressed="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--ink); }
-.search { flex: 0 1 15rem; min-width: 0; width: 100%; background: transparent; border: 0; border-bottom: 2px solid var(--ink); padding: 4px 2px; font-size: 14px; }
+.search { flex: 0 1 15rem; margin-left: auto; min-width: 0; width: 100%; background: transparent; border: 0; border-bottom: 2px solid var(--ink); padding: 4px 2px; font-size: 14px; }
 .search::placeholder { color: var(--mute); }
 
 .rh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 28px 0 0; padding-bottom: 8px; border-bottom: 3px solid var(--ink); }
@@ -128,9 +129,11 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
 .pill.open { --bg-c: var(--open-bg); --fg-c: var(--open-fg); }
 .pill.signed { --bg-c: var(--signed-bg); --fg-c: var(--signed-fg); }
 .pill.left { --bg-c: var(--left-bg); --fg-c: var(--left-fg); }
+.pill.unknown { --bg-c: var(--bg); --fg-c: var(--ink); outline: 1px dashed var(--ink); }
 .tag { font-size: 12.5px; color: var(--mute); }
 .date { font-size: 13px; color: var(--mute); font-variant-numeric: tabular-nums; }
-.detail { grid-column: 1 / -1; margin: 0; max-width: 70ch; color: var(--mute); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.detail { grid-column: 1 / -1; margin: 0; max-width: 70ch; color: var(--ink); font-size: 14.5px; line-height: 1.65; overflow-wrap: anywhere; }
+.meta { display: block; color: var(--mute); font-size: 13px; }
 .detail a { margin-left: 8px; white-space: nowrap; }
 
 .row.sch { grid-template-columns: 11rem minmax(0, 1fr); }
@@ -155,7 +158,7 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
 .order { display: flex; gap: 4px 16px; }
 .date.new { color: var(--accent); font-weight: 700; }
 .date.new::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: currentColor; vertical-align: 1px; }
-.th { margin: 0; padding: 16px 0 0; border-top: 1px solid var(--line); font-size: 14px; font-weight: 700; color: var(--mute); }
+.th { margin: 0; padding: 18px 0 0; border-top: 1px solid var(--line); font-size: 16px; font-weight: 700; color: var(--ink); }
 .rh + .th { border-top: 0; padding-top: 12px; }
 .th .n { margin-left: 6px; font-weight: 400; font-variant-numeric: tabular-nums; }
 .th + .list > .row:first-child { border-top: 0; padding-top: 2px; }
@@ -179,6 +182,8 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
   .note-lfx { display: list-item; }
   .tabs, .regions { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; }
   .tabs::-webkit-scrollbar, .regions::-webkit-scrollbar { display: none; }
+  /* 오른쪽 끝이 흐려지면 더 있다는 뜻. 끝까지 밀면 32px 여백이 흐린 구간을 채운다. */
+  .tabs, .regions { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
   .tabs { gap: 0 18px; margin-inline: -16px; padding-inline: 16px 32px; }
   .tab, .chip { flex: none; white-space: nowrap; }
   .tab { margin-bottom: 0; }
@@ -186,8 +191,9 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
   .summary { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
   .sum .v { font-size: 1.5rem; }
   .sum .k { font-size: 12.5px; }
-  .filters { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 10px; }
-  .search { flex: none; font-size: 16px; }
+  .filters { gap: 10px; }
+  .bar { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 10px; }
+  .search { flex: none; margin-left: 0; font-size: 16px; }
   .sg select, .sg textarea, .sg input { font-size: 16px; }
   .row { grid-template-columns: minmax(0, 1fr); }
   .state { justify-content: flex-start; text-align: left; }
@@ -210,11 +216,14 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
 
   <div class="filters" id="filters">
     <div class="regions" id="regions" role="group" aria-label="지역"></div>
-    <div class="order" id="order" role="group" aria-label="정렬"></div>
-    <input class="search" id="q" type="search" placeholder="이름이나 팀 검색" aria-label="검색" autocomplete="off">
+    <div class="bar">
+      <div class="order" id="order" role="group" aria-label="정렬"></div>
+      <span class="hint fresh" id="fresh" hidden></span>
+      <input class="search" id="q" type="search" placeholder="이름이나 팀 검색" aria-label="검색" autocomplete="off">
+    </div>
   </div>
 
-  <main id="view"></main>
+  <main><div id="view"></div><div id="sgview" hidden></div></main>
 
   <section class="notes" aria-label="참고">
     <ul>
@@ -556,12 +565,16 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     }
     if (/방출/.test(s)) return ["left", "방출"];
     if (/이탈|결별/.test(s)) return ["left", "팀 떠남"];
-    return ["open", "구직 중"];
+    if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", "구직 중"];
+    return ["unknown", "확인 필요"];
   }
   function cls(it) { return pillOf(it)[0]; }
 
   function srcHTML(s) {
-    return s ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">출처: ' + esc(s[0]) + "</a>" : "";
+    if (!s) return "";
+    return /^https?:\/\//i.test(s[1])
+      ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">출처: ' + esc(s[0]) + "</a>"
+      : " 출처: " + esc(s[0]);
   }
 
   function rowHTML(it, tab, opt) {
@@ -570,12 +583,14 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     }
     var p = pillOf(it);
     var prefix = "";
-    if (it.sub) prefix += esc(it.sub) + ". ";
+    // 시트에서 빈 칸을 "-"로 적은 값은 보여주지 않는다.
+    var meta = (it.sub || "").split(", ").filter(function (x) { return x && x !== "-"; }).join(", ");
+    if (meta) prefix += '<span class="meta">' + esc(meta) + "</span>";
     if (!it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status)) prefix += esc(it.status) + ". ";
     opt = opt || {};
     return '<li class="row"><div class="main"><span class="name">' + esc(it.name) + "</span>" +
       (opt.noTeam ? "" : '<span class="team">' + esc(it.team) + "</span>") +
-      (opt.region ? '<span class="reg">' + REGION_KO[it.region] + "</span>" : "") + "</div>" +
+      (opt.region ? '<span class="reg">' + esc(REGION_KO[it.region] || it.region) + "</span>" : "") + "</div>" +
       '<div class="state"><span class="pill ' + p[0] + '">' + esc(p[1]) + "</span>" +
       (it.conf === "R" ? '<span class="tag">단일 출처</span>' : "") +
       '<span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) ? " " + stampLabel(it) : "") + " 보도</span></div>" +
@@ -586,7 +601,7 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
     if (state.region !== "all" && it.region !== state.region) return false;
     if (tab.status && state.status !== "all" && cls(it) !== state.status) return false;
     if (state.q) {
-      var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, REGION_KO[it.region]].join(" ").toLowerCase();
+      var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, REGION_KO[it.region] || ""].join(" ").toLowerCase();
       if (hay.indexOf(state.q.toLowerCase()) < 0) return false;
     }
     return true;
@@ -594,10 +609,11 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
 
   function regionsHTML(items, tab) {
     var out = "";
-    REGIONS.forEach(function (reg) {
-      var inReg = items.filter(function (it) { return it.region === reg; });
+    // REGIONS 밖의 지역 값은 "기타"로 모아 보여준다.
+    REGIONS.concat("기타").forEach(function (reg) {
+      var inReg = items.filter(function (it) { return (REGIONS.indexOf(it.region) < 0 ? "기타" : it.region) === reg; });
       if (!inReg.length) return;
-      out += '<div class="rh"><h2>' + REGION_KO[reg] + '</h2><span class="en">' + reg + '</span><span class="n">' + inReg.length + "건</span></div>";
+      out += '<div class="rh"><h2>' + esc(REGION_KO[reg] || reg) + '</h2><span class="en">' + (REGION_KO[reg] ? reg : "") + '</span><span class="n">' + inReg.length + "건</span></div>";
       if (tab.mode !== "entry") {
         out += '<ul class="list">' + inReg.map(function (it) { return rowHTML(it, tab); }).join("") + "</ul>";
         return;
@@ -752,6 +768,7 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
       say("");
       fetch("https://api.web3forms.com/submit", {
         method: "POST",
+        signal: AbortSignal.timeout && AbortSignal.timeout(15000),
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ access_key: W3F_KEY, subject: c.subject, from_name: "VCT 현황 페이지", message: c.body, botcheck: "" })
       }).then(function (r) {
@@ -777,9 +794,12 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
   function renderView() {
     var tab = tabById(state.tab);
     var html = "";
+    // 건의 폼은 한 번만 만들어 두고 숨기기만 한다. 탭을 나갔다 와도 쓰던 글이 남는다.
+    $("view").hidden = tab.mode === "suggest";
+    $("sgview").hidden = tab.mode !== "suggest";
+    $("fresh").hidden = true;
     if (tab.mode === "suggest") {
-      $("view").innerHTML = suggestHTML();
-      bindSuggest();
+      if (!$("sg")) { $("sgview").innerHTML = suggestHTML(); bindSuggest(); }
       return;
     }
     if (tab.mode === "schedule") {
@@ -795,7 +815,10 @@ h1 { font-size: clamp(1.6rem, 4.2vw, 2.3rem); font-weight: 700; line-height: 1.2
         html += recent ? recentHTML(items, tab) : regionsHTML(items, tab);
       });
       if (!total) html = '<div class="empty">조건에 맞는 항목이 없습니다. 지역이나 상태를 바꾸거나 검색어를 지워 보세요.</div>';
-      else if (fresh && tab.mode === "entry" && !recent) html = '<p class="hint fresh"><span>최근 사흘 새 소식 <b>' + fresh + '건</b></span><button type="button" class="linkbtn" data-order="recent">최근 소식순으로 보기</button></p>' + html;
+      else if (fresh && tab.mode === "entry" && !recent) {
+        $("fresh").hidden = false;
+        $("fresh").innerHTML = '<span>최근 사흘 새 소식 <b>' + fresh + '건</b></span><button type="button" class="linkbtn" data-order="recent">최근 소식순으로 보기</button>';
+      }
       if (tab.hint) html = '<p class="hint">' + tab.hint + "</p>" + html;
     }
     if (tab.mode === "entry" && state.order === "recent" && total) html = '<p class="hint">날짜별로 최신부터 나열합니다. 같은 날에는 보도 시각이 확인된 소식이 먼저 나오고, 시각을 모르는 소식은 그 아래에 놓습니다.</p>' + html;
