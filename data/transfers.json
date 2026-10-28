@@ -1,14 +1,14 @@
 {
   "players": [
     {"region":"Americas","name":"OXY","from":"Cloud9","to":"Sentinels","type":"이적","date":46320,"conf":"R","note":"C9 비파트너 탈락 후 이탈 보도. Duelist. 공식 발표 전 (Sheep 10/24 16:30 UTC)","src":"s4"},
-    {"region":"Americas","name":"valyn","from":"G2 Esports","to":"Fnatic","type":"이적(Americas→EMEA)","date":46320,"conf":"R","note":"G2 3시즌 후 Fnatic 합류 보도. 공식 발표 전 (Sheep 10/25 15:44 UTC)","src":"s9"},
-    {"region":"EMEA","name":"nAts","from":"Team Liquid","to":"Team Liquid","type":"잔류(재계약)","date":46319,"conf":"R","note":"탐색 허가 후 잔류. 공식 발표 전 (Sheep 10/23 17:35 UTC)","src":"s23"},
-    {"region":"Pacific","name":"Meiy","from":"DetonatioN FocusMe","to":"Crazy Raccoon","type":"이적(복귀)","date":46319,"conf":"R","note":"DFM 비파트너 탈락. 2022 CR 출신. 공식 발표 전 (Sheep 10/24 13:00 UTC)","src":"s29"},
-    {"region":"Pacific","name":"Kr1stal","from":"Global Esports","to":"FULL SENSE","type":"이적","date":46318,"conf":"R","note":"Global 철수로 방출 후 합류 보도. 공식 발표 전. primmie 자리 대체. (1부 팀 간 이적만 포함, Champions 2026 종료 10/18 이후)","src":"s34"},
-    {"region":"Pacific","name":"UdoTan","from":"Global Esports","to":"Nongshim RedForce","type":"이적","date":46318,"conf":"R","note":"Pacific Stage 2 MVP. 공식 발표 전","src":"s36"}
+    {"region":"Americas","name":"valyn","from":"G2 Esports","to":"Fnatic","type":"이적(Americas→EMEA)","date":46323,"conf":"R","note":"G2 3시즌 후 Fnatic 합류 보도. 공식 발표 전 (Sheep 10/25 15:44 UTC) / G2 공식 결별 발표(G2 X 10/27 19:00 UTC, VLR 확인), Fnatic 합류는 미발표","src":"s9"},
+    {"region":"EMEA","name":"nAts","from":"Team Liquid","to":"Team Liquid","type":"잔류(재계약)","date":46319,"conf":"R","note":"탐색 허가 후 잔류. 공식 발표 전 (Sheep 10/23 17:35 UTC)","src":"s26"},
+    {"region":"Pacific","name":"Meiy","from":"DetonatioN FocusMe","to":"Crazy Raccoon","type":"이적(복귀)","date":46319,"conf":"R","note":"DFM 비파트너 탈락. 2022 CR 출신. 공식 발표 전 (Sheep 10/24 13:00 UTC)","src":"s32"},
+    {"region":"Pacific","name":"Kr1stal","from":"Global Esports","to":"FULL SENSE","type":"이적","date":46318,"conf":"R","note":"Global 철수로 방출 후 합류 보도. 공식 발표 전. primmie 자리 대체. (1부 팀 간 이적만 포함, Champions 2026 종료 10/18 이후)","src":"s37"},
+    {"region":"Pacific","name":"UdoTan","from":"Global Esports","to":"Nongshim RedForce","type":"이적","date":46318,"conf":"R","note":"Pacific Stage 2 MVP. 공식 발표 전","src":"s39"}
   ],
   "coaches": [
-    {"region":"Americas","name":"Faded","from":"Evil Geniuses","to":"Rex Regum Qeon","type":"이적","date":46318,"conf":"R","note":"Americas→Pacific. 공식 발표 전 (Sheep 10/23 14:30 UTC)","src":"s51"},
-    {"region":"Pacific","name":"Vorz","from":"DetonatioN FocusMe","to":"Crazy Raccoon","type":"이적","date":46319,"conf":"R","note":"DFM 헤드 코치 → CR 헤드 코치. 공식 발표 전 (Sheep 10/24 12:45 UTC)","src":"s56"}
+    {"region":"Americas","name":"Faded","from":"Evil Geniuses","to":"Rex Regum Qeon","type":"이적","date":46318,"conf":"R","note":"Americas→Pacific. 공식 발표 전 (Sheep 10/23 14:30 UTC)","src":"s54"},
+    {"region":"Pacific","name":"Vorz","from":"DetonatioN FocusMe","to":"Crazy Raccoon","type":"이적","date":46319,"conf":"R","note":"DFM 헤드 코치 → CR 헤드 코치. 공식 발표 전 (Sheep 10/24 12:45 UTC)","src":"s59"}
   ]
 }
