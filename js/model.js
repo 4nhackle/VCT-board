@@ -36,9 +36,10 @@ export function pillOf(it) {
     var m = s.match(/\((.+)\)/);
     return ["signed", m ? (/잔류/.test(m[1]) ? m[1] : m[1] + " 합류") : "새 팀 합류"];
   }
+  // 팀을 떠났어도 새 팀을 찾는 중이면("팀 이탈 · 제한적 FA", "탐색 허가(팀 이탈)") 구직 중으로 본다.
+  if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", "구직 중"];
   if (/방출/.test(s)) return ["left", "방출"];
   if (/이탈|결별/.test(s)) return ["left", "팀 떠남"];
-  if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", "구직 중"];
   return ["unknown", "확인 필요"];
 }
 export function cls(it) { return pillOf(it)[0]; }
