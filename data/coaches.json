@@ -10,6 +10,7 @@
   {"region":"EMEA","team":"Gentle Mates","name":"KUNDIKUNDI","role":"헤드 코치","status":"결별","date":46317,"conf":"C","note":"","src":"s58"},
   {"region":"EMEA","team":"Gentle Mates","name":"Mavera","role":"어시스턴트 코치","status":"결별","date":46321,"conf":"C","note":"KUNDIKUNDI와 함께 코치진 결별. 팀 공식 X 발표(VLR 10/27 원문 확인). 교차 확인: Liquipedia 이적 로그(10/26), ShwN X. (GM X 10/25 18:35 UTC)","src":"s20"},
   {"region":"EMEA","team":"GIANTX","name":"pipsoN","role":"헤드 코치","status":"팀 이탈","date":46314,"conf":"R","note":"VLR 이적 로그 10/19 이탈. GIANTX 비파트너","src":"s14"},
+  {"region":"EMEA","team":"Natus Vincere","name":"ANGE1","role":"헤드 코치","status":"방출(코칭진 전원)","date":46324,"conf":"C","note":"NAVI 공식 X 10/28 로스터 전원 방출 발표(TheSpike 원문 확인). 비파트너 탈락 후 NAVI Junior 집중. ANGE1은 헤드 코치. 11/2 공식 이적 시장 개시 전 협상 가능 (NAVI X 10/28 15:14 UTC)","src":"s74"},
   {"region":"EMEA","team":"PCIFIC Esports","name":"thinkii","role":"코치","status":"탐색 허가/이탈","date":46286,"conf":"C","note":"","src":"s24"},
   {"region":"EMEA","team":"PCIFIC Esports","name":"ZaeS","role":"코치","status":"탐색 허가","date":46305,"conf":"C","note":"","src":"s24"},
   {"region":"EMEA","team":"Team Vitality","name":"PAL","role":"헤드 코치","status":"LFT(계약 중)","date":46322,"conf":"C","note":"Vitality 결별 발표 후 본인 'LFT' 게시(Bo3.gg 인용): 계약은 남았으나 새 기회 탐색, Champions 2026 준우승 직후. 교차 확인: VLR·Liquipedia 이적 로그(10/26), Bo3.gg. Vitality는 2027 파트너 유지 (RocketBullets X 10/26 17:04 UTC)","src":"s14"},
@@ -21,5 +22,6 @@
   {"region":"Pacific","team":"Nongshim RedForce","name":"yoman","role":"코치","status":"LFT","date":46320,"conf":"C","note":"본인 X 발표(VLR 10/25). 1년 코치 생활 후 LFT, 선수 복귀도 열어둠(30세)","src":"s62"},
   {"region":"Pacific","team":"Paper Rex","name":"Wendler","role":"어시스턴트 코치","status":"탐색 허가(팀 이탈)","date":46320,"conf":"C","note":"본인 X 발표(VLR 10/25 원문 확인): 약 1년 후 PRX 이탈. VLR 이적 로그에는 10/31자 선등재. PRX는 2027 파트너 유지","src":"s63"},
   {"region":"Pacific","team":"T1","name":"CheongGak","role":"어시스턴트 코치","status":"팀 이탈","date":46317,"conf":"R","note":"VLR 이적 로그 10/22 이탈","src":"s14"},
-  {"region":"China","team":"Dragon Ranger Gaming","name":"Alti","role":"퍼포먼스 코치","status":"팀 이탈(비활성)","date":46321,"conf":"R","note":"Liquipedia 이적 로그 10/26 단독 등재(퍼포먼스 코치, 비활성 처리). 팀·본인 발표 미확인","src":"s64"}
+  {"region":"China","team":"Dragon Ranger Gaming","name":"Alti","role":"퍼포먼스 코치","status":"팀 이탈(비활성)","date":46321,"conf":"R","note":"Liquipedia 이적 로그 10/26 단독 등재(퍼포먼스 코치, 비활성 처리). 팀·본인 발표 미확인","src":"s64"},
+  {"region":"China","team":"Wolves Esports","name":"alexRr","role":"헤드 코치","status":"팀 이탈","date":46323,"conf":"R","note":"VLR 이적 로그 10/28 이탈 등재(VLR 프로필: 2026.5 합류, 10월 이탈). 팀·본인 발표 미확인","src":"s14"}
 ]
