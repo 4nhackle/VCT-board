@@ -54,5 +54,25 @@
   - 인물: 충돌 없음. 한 임시 ID 에 서로 다른 이름 표기가 묶이거나 선수·코치가 섞인 경우 0건, 같은 파일 안에서 같은 ID 가 두 행 이상인 경우(동명이인 후보) 0건.
   - 팀 `leviatan`: "Leviatán" 과 "LEVIATÁN" 이 묶인다. 같은 팀이므로 의도대로다.
   - 팀 `sentinels`: players 의 TenZ 행 팀 칸 "(은퇴 · 전 Sentinels)" 이 한글·기호가 빠지며 Sentinels 와 같은 ID 가 된다. 그래서 임시 ID 로는 TenZ 소식이 Sentinels 팀 소식에 섞인다. 설계(slugOf 규칙)를 바꾸지 않고 그대로 두었다. 시트에 teamId 가 채워지면 해결된다. 3회차 팀 상세(S3-01) 전까지 데이터가 그대로면 다시 판단한다.
+- (1회차, dev-server) 설계노트 S1-10 은 `<base href="/">` 로 적었지만, 1회차 지시문과 S3-04(배포 404.html)에 맞춰 `/VCT-board/` 경로로 서비스하고 `<base href="/VCT-board/">` 를 넣는다. 배포의 404.html 처럼 응답 상태는 404 로 둔다. 노드 스크립트 문체는 기존 scripts/validate.mjs(const·화살표 함수)를 따랐다.
+- (1회차, S1-01) people·teams 가 없으면 브라우저가 네트워크 404 를 콘솔에 "Failed to load resource" 로 남긴다. 이는 브라우저 자체 기록이라 코드로 막을 수 없다. 앱 코드는 console.error 를 남기지 않는다. 파일은 있으나 JSON 이 깨졌거나 배열이 아니면 빈 배열로 둔다.
+- (1회차, S1-04) go(url) 은 pushState 후 popstate 이벤트를 직접 보내, main.js 가 뒤로·앞으로와 같은 renderRoute 로 다시 그린다(state.js 가 main.js 의 render 를 알 필요가 없게). parseRoute 는 p/·t/ 아래인데 id 가 ID_RE 에 맞지 않거나(디코딩 실패 포함) 경로가 더 깊거나 id 가 없으면 {view: "notfound"} 를 돌려준다. 상세 화면의 document.title 변경은 S1-07(2회차) 몫이라 이번에는 바꾸지 않았다.
+- (1회차, git) 이 PC 에 git 사용자 정보가 없어서, 저장소 기존 커밋과 같은 `4nhackle <347648258+4nhackle@users.noreply.github.com>` 을 이 저장소에만(local config) 설정했다.
+
+## 1회차 기록 (2026-10-31)
+- 완료: S0-02, S1-01, S1-02, S1-03, S1-04, scripts/dev-server.mjs
+- 변경 파일: js/main.js, js/model.js, js/state.js, scripts/dev-server.mjs(신규), docs/PROGRESS.md(신규)
+- 확인(직접 실행):
+  - node 단위: slugOf(악센트 "Leviatán"→leviatan, 연속 공백 "luk   xo"→luk-xo, 한자 "王者"·기호 "★☆"·한글·빈 값→"x-"+해시이고 ID_RE 통과), ID_RE(허용·거부 예), buildIndex(OXY 가 players·transfers 양쪽 소식으로 묶임, toItem 기존 필드 불변·pid/tid 만 추가, 소식 148행 전부 인덱스에 들어감, personId·teamId·teamIds 우선 사용, 빈 데이터), parseRoute(목록 / 인물 / 팀 / 끝 슬래시 없음 / 잘못된 ID·깨진 % 인코딩·깊은 경로 / 루트 "/" 배포) 모두 통과.
+  - V-01: 기준 캡처 14장(.png + DOM)과 dev-server(/VCT-board/) 캡처, python http.server(/) 캡처 모두 바이트 단위로 같음. people.json 을 깨진 JSON, teams.json 을 정상 배열로 둔 임시 사이트도 같음. 필터·검색·정렬·탭·뒤로/앞으로 16단계 조작 결과 DOM 이 main 코드와 같음.
+  - BASE: / 에서 "/", /VCT-board/ 에서 "/VCT-board/" (브라우저에서 확인).
+  - dev-server 로 /VCT-board/p/test/ 직접 진입 시 임시 화면 표시(상태 404), 탭·요약·필터·참고 숨김. 브라우저에서 import("/VCT-board/js/state.js") 의 go() 로 목록→p/oxy/→t/cloud9/ 이동 후 뒤로 3번·앞으로 3번이 순서대로 동작, 목록 복귀 시 탭 복원, pageerror 없음.
+- 확인 도구는 저장소 밖(%TEMP%\vct-check: capture.mjs, compare.mjs, interact.mjs, route.mjs, unit-*.mjs)에 있다. 저장소에 package.json·node_modules·캡처를 남기지 않았다.
 
 ## 다음 회차에 알릴 점
+- 상세 임시 화면은 js/main.js renderRoute() 의 `TEMP` 주석 자리다. S1-07·S1-08 에서 실제 화면으로 바꾼다. 상세 진입 시 document.title 변경도 그때 한다.
+- renderRoute() 는 상세일 때 #tabs·#summary·#filters·#fresh·#sgview·.notes 를 숨기고, 목록으로 돌아오면 #tabs·.notes 를 되살린 뒤 renderChrome·renderView 가 나머지를 정한다. 목록 → 목록(같은 탭) 이동은 기존처럼 다시 그리지 않는다. 상세 → 목록은 같은 탭이어도 다시 그린다. 스크롤 복원(S1-05)은 아직 없다.
+- 데이터는 아직 `fetch("data/...")` 상대 경로다. 처음 로드 때만 쓰므로 지금은 문제없다(직접 진입은 dev-server·404.html 의 base 가 맞춰 준다). 상세 화면에서 다시 불러올 일이 생기면 BASE 를 붙인다.
+- buildIndex 는 아직 main.js 에서 호출하지 않는다. 2회차 상세 화면에서 데이터 로드 뒤 한 번 만들어 쓴다.
+- 임시 팀 ID `sentinels` 충돌(TenZ 행)은 위 "결정·변경" 참고.
+- docs/ 의 docx 4개와 지시문 .md 파일들은 커밋하지 않았다(S4-02).
