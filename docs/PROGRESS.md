@@ -46,7 +46,7 @@
 
 ## 결정·변경
 - (1회차) pandoc 이 설치돼 있지 않아 docx 는 python(zipfile + XML)으로 본문을 추출해 읽었다. 문서 내용에는 영향 없음.
-- (1회차, S0-02) 기준 캡처는 `python -m http.server` 로 저장소 루트(/)를 열어 Playwright 로 찍었다. 위치: 저장소 밖 /tmp/vct-baseline/ (Windows: %TEMP%\vct-baseline). 탭 6개 + 선수 탭 최근 소식순, 폭 390·1280, 각 .png 와 .page DOM(.html).
+- (1회차, S0-02) 기준 캡처는 `python -m http.server` 로 저장소 루트(/)를 열어 Playwright 로 찍었다. 위치: 저장소 밖 $TEMP/vct-baseline. 탭 6개 + 선수 탭 최근 소식순, 폭 390·1280, 각 .png 와 .page DOM(.html).
 - (1회차, S0-02) 폭 390 에서 탭·지역 줄의 가운데 맞춤(scrollLeft)이 폰트 로드 시점에 따라 흔들려, 같은 코드끼리도 캡처가 달라졌다. 비교용 캡처는 찍기 직전 #tabs·#regions 의 scrollLeft 를 0 으로 고정한다(캡처 스크립트만의 처리, 사이트 코드는 그대로).
 - (1회차, S1-03) slugOf 가 S1-02 에 필요해 S1-03 을 S1-02 보다 먼저 했다(S1-03 의 선행은 S0-02 뿐이라 체크리스트 순서와 충돌 없음). 해시는 FNV-1a 32비트를 36진수로 쓴다.
 - (1회차, S1-02) buildIndex 의 kind 는 toItem 의 kind 그대로("player", "coach", "t", "watch")다. watch 행은 인물 ID 가 없고 item.tids(배열)만 붙인다. 이적 행의 from·to 가 같은 팀이면 byTeam 에 한 번만 넣는다.
@@ -109,8 +109,8 @@
 
 ## 샘플 사이트로 시험하는 법
 ```bash
-node scripts/fixture-site.mjs C:/Users/KDB/AppData/Local/Temp/vct-fixture
-node scripts/dev-server.mjs 8705 C:/Users/KDB/AppData/Local/Temp/vct-fixture
+node scripts/fixture-site.mjs "$TEMP/vct-fixture"
+node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
 ```
 열기: http://127.0.0.1:8705/VCT-board/p/fx-one/ (fx-two, fx-three, fx-four, fx-five, fx-coach 도 있다). 시험이 끝나면 임시 폴더를 지운다. fixture-site.mjs 는 저장소 안 폴더를 거부한다. 샘플 기대값은 기준일 2026-10-31(46326) 에 맞춰 두었다. 날짜가 바뀌면 나이·계약 상태 값이 달라진다(함수는 today 를 받으므로 node 단위 확인은 날짜를 넣어 다시 할 수 있다).
 
@@ -171,11 +171,46 @@ node scripts/dev-server.mjs 8705 C:/Users/KDB/AppData/Local/Temp/vct-fixture
 - 참고: validate 에 people.json 이 생기면 people 행 없는 인물마다 경고가 쏟아진다(깨진 샘플에서 140건). 경고는 종료 코드에 영향 없음. 5회차 S4-03 의 시트 인물 탭 추가 때 경고가 정상적으로 줄어야 한다.
 - 참고: Actions 로그에 "ubuntu-latest 라벨이 2026-10-19 부터 Ubuntu 26 으로 옮겨진다"는 경고가 나왔다. 배포에는 아직 영향이 없지만, 문제가 생기면 runs-on 을 고정 버전으로 바꾼다.
 
-## 5회차에 넘길 것
-- S3-06: 사용자가 Settings → Pages → Source 를 GitHub Actions 로 바꾼다(워크플로 병합 직후).
-- V-09 실제 Actions 확인(테스트 브랜치 test/broken-data). gh 가 있으면 이 세션에서도 할 수 있다.
-- 위의 concurrency 위험(다른 브랜치 push 가 main 배포를 취소할 수 있음)을 결정.
-- 404 대체의 미리보기 한계(설계노트 S3-04 주의)를 사용자에게 알린다.
+## 5-1회차 검토 수정 (병합 전 외부 검토 반영)
+결과 요약: R-01~R-09 모두 고쳤다. 재현은 각 항목에서 확인했고, R-01 만 재현을 실행하지 않았다(아래).
+
+- R-01 출력 폴더 보호 (scripts/out-dir.mjs 신규, build.mjs, fixture-site.mjs): 저장소 루트, 저장소의 상위 폴더, 저장소 안 폴더를 거부한다. 단 build 의 저장소 안 _site 만 예외다. 비어 있지 않은 폴더는 표시 파일 `.vct-build-output` 이 있을 때만 지운다. 표시 파일은 폴더를 만들 때 항상 쓴다. 기본 출력은 저장소 안 `_site`.
+  - 확인: 판정 함수 시험 10가지(루트·상위·안쪽·_site 예외·드라이브 루트·대소문자), 표시 파일 없는 폴더는 던지고 파일 유지, 표시 파일 있는 폴더는 지우고 같은 폴더 재실행 정상. 모두 내가 만든 임시 폴더에서 했다.
+  - 재현 미실행: 인자로 `js` 나 `..` 를 넘기는 실제 명령은 실행하지 않았다. 권한 거부(자동 승인 정책)로 막혔다. 그 명령은 저장소 상위 폴더를 지울 수 있는 것이었다. 대신 판정 함수와 시험으로 확인했다. 명령 단위 확인은 사용자가 원하면 임시 저장소 사본에서 따로 한다.
+- R-02 경력 날짜: person.js 의 career.from·to 출력에 esc 적용. validate 는 yyyy-mm(월 01~12)을 오류로 검사하고, to 는 null 허용.
+  - 재현: 수정 전 샘플(career.from = `<img src=x onerror=alert(1)>`)은 img 요소가 생기고 대화상자가 떴다. 수정 후 글자로만 보이고 대화상자 0, img 0.
+  - validate: `<img…>`, `2023-13`, `2023-3`, `2023` 은 모두 오류 종료 1. `to=null` 은 정상(종료 0).
+  - innerHTML 점검 목록(R-02 추가 항목): js/views, js/components, js/main.js, js/format.js 의 HTML 조립 지점을 훑었다. 데이터 값이 esc 없이 들어간 곳은 career.from·to 뿐이었다. main.js 의 g.title·t.label·t.id·t.size 는 코드에 적힌 고정값이라 제외. href 는 esc + http(s) 검사 유지.
+- R-03 상속 속성 이름 (model.js, main.js): buildIndex 의 people·teams·byPerson·byTeam 과 REGION_KO·TIER_KO 를 Object.create(null) 로 만들었다. 출처 조회(toItem)와 validate 의 출처 키 검사는 자기 속성만 본다(own, hasOwnProperty).
+  - 재현: 수정 전 이름 constructor 인 행에서 `map[id].indexOf is not a function` 로 buildIndex 가 멈췄다. 수정 후 목록·인물 상세(constructor, toString) 정상, 콘솔 오류 없음.
+- R-04 시작 전 경력: careerOf(p, today) 가 current(끝 없음, 시작 달이 오늘 이전이거나 같음)와 upcoming(끝 없음, 시작이 이후)을 나눈다. 예정 칸은 로스터에 넣지 않고, 인물 경력 타임라인에 "예정" 으로 보인다.
+  - 확인: 기준일 2026-10-31 에서 2026-09, 2026-10 은 current, 2026-11 은 upcoming. 끝난 칸은 둘 다 아님. 화면 확인: fx-beta 로스터에서 예정 인물 제외, fx-one 경력에 "예정" 표시.
+- R-05 teamIds 가 문자열일 때: idsOf 가 tids 를 항상 배열로 만든다. validate 는 "teamIds 는 배열이어야 합니다"를 오류로 낸다(ID 형식 오류가 아니다. 문자열 "fx-alpha" 자체는 ID 형식이 맞다). 확인: 목록 지켜볼 팀 행 1개 정상, 오류 0, validate 오류 1(종료 1).
+- R-06 단위 시험 scripts/test.mjs(node:assert, 13개): ageOf(생일 전날·당일·다음날, 연도만), contractState(어제·오늘·내일·미공개), careerOf(경계 달, 순서), slugOf, ID_RE, parseRoute, buildIndex(이중 소식, toItem 불변, 빈 이름, 상속 이름, teamIds 문자열), teamMoves(예정 제외), out-dir 판정. 모든 날짜는 기준일 인자로 고정. pages.yml 의 build job 에서 validate 앞에 실행한다(Actions 실행은 아래 확인).
+- R-07 dev-server 서비스 범위: index.html, 404.html, sitemap.xml, og.png 와 css/, js/, data/, p/, t/ 아래만. 확인: .git/config, scripts/validate.mjs, docs/PROGRESS.md, `js/../.git/config`(인코딩된 경로 포함)는 404. 빌드 산출물 폴더에서도 sitemap·404·css 는 200.
+- R-08 정리: hashTab(state.js)과 stampOf import(person.js) 제거. 인물·팀 화면이 함께 쓰던 val, TAB_NAME, nameLink, 소식 줄 함수를 js/views/common.js 로 옮겼다. 변경 전후 상세 화면 HTML 11쪽(인물 7, 팀 4)을 바이트 단위로 비교해 같음을 확인했다. 단, 날짜가 없는 소식 줄은 이전에 인물 화면이 앞에 " · " 를 붙이던 것을 팀 화면 방식(빈 칸 건너뜀)으로 맞췄다. 날짜 있는 데이터에서는 결과가 같다.
+- R-09 워크플로·빌드: runs-on 을 ubuntu-24.04 로 고정(두 job). 산출물 업로드 단계는 main 에서만 실행(검증과 빌드는 모든 브랜치). build.mjs 는 people 또는 teams 가 없으면 "경고  상세 정적 페이지 0개(people/teams 없음)" 한 줄을 내고 계속한다. validate 경고가 10건을 넘으면 파일·종류별 개수와 앞 5건만 낸다(시험: 140건 → 종류 5개 + 5건).
+
+고치지 않은 것과 이유:
+- js/main.js 분리: 검토 의견이지만 이번 지시대로 하지 않았다.
+- 현재 데이터의 정적 상세 페이지 0개: 설계상 알려진 한계다. 빌드를 실패시키면 배포가 막히므로 경고 한 줄만 낸다.
+
+확인 결과 (5-1회차, 직접 실행):
+- node scripts/test.mjs: 13개 통과.
+- validate (현재 data/): 오류 0, 경고 9(1회차와 같음). validate (샘플 fixtures): 오류 0, 경고 1(FX SIX 의 people 행 없음, 의도된 경고).
+- build (현재 data/, 임시 폴더): 인물 0쪽, 팀 0쪽, 경고 한 줄, 오류 없음. build (샘플, 임시 폴더): 인물 6쪽, 팀 4쪽, sitemap 11개.
+- V-01 (목록, 빌드 산출물 서비스): watch 이름 2장만 픽셀 차이(2회차와 같음).
+- V-02·V-03·V-04 (현재 data/, 빌드 산출물): 통과. 페이지 오류 없음.
+- V-05·V-06·V-10 (샘플, 빌드 산출물): 통과. 팀 카드 6장 일치, 팀↔인물 이동·뒤로 정상, 임시 ID(/p/fx-six/)는 404 상태로 열리고 인물 상세가 보인다.
+- 원격 Actions: 아래 확인 결과 참고(push 후 기록).
+
+## 남은 일 (병합 이후)
+- S4-01 병합: PR https://github.com/4nhackle/VCT-board/pull/2 (feature/detail-pages → main). 병합 시각과 방식은 사용자가 정한다. 예약 작업 시각(08:50, 09:35 KST, 11/2~11/16 의 14:50·15:35·20:50·21:35 KST) 앞뒤 30분은 피한다.
+- S3-06: 사용자가 Settings → Pages → Source 를 GitHub Actions 로 바꾼다. 병합 직후 deploy 단계가 실패할 수 있다(기존 사이트는 유지). 바꾼 뒤 `gh workflow run pages.yml --ref main` 으로 첫 배포를 한다.
+- 실제 사이트 확인: V-01~V-04, V-10(임시 ID 404 대체 포함). V-05~V-07 은 샘플 결과로 갈음. V-08 은 people 데이터가 생긴 뒤에만 가능하다.
+- S4-02: docx 4개와 최종 PROGRESS 를 작은 PR 로 커밋(사용자 승인 후). 웹 반영 예약 작업의 수정 금지 범위에 docs/ 를 넣는다.
+- S4-03: 시트에 인물·팀 탭 추가와 기존 인원 채우기, 예약 작업 4개 지시문 변경(예약 작업 변경 설계서 8장 2~4번). 이번 구현 범위 밖.
+- 알려진 제한 안내: 정적 페이지가 없는 상세 주소는 HTTP 404 로 열리고, 공유 미리보기는 people 데이터가 생긴 뒤에만 선수 이름으로 나온다(설계노트 S3-04 주의).
 
 ## 다음 회차에 알릴 점
 - renderRoute() 는 상세일 때 #tabs·#summary·#filters·#fresh·#sgview·.notes 를 숨기고, 목록으로 돌아오면 #tabs·.notes 를 되살린 뒤 renderChrome·renderView 가 나머지를 정한다. 목록 → 목록(같은 탭) 이동은 기존처럼 다시 그리지 않는다. 상세 → 목록은 같은 탭이어도 다시 그린다.  스크롤 복원은 2회차 S1-05 에서 추가했다(목록 항목의 history.state).
