@@ -1,9 +1,14 @@
-// data/*.json 점검: 출처 키, 지역 값, 중복, 쓰이지 않는 출처. 실행: node scripts/validate.mjs
+// data/*.json 점검: 출처 키, 지역 값, 중복, 쓰이지 않는 출처. people·teams 가 있으면 인물·팀 참조와 형식도 본다.
+// 실행: node scripts/validate.mjs [데이터 폴더, 기본 data/]
 import fs from "node:fs";
-import { REGIONS, toItem, pillOf } from "../js/model.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { REGIONS, toItem, pillOf, idsOf, ID_RE } from "../js/model.js";
 import { stampOf } from "../js/format.js";
 
-const read = (f) => JSON.parse(fs.readFileSync(new URL("../data/" + f + ".json", import.meta.url), "utf8"));
+const dir = process.argv[2] ? path.resolve(process.argv[2]) : fileURLToPath(new URL("../data/", import.meta.url));
+const has = (f) => fs.existsSync(path.join(dir, f + ".json"));
+const read = (f) => JSON.parse(fs.readFileSync(path.join(dir, f + ".json"), "utf8"));
 const sources = read("sources");
 const transfers = read("transfers");
 const sets = {
@@ -44,7 +49,88 @@ for (const [file, rows] of Object.entries(sets)) {
 
 for (const key of Object.keys(sources)) if (!used.has(key)) warns.push(`sources.${key}: 어디에서도 쓰이지 않습니다`);
 
+// ── 인물·팀 (people.json, teams.json 이 있을 때만 점검한다)
+const hasPeople = has("people"), hasTeams = has("teams");
+const people = hasPeople ? read("people") : [];
+const teams = hasTeams ? read("teams") : [];
+const pIds = new Set(), tIds = new Set();
+
+// 생년: "yyyy" 또는 실제 있는 "yyyy-mm-dd" 만 허용한다.
+function validBirth(s) {
+  if (/^\d{4}$/.test(s)) return true;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (!m) return false;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
+}
+
+function checkDefs(label, rows, set) {
+  rows.forEach((r, i) => {
+    const at = `${label}[${i}] ${r.id || ""}`;
+    if (!ID_RE.test(String(r.id || ""))) errors.push(`${at}: ID 형식이 맞지 않습니다 (^[a-z0-9-]+$)`);
+    if (set.has(r.id)) errors.push(`${at}: ID "${r.id}" 이(가) ${label}.json 안에서 중복입니다`);
+    else set.add(r.id);
+  });
+}
+if (hasTeams) checkDefs("teams", teams, tIds);
+if (hasPeople) checkDefs("people", people, pIds);
+
+// 참조 값: 형식은 항상, 존재 여부는 그 파일이 있을 때만 본다.
+function ref(at, field, value, set, label) {
+  if (!ID_RE.test(String(value))) errors.push(`${at}: ${field} "${value}" 의 ID 형식이 맞지 않습니다`);
+  else if (set && !set.has(value)) errors.push(`${at}: ${field} "${value}" 이(가) ${label}.json 에 없습니다`);
+}
+for (const [file, rows] of Object.entries(sets)) {
+  rows.forEach((r, i) => {
+    const at = `${file}[${i}] ${r.name || r.team || ""}`;
+    if (r.personId !== undefined) ref(at, "personId", r.personId, hasPeople && pIds, "people");
+    if (file === "watch") {
+      if (r.teamIds !== undefined && !Array.isArray(r.teamIds)) errors.push(`${at}: teamIds 는 배열이어야 합니다`);
+      for (const t of [].concat(r.teamIds || [])) ref(at, "teamIds", t, hasTeams && tIds, "teams");
+    } else {
+      for (const f of ["teamId", "fromTeam", "toTeam"]) if (r[f] !== undefined) ref(at, f, r[f], hasTeams && tIds, "teams");
+    }
+    if (r.contractUntil !== undefined && typeof r.contractUntil !== "number") errors.push(`${at}: contractUntil 은 시트 일련번호(숫자)여야 합니다`);
+    if (r.signedDate !== undefined && typeof r.signedDate !== "number") errors.push(`${at}: signedDate 는 시트 일련번호(숫자)여야 합니다`);
+  });
+}
+
+if (hasPeople) {
+  people.forEach((p) => {
+    const at = `people ${p.id}`;
+    if (p.birth !== undefined && !validBirth(String(p.birth))) errors.push(`${at}: birth "${p.birth}" 은(는) yyyy 또는 yyyy-mm-dd 여야 합니다`);
+    if (p.contractUntil !== undefined && typeof p.contractUntil !== "number") errors.push(`${at}: contractUntil 은 시트 일련번호(숫자)여야 합니다`);
+    for (const c of p.career || []) {
+      if (hasTeams && !tIds.has(c.team)) errors.push(`${at}: career.team "${c.team}" 이(가) teams.json 에 없습니다`);
+      else if (!ID_RE.test(String(c.team))) errors.push(`${at}: career.team "${c.team}" 의 ID 형식이 맞지 않습니다`);
+    }
+    // 경력 기간 겹침: 시작 순으로 보고, 앞 칸이 끝나기 전에 다음 칸이 시작하면 경고.
+    const c = [...(p.career || [])].sort((a, b) => ((a.from || "") < (b.from || "") ? -1 : 1));
+    for (let i = 1; i < c.length; i++) {
+      const prev = c[i - 1];
+      if (prev.to == null || c[i].from <= prev.to) warns.push(`${at}: career 기간이 겹칩니다 (${prev.from}~${prev.to ?? "현재"} · ${c[i].from}~)`);
+    }
+  });
+
+  // 소식에 나오는 인물이 people 에 없거나 국적·역할이 빈 칸이면 경고한다.
+  const seenPid = new Map();
+  for (const [file, rows] of Object.entries(sets)) {
+    if (file === "watch") continue;
+    rows.forEach((r, i) => {
+      const pid = idsOf(r, kindOf[file]).pid;
+      if (!seenPid.has(pid)) seenPid.set(pid, `${file}[${i}] ${r.name || ""}`);
+    });
+  }
+  for (const [pid, at] of seenPid) {
+    const p = people.find((x) => x.id === pid);
+    if (!p) warns.push(`${at}: 인물 "${pid}" 의 people 행이 없습니다`);
+    else if (!String(p.nationality || "").trim() || p.nationality === "-" || !String(p.role || "").trim() || p.role === "-") warns.push(`people ${pid}: 국적 또는 역할이 빈 칸입니다`);
+  }
+}
+
 warns.forEach((w) => console.warn("경고  " + w));
 errors.forEach((e) => console.error("오류  " + e));
-console.log(`출처 ${Object.keys(sources).length}개, 행 ${Object.values(sets).reduce((n, r) => n + r.length, 0)}개 점검: 오류 ${errors.length}, 경고 ${warns.length}`);
+const count = Object.values(sets).reduce((n, r) => n + r.length, 0);
+const extra = hasPeople || hasTeams ? `, 인물 ${people.length}명, 팀 ${teams.length}개` : "";
+console.log(`출처 ${Object.keys(sources).length}개, 행 ${count}개${extra} 점검: 오류 ${errors.length}, 경고 ${warns.length}`);
 process.exit(errors.length ? 1 : 0);
