@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 # 같은 브랜치의 연속 push 는 마지막 것만 남긴다. 브랜치마다 그룹이 달라, 다른 브랜치 push 가 main 배포를 취소하지 않는다.
 concurrency:
@@ -41,6 +39,10 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-24.04
+    # 배포에 필요한 권한은 이 job 에만 준다.
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
