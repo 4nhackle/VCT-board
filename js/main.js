@@ -1,6 +1,6 @@
-import { isNew } from "./format.js";
+import { isNew, esc } from "./format.js";
 import { REGIONS, REGION_KO, buildTabs, matches, cls } from "./model.js";
-import { state, saveOrder, hashTab, pushTab } from "./state.js";
+import { state, saveOrder, pushTab, BASE, parseRoute } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
 import { scheduleHTML } from "./views/schedule.js";
@@ -92,16 +92,31 @@ document.addEventListener("click", function (e) {
   if (tabChanged) pushTab();
 });
 
-function fromHash() {
-  var h = hashTab() || "players";
-  if (h !== state.tab && tabById(h)) {
-    state.tab = h;
+// 주소에 맞춰 목록이나 상세를 그린다. 처음 열 때, go(), 뒤로·앞으로, #탭 변경이 모두 이 길로 온다.
+var VIEW = "";
+function renderRoute() {
+  if (!TABS.length) return;
+  var r = parseRoute(location, BASE), notes = document.querySelector(".notes");
+  if (r.view === "list") {
+    var h = r.tab || "players";
+    // 목록 안에서 같은 탭이면 다시 그리지 않는다(기존 동작).
+    if (VIEW === "list" && (h === state.tab || !tabById(h))) return;
+    if (tabById(h)) state.tab = h;
+    $("tabs").hidden = false;
+    if (notes) notes.hidden = false;
     renderChrome();
     renderView();
+  } else {
+    ["tabs", "summary", "filters", "fresh", "sgview"].forEach(function (id) { $(id).hidden = true; });
+    if (notes) notes.hidden = true;
+    $("view").hidden = false;
+    // TEMP: 임시 화면. 2회차 S1-07·S1-08 에서 실제 상세 화면으로 바꾼다.
+    $("view").innerHTML = '<div class="empty">' + (r.view === "notfound" ? "찾을 수 없는 주소입니다" : "상세 화면 준비 중: " + esc(r.view) + "·" + esc(r.id)) + "</div>";
   }
+  VIEW = r.view;
 }
-window.addEventListener("hashchange", fromHash);
-window.addEventListener("popstate", fromHash);
+window.addEventListener("hashchange", renderRoute);
+window.addEventListener("popstate", renderRoute);
 $("q").addEventListener("input", function (e) {
   state.q = e.target.value.trim();
   renderView();
@@ -120,9 +135,7 @@ Promise.all(FILES.map(load).concat(OPTIONAL.map(function (f) {
   FILES.concat(OPTIONAL).forEach(function (f, i) { D[f] = all[i]; });
   OPTIONAL.forEach(function (f) { if (!Array.isArray(D[f])) D[f] = []; });
   TABS = buildTabs(D);
-  if (tabById(hashTab())) state.tab = hashTab();
-  renderChrome();
-  renderView();
+  renderRoute();
 }).catch(function () {
   $("view").innerHTML = '<div class="empty">데이터를 불러오지 못했습니다. 잠시 뒤 다시 열어 보세요.</div>';
 });
