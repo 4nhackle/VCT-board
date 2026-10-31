@@ -9,6 +9,8 @@ import { fileURLToPath } from "node:url";
 const PREFIX = "/VCT-board/";
 const port = Number(process.argv[2] || 8080);
 const root = path.resolve(process.argv[3] || fileURLToPath(new URL("..", import.meta.url)));
+// 서비스하는 것: 루트 index.html·404.html·sitemap.xml·og.png 와 css/, js/, data/, p/, t/ 아래. 그 밖은 404.
+const SERVED = /^(|index\.html|404\.html|sitemap\.xml|og\.png|(css|js|data|p|t)(\/.*)?)$/;
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".png": "image/png", ".svg": "image/svg+xml", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon" };
 
 function send(res, code, body, type, extra) {
@@ -25,6 +27,9 @@ http.createServer((req, res) => {
   const file = path.join(root, p.slice(PREFIX.length));
   // 폴더 밖으로 나가는 경로(../)는 막는다.
   if (file !== root && !file.startsWith(root + path.sep)) return send(res, 403, "forbidden");
+  // 배포 사이트에 올라가는 것만 서비스한다(.git, scripts, docs 등은 404).
+  const rel = path.relative(root, file).split(path.sep).join("/");
+  if (!SERVED.test(rel)) return send(res, 404, "not found");
   let st = null;
   try { st = fs.statSync(file); } catch (e) {}
   if (st && st.isDirectory()) {
