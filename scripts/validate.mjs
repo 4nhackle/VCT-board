@@ -111,6 +111,8 @@ if (hasPeople) {
       // 기간은 yyyy-mm(월 01~12). 끝이 없으면(null) 진행 중이다. 화면에 그대로 나가므로 형식을 엄격히 본다.
       if (!YM.test(String(c.from || ""))) errors.push(`${at}: career.from "${c.from}" 은(는) yyyy-mm 이어야 합니다`);
       if (c.to != null && !YM.test(String(c.to))) errors.push(`${at}: career.to "${c.to}" 은(는) yyyy-mm 또는 null 이어야 합니다`);
+      // 끝이 시작보다 앞서면 안 된다(yyyy-mm 은 글자 순서가 날짜 순서와 같다).
+      if (YM.test(String(c.from || "")) && YM.test(String(c.to || "")) && String(c.to) < String(c.from)) errors.push(`${at}: career.to "${c.to}" 은(는) from 보다 앞설 수 없습니다`);
     }
     // 경력 기간 겹침: 시작 순으로 보고, 앞 칸이 끝나기 전에 다음 칸이 시작하면 경고.
     const c = [...(p.career || [])].sort((a, b) => ((a.from || "") < (b.from || "") ? -1 : 1));
