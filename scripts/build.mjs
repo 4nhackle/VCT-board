@@ -26,6 +26,10 @@ const D = {
   people: read("people", []), teams: read("teams", [])
 };
 for (const r of [...D.people, ...D.teams]) if (!ID_RE.test(String(r.id))) throw new Error("ID 형식이 맞지 않습니다: " + r.id);
+// 상세 페이지를 만들 파일이 없으면 한 줄 알린다. 설계상 정상 상태라 빌드는 실패시키지 않는다.
+if (!fs.existsSync(path.join(ROOT, "data", "people.json")) || !fs.existsSync(path.join(ROOT, "data", "teams.json"))) {
+  console.warn("경고  상세 정적 페이지 0개(people/teams 없음)");
+}
 const IDX = buildIndex(D);
 
 // ── 설명문과 제목: 화면과 같은 규칙(pillOf, newestFirst)을 쓴다

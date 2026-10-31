@@ -21,6 +21,8 @@ const sets = {
 const kindOf = { players: "player", coaches: "coach", "transfers.players": "t", "transfers.coaches": "t" };
 
 const errors = [], warns = [], used = new Set();
+// 경고는 어디서(where)·무엇(kind)·문장(text)으로 모은다. 많으면 종류별 개수만 보여 준다.
+const warn = (where, kind, text) => warns.push({ where, kind, text });
 
 for (const [key, [label, url]] of Object.entries(sources)) {
   if (!label) errors.push(`sources.${key}: 이름이 비었습니다`);
@@ -34,12 +36,12 @@ for (const [file, rows] of Object.entries(sets)) {
     if (!REGIONS.includes(r.region)) errors.push(`${at}: 지역 "${r.region}" 이(가) REGIONS에 없습니다`);
     if (!Object.prototype.hasOwnProperty.call(sources, r.src)) errors.push(`${at}: 출처 키 "${r.src}" 이(가) sources.json에 없습니다`);
     else used.add(r.src);
-    if ("date" in r && typeof r.date !== "number") warns.push(`${at}: 날짜가 숫자(시트 일련번호)가 아닙니다`);
+    if ("date" in r && typeof r.date !== "number") warn(file, "날짜 형식", `${at}: 날짜가 숫자(시트 일련번호)가 아닙니다`);
     if ("conf" in r && !["C", "R"].includes(r.conf)) errors.push(`${at}: conf "${r.conf}" 은(는) C나 R이어야 합니다`);
     if (kindOf[file]) {
       const it = toItem(r, kindOf[file], sources);
-      if (pillOf(it)[0] === "unknown") warns.push(`${at}: 상태 "${it.status}" 을(를) 화면이 읽지 못해 "확인 필요"로 나옵니다`);
-      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warns.push(`${at}: 비고의 보도 시각이 날짜 칸과 맞지 않아 화면에서 빠집니다`);
+      if (pillOf(it)[0] === "unknown") warn(file, "상태 읽기", `${at}: 상태 "${it.status}" 을(를) 화면이 읽지 못해 "확인 필요"로 나옵니다`);
+      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각이 날짜 칸과 맞지 않아 화면에서 빠집니다`);
     }
     const id = [r.team, r.name, r.targets].join("|").toLowerCase();
     if (seen.has(id)) errors.push(`${at}: ${seen.get(id)}번째 행과 중복입니다`);
@@ -47,7 +49,7 @@ for (const [file, rows] of Object.entries(sets)) {
   });
 }
 
-for (const key of Object.keys(sources)) if (!used.has(key)) warns.push(`sources.${key}: 어디에서도 쓰이지 않습니다`);
+for (const key of Object.keys(sources)) if (!used.has(key)) warn("sources", "쓰이지 않음", `sources.${key}: 어디에서도 쓰이지 않습니다`);
 
 // ── 인물·팀 (people.json, teams.json 이 있을 때만 점검한다)
 const hasPeople = has("people"), hasTeams = has("teams");
@@ -114,7 +116,7 @@ if (hasPeople) {
     const c = [...(p.career || [])].sort((a, b) => ((a.from || "") < (b.from || "") ? -1 : 1));
     for (let i = 1; i < c.length; i++) {
       const prev = c[i - 1];
-      if (prev.to == null || c[i].from <= prev.to) warns.push(`${at}: career 기간이 겹칩니다 (${prev.from}~${prev.to ?? "현재"} · ${c[i].from}~)`);
+      if (prev.to == null || c[i].from <= prev.to) warn("people", "경력 겹침", `${at}: career 기간이 겹칩니다 (${prev.from}~${prev.to ?? "현재"} · ${c[i].from}~)`);
     }
   });
 
@@ -129,12 +131,21 @@ if (hasPeople) {
   }
   for (const [pid, at] of seenPid) {
     const p = people.find((x) => x.id === pid);
-    if (!p) warns.push(`${at}: 인물 "${pid}" 의 people 행이 없습니다`);
-    else if (!String(p.nationality || "").trim() || p.nationality === "-" || !String(p.role || "").trim() || p.role === "-") warns.push(`people ${pid}: 국적 또는 역할이 빈 칸입니다`);
+    if (!p) warn("news", "인물 행 없음", `${at}: 인물 "${pid}" 의 people 행이 없습니다`);
+    else if (!String(p.nationality || "").trim() || p.nationality === "-" || !String(p.role || "").trim() || p.role === "-") warn("people", "국적·역할 빈 칸", `people ${pid}: 국적 또는 역할이 빈 칸입니다`);
   }
 }
 
-warns.forEach((w) => console.warn("경고  " + w));
+if (warns.length <= 10) {
+  warns.forEach((w) => console.warn("경고  " + w.text));
+} else {
+  // 같은 종류가 많으면 파일·종류별 개수와 앞의 5건만 보여 준다.
+  const groups = new Map();
+  for (const w of warns) { const k = w.where + " · " + w.kind; groups.set(k, (groups.get(k) || 0) + 1); }
+  for (const [k, n] of groups) console.warn("경고  " + k + ": " + n + "건");
+  warns.slice(0, 5).forEach((w) => console.warn("경고  " + w.text));
+  console.warn("경고  … 외 " + (warns.length - 5) + "건");
+}
 errors.forEach((e) => console.error("오류  " + e));
 const count = Object.values(sets).reduce((n, r) => n + r.length, 0);
 const extra = hasPeople || hasTeams ? `, 인물 ${people.length}명, 팀 ${teams.length}개` : "";

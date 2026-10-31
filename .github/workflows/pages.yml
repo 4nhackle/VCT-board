@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,7 +30,9 @@ jobs:
         run: node scripts/validate.mjs
       - name: 정적 페이지 빌드
         run: node scripts/build.mjs _site
-      - uses: actions/upload-pages-artifact@v3
+      # 배포용 산출물은 main 에서만 올린다. 다른 브랜치는 검증과 빌드까지만 한다.
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
@@ -38,7 +40,7 @@ jobs:
     # main 에서만 배포한다.
     if: github.ref == 'refs/heads/main'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
