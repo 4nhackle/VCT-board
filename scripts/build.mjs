@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { esc, isoOf, TODAY } from "../js/format.js";
 import { buildIndex, pillOf, teamMoves, teamNameOf, newestFirst, REGION_KO, ID_RE } from "../js/model.js";
+import { prepareOut } from "./out-dir.mjs";
 
 // 배포 경로와 주소. 이 파일에서 이 두 곳만 고치면 된다.
 const SITE_PATH = "/VCT-board/";
@@ -12,8 +13,8 @@ const SITE_ORIGIN = "https://4nhackle.github.io";
 const TITLE_SUFFIX = " · VCT LFT·FA 현황";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
-const OUT = path.resolve(process.argv[2] || "_site");
-if (OUT === ROOT.slice(0, -1) || ROOT.startsWith(OUT + path.sep)) { console.error("출력 폴더가 저장소 루트를 포함합니다: " + OUT); process.exit(2); }
+// 인자 없이 실행하면 저장소 안의 _site 를 쓴다. 인자 경로는 실행한 폴더 기준이다.
+const OUT = process.argv[2] ? path.resolve(process.argv[2]) : path.join(ROOT, "_site");
 
 const read = (f, fallback) => {
   const p = path.join(ROOT, "data", f + ".json");
@@ -70,8 +71,7 @@ function page(o) {
 const urlOf = (rel) => SITE_ORIGIN + SITE_PATH + rel;
 
 // ── 출력 폴더: 사이트 파일 복사
-fs.rmSync(OUT, { recursive: true, force: true });
-fs.mkdirSync(OUT, { recursive: true });
+try { prepareOut(OUT, ROOT, { allowSite: true }); } catch (e) { console.error(e.message); process.exit(2); }
 fs.copyFileSync(path.join(ROOT, "index.html"), path.join(OUT, "index.html"));
 fs.copyFileSync(path.join(ROOT, "og.png"), path.join(OUT, "og.png"));
 for (const d of ["css", "js", "data"]) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
