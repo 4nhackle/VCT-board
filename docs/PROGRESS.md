@@ -158,6 +158,19 @@ node scripts/dev-server.mjs 8705 C:/Users/KDB/AppData/Local/Temp/vct-fixture
 - (요청 2, V-09) 4회차의 로컬 대체 확인을 원격으로 했다(아래 확인 결과).
 - (요청 3) '다음 회차에 알릴 점'에서 팀 상세 임시 화면 메모를 지웠다(3회차 S3-01 에서 이미 실제 화면으로 바꿨다).
 
+## 5회차 확인 결과 (병합 전 점검, 직접 실행)
+- validate (현재 data/): 오류 0, 경고 9. 1회차와 같다.
+- validate (샘플 scripts/fixtures): 오류 0, 경고 1(FX SIX 의 people 행 없음, 의도된 경고).
+- build (현재 data/, 임시 폴더): 인물 0쪽, 팀 0쪽, sitemap 1개, 오류 없음. 404.html·sitemap.xml 생성.
+- build (샘플, 임시 폴더): 인물 6쪽, 팀 4쪽, sitemap 11개.
+- V-01 (목록, 빌드 산출물 서비스): 14장 중 watch 이름 2장만 픽셀 차이(2회차와 같음).
+- V-02·V-03·V-04 (현재 data/, 빌드 산출물): 통과(s1-10). 페이지 오류 없음.
+- V-08 (샘플 _site): p/fx-one/index.html 과 t/fx-alpha/index.html 의 title·og:title·og:description·canonical 확인. 실제 data/ 는 people 이 없어 정적 상세 페이지 0개(실제 사이트에서 V-08 은 확인할 수 없음, 예약 작업 전환 후).
+- V-10 (샘플 _site): 팀 직접 진입, 팀↔인물 이동, 뒤로 동작, 임시 ID(/p/fx-six/)는 HTTP 404 로 열리고 앱이 상세를 그림. 없는 ID 는 "찾을 수 없는 선수입니다".
+- V-09 (원격, gh 사용): test/broken-data 브랜치에 깨진 data/people.json(birth "2001-13-01") 을 push → Actions run 41201157811. 결과: build job 의 "데이터 검증" 단계 failure, "정적 페이지 빌드"·upload 단계 skipped, deploy job skipped(conclusion skipped). 확인 뒤 원격·로컬 브랜치 삭제 완료.
+- 참고: validate 에 people.json 이 생기면 people 행 없는 인물마다 경고가 쏟아진다(깨진 샘플에서 140건). 경고는 종료 코드에 영향 없음. 5회차 S4-03 의 시트 인물 탭 추가 때 경고가 정상적으로 줄어야 한다.
+- 참고: Actions 로그에 "ubuntu-latest 라벨이 2026-10-19 부터 Ubuntu 26 으로 옮겨진다"는 경고가 나왔다. 배포에는 아직 영향이 없지만, 문제가 생기면 runs-on 을 고정 버전으로 바꾼다.
+
 ## 5회차에 넘길 것
 - S3-06: 사용자가 Settings → Pages → Source 를 GitHub Actions 로 바꾼다(워크플로 병합 직후).
 - V-09 실제 Actions 확인(테스트 브랜치 test/broken-data). gh 가 있으면 이 세션에서도 할 수 있다.
