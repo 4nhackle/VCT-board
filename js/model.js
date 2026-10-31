@@ -132,7 +132,7 @@ export var TIER_KO = Object.assign(Object.create(null), { partner: "파트너 �
 
 // 팀 화면용: 현재 로스터(진행 중 경력 칸이 이 팀인 인물), 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
 // 인물은 한 번만 넣는다(가장 최근 소식 기준). 반환 인물 목록은 같은 규칙으로 정렬한다.
-export function teamMoves(id, IDX) {
+export function teamMoves(id, IDX, today) {
   var news = (IDX.byTeam[id] || []).slice().sort(newestFirst), seenIn = {}, seenOut = {}, incoming = [], outgoing = [];
   news.forEach(function (e) {
     var pid = e.item.pid;
@@ -141,7 +141,7 @@ export function teamMoves(id, IDX) {
     if (((e.kind === "t" && e.item.tidFrom === id) || (e.kind !== "t" && e.item.tid === id)) && !seenOut[pid]) { seenOut[pid] = true; outgoing.push(e); }
   });
   var roster = Object.keys(IDX.people).map(function (k) { return IDX.people[k]; }).filter(function (p) {
-    return careerOf(p).some(function (c) { return c.current && c.team === id; });
+    return careerOf(p, today).some(function (c) { return c.current && c.team === id; });
   }).sort(function (a, b) {
     var ca = a.kind === "coach" ? 1 : 0, cb = b.kind === "coach" ? 1 : 0;
     if (ca !== cb) return ca - cb;

@@ -23,6 +23,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: 단위 시험
+        run: node scripts/test.mjs
       # 검증이 실패하면 이 단계에서 멈추고, 뒤의 단계(빌드·배포)는 실행되지 않는다.
       - name: 데이터 검증
         run: node scripts/validate.mjs
