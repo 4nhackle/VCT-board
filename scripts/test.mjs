@@ -1,9 +1,14 @@
 // 단위 시험: 날짜 계산, ID, 주소 읽기, 인덱스, 팀 로스터. node:assert 만 쓴다.
 // 실행: node scripts/test.mjs  (실패하면 종료 코드 1). 날짜는 모두 기준일을 인자로 고정해서, 실행하는 날과 무관하다.
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem } from "../js/model.js";
 import { parseRoute } from "../js/state.js";
-import { refuseReason } from "./out-dir.mjs";
+import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 
 const T = 46326; // 2026-10-31 (KST)
 let n = 0;
@@ -99,6 +104,56 @@ t("out-dir: 저장소 루트·상위·안쪽 폴더 거부, _site 만 예외(R-0
   assert.equal(refuseReason(R + "/..", R), "저장소의 상위 폴더");
   assert.equal(refuseReason(R + "/_site", R, { allowSite: true }), null);
   assert.equal(refuseReason(R + "/_site", R), "저장소 안의 폴더");
+});
+
+t("teamMoves: 이름이 constructor·toString 인 인물도 들어온·나간 집계에 한 번씩 들어감(R-03, Set)", () => {
+  const tr = (name, from, to) => ({ region: "Americas", name, from, to, type: "이적", date: 46320, conf: "C", src: "s", fromTeam: from, toTeam: to });
+  const D = { sources: SRC, players: [], coaches: [], transfers: { players: [tr("constructor", "t1", "t2"), tr("toString", "t2", "t1"), tr("constructor", "t1", "t2")], coaches: [] }, watch: [] };
+  const m = teamMoves("t2", buildIndex(D), T);
+  assert.deepEqual(m.incoming.map(e => e.item.pid), ["constructor"]); // 같은 인물 두 번은 한 번만
+  assert.deepEqual(m.outgoing.map(e => e.item.pid), ["tostring"]);
+  assert.equal(teamMoves("t1", buildIndex(D), T).outgoing.length, 1);
+});
+
+const VALIDATE = fileURLToPath(new URL("./validate.mjs", import.meta.url));
+const FIX = fileURLToPath(new URL("./fixtures", import.meta.url));
+const tmp = (name) => fs.mkdtempSync(path.join(os.tmpdir(), "vct-test-" + name + "-"));
+t("validate: career 의 to 가 from 보다 앞서면 오류 종료 1(이전 검토 요청 3)", () => {
+  const dir = tmp("career");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const people = JSON.parse(fs.readFileSync(path.join(dir, "people.json"), "utf8"));
+  people[0].career[0] = { team: "fx-alpha", from: "2026-10", to: "2025-01" };
+  fs.writeFileSync(path.join(dir, "people.json"), JSON.stringify(people));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /career\.to "2025-01" 은\(는\) from 보다 앞설 수 없습니다/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+t("validate: 정상 경력(시작과 끝이 같은 달 포함)은 통과", () => {
+  const dir = tmp("ok");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const people = JSON.parse(fs.readFileSync(path.join(dir, "people.json"), "utf8"));
+  people[0].career[0] = { team: "fx-alpha", from: "2026-10", to: "2026-10" };
+  fs.writeFileSync(path.join(dir, "people.json"), JSON.stringify(people));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("out-dir 실제 동작: 표시 파일 없는 폴더는 그대로 남고, 표시 파일 있는 폴더만 비워짐(임시 폴더에서만)", () => {
+  const root = tmp("root"); // 저장소가 아닌 임시 폴더를 기준으로 삼는다
+  const noMark = tmp("nomark"), withMark = tmp("withmark");
+  fs.writeFileSync(path.join(noMark, "keep.txt"), "keep");
+  assert.throws(() => prepareOut(noMark, root), /표시 파일이 없어/);
+  assert.equal(fs.readFileSync(path.join(noMark, "keep.txt"), "utf8"), "keep");
+  fs.writeFileSync(path.join(withMark, MARK), "x");
+  fs.writeFileSync(path.join(withMark, "old.html"), "old");
+  prepareOut(withMark, root);
+  assert.ok(!fs.existsSync(path.join(withMark, "old.html")));
+  assert.ok(fs.existsSync(path.join(withMark, MARK)));
+  prepareOut(withMark, root); // 같은 폴더 재실행은 정상
+  assert.ok(fs.existsSync(path.join(withMark, MARK)));
+  for (const d of [root, noMark, withMark]) fs.rmSync(d, { recursive: true, force: true });
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
