@@ -26,7 +26,8 @@ export function toItem(r, kind, S) {
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
 export function buildTabs(D) {
-  function items(rows, kind) { return rows.map(function (r) { return toItem(r, kind, D.sources); }); }
+  // 화면 항목에도 인물·팀 ID 를 붙여, 목록 행을 상세 링크로 만들 수 있게 한다.
+  function items(rows, kind) { return rows.map(function (r) { return Object.assign(toItem(r, kind, D.sources), idsOf(r, kind)); }); }
   var P = items(D.players, "player"), CO = items(D.coaches, "coach"), W = items(D.watch, "watch");
   var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
   var PK = P.filter(function (it) { return /South Korea/.test(it.sub); });
@@ -42,6 +43,25 @@ export function buildTabs(D) {
   ];
 }
 
+// 행의 인물·팀 ID. 시트에 personId·teamId 등이 있으면 그것을, 없으면 이름에서 임시 ID(slugOf)를 만든다.
+// 이적 행의 tid 는 이전 팀(tidFrom)이다. 목록의 팀 링크가 이전 팀을 가리키기 때문이다.
+export function idsOf(r, kind) {
+  function tidOf(id, name) { return id || (name ? slugOf(name) : ""); }
+  if (kind === "watch") {
+    // 한 행에 팀이 여럿일 수 있다("FURIA / M80 / FlyQuest").
+    return { tids: r.teamIds || String(r.team || "").split(" / ").filter(Boolean).map(slugOf) };
+  }
+  var o = { pid: r.personId || slugOf(r.name) };
+  if (kind === "t") {
+    o.tidFrom = tidOf(r.fromTeam, r.from);
+    o.tidTo = tidOf(r.toTeam, r.to);
+    o.tid = o.tidFrom;
+  } else {
+    o.tid = tidOf(r.teamId, r.team);
+  }
+  return o;
+}
+
 // 인물·팀별 소식 모음. 탭과 상관없이 한 사람·한 팀의 행을 모은다.
 // 반환: { people: {id → 인물}, teams: {id → 팀}, byPerson: {id → [{kind, row, item}]}, byTeam: {id → [...]} }
 // ID 가 없는 행은 이름으로 만든 임시 ID(slugOf)로 묶는다. item 은 toItem() 결과에 pid·tid(이적은 tidFrom·tidTo, watch 는 tids)만 붙인다.
@@ -51,26 +71,12 @@ export function buildIndex(D) {
   (D.people || []).forEach(function (p) { IDX.people[p.id] = p; });
   (D.teams || []).forEach(function (t) { IDX.teams[t.id] = t; });
   function add(map, id, e) { if (map[id]) { if (map[id].indexOf(e) < 0) map[id].push(e); } else map[id] = [e]; }
-  function tidOf(id, name) { return id || (name ? slugOf(name) : ""); }
   function each(rows, kind) {
     (rows || []).forEach(function (r) {
-      var it = toItem(r, kind, S), e = { kind: kind, row: r, item: it }, tids;
-      if (kind === "watch") {
-        // 한 행에 팀이 여럿일 수 있다("FURIA / M80 / FlyQuest").
-        it.tids = r.teamIds || String(r.team || "").split(" / ").filter(Boolean).map(slugOf);
-        tids = it.tids;
-      } else {
-        it.pid = r.personId || slugOf(r.name);
-        add(IDX.byPerson, it.pid, e);
-        if (kind === "t") {
-          it.tidFrom = tidOf(r.fromTeam, r.from);
-          it.tidTo = tidOf(r.toTeam, r.to);
-          tids = [it.tidFrom, it.tidTo];
-        } else {
-          it.tid = tidOf(r.teamId, r.team);
-          tids = [it.tid];
-        }
-      }
+      var it = toItem(r, kind, S), e = { kind: kind, row: r, item: it }, ids = idsOf(r, kind);
+      Object.assign(it, ids);
+      if (kind !== "watch") add(IDX.byPerson, ids.pid, e);
+      var tids = kind === "watch" ? ids.tids : kind === "t" ? [ids.tidFrom, ids.tidTo] : [ids.tid];
       tids.forEach(function (id) { if (id) add(IDX.byTeam, id, e); });
     });
   }
