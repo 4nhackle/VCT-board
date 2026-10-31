@@ -31,13 +31,13 @@
 - [x] S2-08 2단계 완료 확인
 
 ### 3단계: 팀 상세·정적 페이지·배포 (S3)
-- [ ] S3-01 팀 상세
-- [ ] S3-02 정적 페이지 생성
-- [ ] S3-03 사이트맵
-- [ ] S3-04 404 대체 진입점
-- [ ] S3-05 배포 워크플로
+- [x] S3-01 팀 상세
+- [x] S3-02 정적 페이지 생성
+- [x] S3-03 사이트맵
+- [x] S3-04 404 대체 진입점
+- [x] S3-05 배포 워크플로
 - [ ] S3-06 Pages 배포 방식 변경
-- [ ] S3-07 3단계 완료 확인
+- [x] S3-07 3단계 완료 확인
 
 ### 마무리 (S4)
 - [ ] S4-01 main 병합과 배포
@@ -123,6 +123,41 @@ node scripts/dev-server.mjs 8705 C:/Users/KDB/AppData/Local/Temp/vct-fixture
 - V-01~V-04 (현재 data/): s1-10 스크립트 다시 실행, 모두 통과(상세 진입·뒤로·스크롤·Ctrl/가운데 클릭·출처 링크). 임의 5명 상세 오류 없음. 목록 V-01 픽셀 비교: 2회차와 같다.
 - 캡처: 샘플 FX ONE 360 라이트, 1280 다크를 찍어 육안 확인(줄바꿈·경력 점·팀 카드 정상). 다크 모드 값은 변수만 써서 대응(육안 확인은 1280 다크만).
 - 확인하지 못한 것: 실제 people.json·teams.json 이 없어서 실데이터에서 새 필드 화면은 보지 못했다. 설계상 4회차(build)와 팀 상세(3단계)는 이번 범위가 아니다.
+
+## 4회차 결정·변경 (2026-10-31)
+- (요청 1, idsOf) 이름이 빈 행은 인물 ID 를 만들지 않는다(pid ""). 그래서 byPerson 에 들어가지 않고 목록의 이름 링크도 없다(글자만). validate 의 인물 점검도 빈 ID 는 건너뛴다. 팀 ID 도 이름이 없으면 만들지 않는다(기존 동작).
+- (요청 2, slugOf) 결합 문자 범위를 소스에 ̀-ͯ 이스케이프로 적었다. 이전에는 실제 결합 문자가 소스에 들어 있었다(같은 범위, 표기만 다름). 동작은 같다: Leviatán→leviatan, Ñandú→nandu.
+- (요청 3, .gitignore) 저장소 루트 .gitignore 에 `_site/`(빌드 산출물)와 `.impeccable/`(디자인 점검 도구 설정)을 넣었다. .impeccable/ 은 커밋하지 않았다.
+- (S3-01) 팀 상세: 현재 로스터 = 진행 중 경력 칸이 이 팀인 인물(선수 먼저, 코치 다음). 들어온 인물 = 이적의 toTeam. 나간 인물 = 이적의 fromTeam 과, 이 팀 소속으로 나온 LFT·FA 행(인물당 가장 최근 소식 하나). 들어온·나간 구역은 비면 숨긴다. 로스터가 비면 "로스터 정보는 정리 중입니다." 로 대신한다. 관련 소식은 watch 포함, 지켜볼 팀 줄은 대상과 메모를 보여 준다.
+- (S3-01) teamMoves·newestFirst·TIER_KO·teamNameOf 를 model.js 로 옮겼다(화면과 build 가 같은 규칙을 쓰도록). teamNameOf 는 teams.json 이 없을 때 소식 행의 이름(이적은 이전 팀 쪽)을 쓴다.
+- (S3-02) build.mjs 는 SITE_PATH("/VCT-board/")와 SITE_ORIGIN 을 파일 맨 위 상수 두 곳에만 둔다. <base href> 는 p/·t/·404.html 에만 넣고, 루트 index.html 은 원본 그대로 복사한다. 설명문은 설계서 6.1 대로 model.js 의 pillOf·newestFirst 로 만든다(이적 "보도|확정"은 signedDate 유무).
+- (S3-02) build.mjs 는 OUT 이 저장소 루트를 포함하면 거부한다. 샘플 사이트를 만들 때는 fixture-site.mjs 가 build.mjs 를 함께 복사하고, 그 사본에서 실행한다(data/ 를 샘플로 바꾼 사본).
+- (S3-03) sitemap.xml 의 lastmod 는 빌드 날짜(KST, TODAY). 주소는 루트 + p/ + t/ = 1 + 인물 수 + 팀 수.
+- (S3-04) 404.html 은 index.html 원본에 <base href="/VCT-board/"> 를 넣은 파일이다(build.mjs 가 만든다). 저장소에는 따로 두지 않는다.
+- (S3-04 주의, 설계노트 그대로) GitHub Pages 는 없는 주소에 HTTP 404 를 준다. 그래서 404 로 들어온 상세 주소는 공유 미리보기(제목·설명)가 나오지 않는다. 미리보기는 정적 페이지(p/<id>/, t/<id>/)만 낸다. 404 대체 화면은 앱이 주소를 읽어 상세를 그릴 뿐이다.
+- (S3-05) pages.yml 은 on: push(모든 브랜치)와 workflow_dispatch. 단계는 validate → build → upload-pages-artifact 이고, deploy-pages 는 needs: build 와 if: main 이다. validate 가 실패하면 build 와 deploy 가 실행되지 않는다.
+- (S3-05 위험) concurrency group "pages" 는 설계대로 모든 브랜치가 같은 그룹을 쓴다. 그래서 main 이 배포 중일 때 다른 브랜치를 push 하면 main 의 배포가 취소될 수 있다(cancel-in-progress). 설계를 바꾸지 않고 적어 둔다. 5회차 전에 결정이 필요할 수 있다.
+- (S3-05) actions 는 major 버전으로 고정(checkout v4, setup-node v4, upload-pages-artifact v3, deploy-pages v4). node 20.
+- (S3-06) 사용자 작업(Pages Source 를 GitHub Actions 로 바꾸기)은 하지 않았다. 5회차.
+- (dev-server) 폴더 인자는 이미 있었다(`node scripts/dev-server.mjs [포트] [폴더]`). 바꾸지 않았다. _site 를 `node scripts/dev-server.mjs 8707 _site` 로 연다. 없는 p/·t/ 주소는 404 상태에 base 넣은 index.html 을 돌려준다(404.html 흉내).
+
+## 4회차 확인 결과 (직접 실행)
+- S3-01 팀 상세(샘플, 브라우저): 직접 진입(/t/fx-beta/), 팀→인물, 인물→팀, 뒤로 동작. 로스터(FX FOUR 선수·FX ONE 선수), 들어온(FX ONE), 나간(FX THREE, FX FOUR 의 LFT 행), 관련 소식(watch 포함) 표시. fx-delta 운영 종료 표시. 없는 팀(/t/fx-gamma-none/)은 "찾을 수 없는 팀입니다". 오류 없음.
+- S3-02 build (샘플): `node scripts/build.mjs _site` → 인물 6쪽, 팀 4쪽, sitemap 주소 11개. 현재 data/ 는 인물 0쪽, 팀 0쪽, sitemap 1개, 오류 없이 종료(0).
+- V-08 (curl, 샘플 _site 를 dev-server 8707 로 서비스):
+  - /VCT-board/p/fx-one/index.html: title "FX ONE · VCT LFT·FA 현황", og:title 같음, og:description "FX ONE · Alpha Test → Beta Test 이적 보도", canonical https://4nhackle.github.io/VCT-board/p/fx-one/, base /VCT-board/ 있음.
+  - /VCT-board/t/fx-alpha/index.html: title "Alpha Test · VCT LFT·FA 현황", description "Alpha Test · 아메리카 · 들어온 0명 · 나간 4명", canonical .../t/fx-alpha/.
+- V-10: 팀 상세 직접 진입, 팀 상세 ↔ 인물 상세 이동과 뒤로 동작(샘플, 정적 페이지 있는 주소). 정적 페이지가 없는 임시 ID(/p/fx-six/, data 에 있으나 people 행 없음): HTTP 404 상태로 열리고 앱이 인물 상세를 그림(title "FX SIX · VCT LFT·FA 현황"). 없는 ID(/p/zzz-none/)는 "찾을 수 없는 선수입니다".
+- sitemap.xml: XML 파싱 성공(Python ElementTree), loc 11개 = 1 + 인물 6 + 팀 4.
+- V-09: 원격 확인 불가. gh 가 설치돼 있지 않고(gh: command not found) 이 세션에 GitHub 토큰이 없다. 그래서 테스트 브랜치(test/broken-data)는 만들지 않았다. 대체 확인: (a) pages.yml 을 js-yaml 로 파싱해 needs·if·단계 순서를 확인, (b) 깨진 샘플 b1(없는 personId)·b4(잘못된 birth)에서 validate 가 exit 1 이므로 워크플로의 뒤 단계(build·deploy)가 실행되지 않는 순서임을 확인. 실제 Actions 실행은 사용자 확인이 필요하다.
+- 현재 data/: validate 는 1회차와 같은 출력(오류 0, 경고 9). build 는 오류 없이 끝남. V-01~V-04(s1-10) 모두 통과, 목록 V-01 은 2회차와 같다.
+- 샘플 V-05·V-06 는 이전 회차와 같다(s2-fixture 통과).
+
+## 5회차에 넘길 것
+- S3-06: 사용자가 Settings → Pages → Source 를 GitHub Actions 로 바꾼다(워크플로 병합 직후).
+- V-09 실제 Actions 확인(테스트 브랜치 test/broken-data). gh 가 있으면 이 세션에서도 할 수 있다.
+- 위의 concurrency 위험(다른 브랜치 push 가 main 배포를 취소할 수 있음)을 결정.
+- 404 대체의 미리보기 한계(설계노트 S3-04 주의)를 사용자에게 알린다.
 
 ## 다음 회차에 알릴 점
 - (1회차 항목은 2회차에서 처리됨: 인물 상세 화면 구현, 제목 변경.) 팀 상세는 아직 임시 화면이다(js/main.js showDetail, TEMP). 3단계 S3-01 에서 교체.
