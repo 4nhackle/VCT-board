@@ -13,12 +13,12 @@
 - [x] S1-02 인덱스 생성
 - [x] S1-03 ID·경로 유틸
 - [x] S1-04 라우터
-- [ ] S1-05 목록 상태·스크롤 복원
-- [ ] S1-06 목록 행 링크화
-- [ ] S1-07 링크 클릭 가로채기·화면 전환
-- [ ] S1-08 인물 상세 뼈대
-- [ ] S1-09 상세 기본 스타일
-- [ ] S1-10 1단계 완료 확인
+- [x] S1-05 목록 상태·스크롤 복원
+- [x] S1-06 목록 행 링크화
+- [x] S1-07 링크 클릭 가로채기·화면 전환
+- [x] S1-08 인물 상세 뼈대
+- [x] S1-09 상세 기본 스타일
+- [x] S1-10 1단계 완료 확인
 
 ### 2단계: 인물·팀 정보 표시와 검증 (S2)
 - [ ] S2-01 계산 함수
@@ -69,10 +69,35 @@
   - dev-server 로 /VCT-board/p/test/ 직접 진입 시 임시 화면 표시(상태 404), 탭·요약·필터·참고 숨김. 브라우저에서 import("/VCT-board/js/state.js") 의 go() 로 목록→p/oxy/→t/cloud9/ 이동 후 뒤로 3번·앞으로 3번이 순서대로 동작, 목록 복귀 시 탭 복원, pageerror 없음.
 - 확인 도구는 저장소 밖(%TEMP%\vct-check: capture.mjs, compare.mjs, interact.mjs, route.mjs, unit-*.mjs)에 있다. 저장소에 package.json·node_modules·캡처를 남기지 않았다.
 
+## 2회차 결정·변경 (2026-10-31)
+- (2회차, S1-05) 상세로 가기 직전 목록 항목의 history.state 에 {y, region, status, order, q} 를 적는다(replaceState). 뒤로 오면 이 값을 되살리고 scrollTo 한다. 검색창은 입력 원문(trim 전)을 저장해 그대로 되돌린다. history.scrollRestoration = "manual".
+- (2회차, S1-06) 목록 항목(toItem 결과)에 pid·tid 를 붙이는 것은 model.js 의 idsOf(r, kind) 로 한다. buildIndex 와 buildTabs 가 같은 함수를 쓴다. 이적 행의 tid 는 이전 팀(tidFrom)이고, 다음 팀은 링크하지 않는다(체크리스트 S1-06 과 같다).
+- (2회차, S1-06) watch 행의 팀 칸은 " / " 로 나눠 팀마다 링크한다. 글자가 여러 링크로 나뉘어 글리프 간격이 서브픽셀 단위로 달라져, V-01 픽셀 비교에서 watch 행 이름 영역만 2127px 가 다르다(390·1280 모두). 육안으로는 같다. 단일 텍스트로 되돌리면 같아지지만 팀 링크를 잃으므로 그대로 둔다.
+- (2회차, S1-06) 팀 머리글(h3.th)은 그 그룹 첫 행의 tid 를 쓴다.
+- (2회차, S1-07) 가로채기는 같은 출처의 BASE+"p/" 또는 BASE+"t/" 만 대상이다. "← 목록으로" 는 data-back 으로 표시하고, 목록에서 왔으면(FROM_LIST) history.back(), 아니면 #players 주소로 go() 한다. 상세에서는 헤더(사이트 제목·설명)는 그대로 둔다. 설계는 헤더를 숨기라고 하지 않았다.
+- (2회차, S1-07) 임시 인물 화면은 제거했다. 팀 상세는 아직 임시 화면이다(TEMP, showDetail). 3단계 S3-01 에서 교체한다.
+- (2회차, S1-08) 국적·역할은 people 값 우선, 없으면 소식 행을 최신순으로 훑어 처음 나오는 값을 쓴다(선수는 position, 코치는 role). 현재 data/ 에는 people.json 이 없어 모든 인물 화면에 "선수 정보는 정리 중입니다." 가 나온다(설계대로).
+- (2회차, S1-08) 1회차 route.mjs 의 기대값(p/test/ 임시 화면)은 이제 "찾을 수 없는 선수입니다" 다. 기능 변경에 따른 것이다.
+- (2회차, 알려진 한계) 팀 임시 ID 충돌 때문에 TenZ 행의 팀 링크("(은퇴 · 전 Sentinels)")가 /t/sentinels/ 로 간다. 시트 teamId 가 채워지기 전까지 그대로다. 3회차 팀 상세 전에 결정 필요.
+
+## 2회차 기록 (2026-10-31)
+- 완료: S1-05, S1-06, S1-07, S1-08, S1-09, S1-10
+- 변경 파일: js/model.js(idsOf·buildIndex·buildTabs), js/components/row.js(링크), js/views/regions.js(팀 머리글 링크), js/views/person.js(신규, 인물 상세), js/main.js(클릭 가로채기·스크롤·상세 화면), css/style.css(링크 모양, .detail-page·.dp-*)
+- 커밋: S1-06 과 S1-05·S1-07~S1-09 는 파일 단위로 나눠 두 커밋으로 묶었다(main.js·style.css 가 여러 작업에 걸쳐 있어 작업별로 자르지 못했다). 커밋 메시지에 포함 작업을 모두 적었다.
+- 확인(직접 실행, 브라우저: Playwright, 저장소 밖 %TEMP%ct-check):
+  - V-01: 목록 14장 중 watch 두 장 외에는 픽셀이 기준과 같다(위 결정 참고). DOM 차이는 링크 태그뿐이다.
+  - V-02: 선수 탭에서 지역 Americas·구직 중·검색 "a "·최근 소식순 설정 → 700px 스크롤 → 이름 클릭(상세 열림, 스크롤 0) → 뒤로: 탭·지역·상태·정렬·검색 값·스크롤 700 이 같다. 상세의 "← 목록으로" 도 같은 결과.
+  - V-03: /VCT-board/p/oxy/ 직접 진입, 새로고침(같은 화면, 제목 "OXY · VCT LFT·FA 현황"), /p/no-such-person/ 는 "찾을 수 없는 선수입니다". 직접 진입 뒤 "← 목록으로" 는 #players 목록.
+  - V-04: Ctrl 클릭과 가운데 클릭은 새 탭(/p/tenz/, /p/jackk/), 원래 화면은 목록 그대로. 출처 링크는 target=_blank rel=noopener 외부 주소 그대로.
+  - 임의 5명 상세: 무작위 추출(실행마다 다름). 확인한 예: jinggg, oxy, alvinboy, spaz, jerrwin, d3ffo, meiy. 모두 머리부분과 소식이 보이고 페이지 오류 없음.
+  - 360px·1280px, 라이트·다크 상세 캡처: %TEMP%ct-check\s1-10\detail-oxy-{360,1280}-{light,dark}.png. 육안 확인: 줄바꿈과 배지 간격 정상, 가로 넘침 없음.
+  - 팀 링크: 팀 머리글 → /t/cloud9/ 임시 화면(제목 "cloud9 · …"), "← 목록으로" 로 같은 탭 복귀.
+- 확인하지 않은 것: 실제 data 의 people.json 이 없어 people 값 우선 경로는 확인하지 못했다(2단계 샘플 데이터에서 확인). 실제 배포 주소(4nhackle.github.io)는 아직 안 올렸다.
+
 ## 다음 회차에 알릴 점
-- 상세 임시 화면은 js/main.js renderRoute() 의 `TEMP` 주석 자리다. S1-07·S1-08 에서 실제 화면으로 바꾼다. 상세 진입 시 document.title 변경도 그때 한다.
-- renderRoute() 는 상세일 때 #tabs·#summary·#filters·#fresh·#sgview·.notes 를 숨기고, 목록으로 돌아오면 #tabs·.notes 를 되살린 뒤 renderChrome·renderView 가 나머지를 정한다. 목록 → 목록(같은 탭) 이동은 기존처럼 다시 그리지 않는다. 상세 → 목록은 같은 탭이어도 다시 그린다. 스크롤 복원(S1-05)은 아직 없다.
+- (1회차 항목은 2회차에서 처리됨: 인물 상세 화면 구현, 제목 변경.) 팀 상세는 아직 임시 화면이다(js/main.js showDetail, TEMP). 3단계 S3-01 에서 교체.
+- renderRoute() 는 상세일 때 #tabs·#summary·#filters·#fresh·#sgview·.notes 를 숨기고, 목록으로 돌아오면 #tabs·.notes 를 되살린 뒤 renderChrome·renderView 가 나머지를 정한다. 목록 → 목록(같은 탭) 이동은 기존처럼 다시 그리지 않는다. 상세 → 목록은 같은 탭이어도 다시 그린다.  스크롤 복원은 2회차 S1-05 에서 추가했다(목록 항목의 history.state).
 - 데이터는 아직 `fetch("data/...")` 상대 경로다. 처음 로드 때만 쓰므로 지금은 문제없다(직접 진입은 dev-server·404.html 의 base 가 맞춰 준다). 상세 화면에서 다시 불러올 일이 생기면 BASE 를 붙인다.
-- buildIndex 는 아직 main.js 에서 호출하지 않는다. 2회차 상세 화면에서 데이터 로드 뒤 한 번 만들어 쓴다.
+- buildIndex 는 데이터 로드 뒤 main.js 에서 한 번 만들어 IDX 에 둔다(2회차부터).
 - 임시 팀 ID `sentinels` 충돌(TenZ 행)은 위 "결정·변경" 참고.
 - docs/ 의 docx 4개와 지시문 .md 파일들은 커밋하지 않았다(S4-02).
