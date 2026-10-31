@@ -6,6 +6,7 @@ import { recentHTML } from "./views/recent.js";
 import { scheduleHTML } from "./views/schedule.js";
 import { suggestHTML, bindSuggest } from "./views/suggest.js";
 import { personHTML, backHTML } from "./views/person.js";
+import { teamHTML } from "./views/team.js";
 
 var FILES = ["sources", "players", "coaches", "transfers", "watch", "schedule"];
 var OPTIONAL = ["people", "teams"];
@@ -169,12 +170,8 @@ function showDetail(r) {
     var ph = personHTML(r.id, IDX);
     name = ph.name; html = ph.html;
   } else if (r.view === "team") {
-    // TEMP: 팀 상세는 3단계(S3-01)에서 만든다. 지금은 이름과 안내만 둔다.
-    var team = IDX.teams[r.id];
-    name = team ? team.name : r.id;
-    html = team || IDX.byTeam[r.id]
-      ? '<section class="detail-page">' + backHTML() + '<div class="empty">팀 상세는 준비 중입니다: ' + esc(name) + "</div></section>"
-      : '<section class="detail-page">' + backHTML() + '<div class="empty">찾을 수 없는 팀입니다.</div></section>';
+    var th = teamHTML(r.id, IDX);
+    name = th.name; html = th.html;
   } else {
     html = '<section class="detail-page">' + backHTML() + '<div class="empty">찾을 수 없는 주소입니다.</div></section>';
   }

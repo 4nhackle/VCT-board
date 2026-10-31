@@ -1,12 +1,11 @@
 import { esc, relDate, stampOf, stampLabel, srcHTML, fmtDate, isoOf } from "../format.js";
-import { REGION_KO, pillOf, ageOf, contractState, careerOf } from "../model.js";
+import { REGION_KO, TIER_KO, pillOf, ageOf, contractState, careerOf, newestFirst } from "../model.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
 import { listUrl, teamUrl } from "../state.js";
 
 // 소식 줄 앞에 붙는 탭 이름. 이적 행은 선수·코치 구분 없이 "이적 완료" 탭에 모인다.
 var TAB_NAME = { player: "선수", coach: "코치·스태프", t: "이적 완료" };
-var TIER = { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" };
 
 // 빈 칸과 "-" 는 보여 주지 않는다.
 function val(v) { return v && v !== "-" ? v : ""; }
@@ -18,15 +17,6 @@ function dotYM(s) { return String(s || "").replace("-", "."); }
 function contractText(n) {
   if (typeof n !== "number") return "미공개";
   return isoOf(n) + " (" + contractState(n).label + ")";
-}
-
-// 보도일 최신순. 같은 날은 보도 시각이 확인된 소식을 먼저, 시각이 늦은 것부터.
-function newestFirst(a, b) {
-  var da = typeof a.item.date === "number" ? a.item.date : -1, db = typeof b.item.date === "number" ? b.item.date : -1;
-  if (da !== db) return db - da;
-  var sa = stampOf(a.item), sb = stampOf(b.item);
-  if (sa === null || sb === null) return (sa === null) - (sb === null);
-  return sb - sa;
 }
 
 // "← 목록으로". 클릭은 main.js 가 맡는다(목록에서 왔으면 뒤로 가기).
@@ -78,7 +68,7 @@ function moveHTML(list, p) {
 // 팀 카드 한 장. teams 에 없으면 이름만 보여 주고 링크는 그대로 둔다.
 function teamCard(id, fallback, teams) {
   var t = teams[id], name = t ? t.name : fallback;
-  var facts = t ? [REGION_KO[t.region] || val(t.region), val(t.country), TIER[t.tier] || ""].filter(Boolean) : [];
+  var facts = t ? [REGION_KO[t.region] || val(t.region), val(t.country), TIER_KO[t.tier] || ""].filter(Boolean) : [];
   return '<li class="dp-team"><a href="' + esc(teamUrl(id)) + '">' + esc(name) + "</a>" +
     (facts.length ? ' <span class="dp-facts-inline">' + facts.map(esc).join(" · ") + "</span>" : "") +
     (t && t.active === false ? ' <span class="dp-off">운영 종료</span>' : "") + "</li>";
