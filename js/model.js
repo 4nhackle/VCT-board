@@ -1,4 +1,6 @@
 // 순수 함수만: 시트 행 → 화면용 항목, 상태 분류, 필터. DOM과 state를 직접 만지지 않는다.
+import { TODAY, isoOf } from "./format.js";
+
 export var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
 export var REGION_KO = { Americas: "아메리카", EMEA: "유럽·중동·아프리카", Pacific: "아시아태평양", China: "중국" };
 var KR_TEAMS = /^(T1|KIWOOM DRX|Nongshim RedForce|Gen\.G|DRX)$/i;
@@ -60,6 +62,39 @@ export function idsOf(r, kind) {
     o.tid = tidOf(r.teamId, r.team);
   }
   return o;
+}
+
+// 나이: birth 가 "yyyy-mm-dd" 면 만 나이(approx false), "yyyy" 면 연도 차이(approx true, "약 N세"). 그 밖은 null.
+// today 는 KST 날짜 일련번호(기본 TODAY). 시험할 때 날짜를 넣는다.
+export function ageOf(birth, today) {
+  var t = isoOf(today == null ? TODAY : today), s = String(birth == null ? "" : birth), ty = +t.slice(0, 4);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    var age = ty - +s.slice(0, 4);
+    // 생일이 아직 안 지났으면 한 살 적다. "mm-dd" 문자열은 그대로 비교해도 날짜 순서와 같다.
+    if (t.slice(5) < s.slice(5)) age--;
+    return { age: age, approx: false };
+  }
+  if (/^\d{4}$/.test(s)) return { age: ty - +s, approx: true };
+  return null;
+}
+
+// 계약 만료 상태. until 은 시트 일련번호. 만료 당일은 "오늘 만료", 하루라도 지났으면 "만료됨".
+export function contractState(until, today) {
+  if (typeof until !== "number") return { kind: "unknown", label: "미공개" };
+  var d = until - (today == null ? TODAY : today);
+  if (d < 0) return { kind: "expired", label: "만료됨", days: d };
+  if (d === 0) return { kind: "today", label: "오늘 만료", days: 0 };
+  return { kind: "active", label: "D-" + d, days: d };
+}
+
+// 경력: from 최신순. current 는 to 가 없는(진행 중) 칸이다.
+export function careerOf(p) {
+  return ((p && p.career) || []).slice().sort(function (a, b) {
+    var x = a.from || "", y = b.from || "";
+    return x < y ? 1 : x > y ? -1 : 0;
+  }).map(function (c) {
+    return { team: c.team, from: c.from, to: c.to || null, role: c.role || "", current: !c.to };
+  });
 }
 
 // 인물·팀별 소식 모음. 탭과 상관없이 한 사람·한 팀의 행을 모은다.
