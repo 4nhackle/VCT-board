@@ -204,13 +204,23 @@ node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
 - V-05·V-06·V-10 (샘플, 빌드 산출물): 통과. 팀 카드 6장 일치, 팀↔인물 이동·뒤로 정상, 임시 ID(/p/fx-six/)는 404 상태로 열리고 인물 상세가 보인다.
 - 원격 Actions: 아래 확인 결과 참고(push 후 기록).
 
-## 남은 일 (병합 이후)
+## 5-2회차 추가 요청 (병합 전 후속)
+- (1) teamMoves 집계를 Set 으로(model.js). 이전 코드는 seenIn·seenOut 을 일반 객체로 써서, 이름이 constructor·toString 인 인물이 들어온·나간 목록에서 빠졌다(재현: 들어온 인물 0명). 시험: test.mjs 에서 constructor·toString 인물을 두 번 넣어도 한 번씩만 집계되는지 확인.
+- (2) 워크플로 권한(pages.yml): 전체 permissions 는 contents: read 만. pages: write, id-token: write 는 deploy job 에만 준다. build job 은 전체 값을 상속한다. 확인: js-yaml 로 파싱해 값 확인(실제 Actions 권한 적용은 다음 실행에서 확인).
+- (3) validate.mjs: career 의 to 가 from 보다 앞서면 오류(종료 1). 시험: test.mjs 에서 끝이 앞선 경우 종료 1과 메시지, 같은 달은 통과.
+- (4) test.mjs 에 out-dir 실제 동작 시험: 임시 폴더(os.tmpdir)만 사용. 표시 파일 없는 폴더는 던지고 파일이 그대로 남는다. 표시 파일 있는 폴더는 비워지고 표시 파일이 다시 써지며, 같은 폴더 재실행도 된다.
+- 범위 밖(이번에 안 함): 일정 날짜 검증(js/views/schedule.js), 건의 폼 CAPTCHA(js/views/suggest.js). 아래 "배포 후 할 일"에 적었다.
+
+## 배포 후 할 일
 - S4-01 병합: PR https://github.com/4nhackle/VCT-board/pull/2 (feature/detail-pages → main). 병합 시각과 방식은 사용자가 정한다. 예약 작업 시각(08:50, 09:35 KST, 11/2~11/16 의 14:50·15:35·20:50·21:35 KST) 앞뒤 30분은 피한다.
 - S3-06: 사용자가 Settings → Pages → Source 를 GitHub Actions 로 바꾼다. 병합 직후 deploy 단계가 실패할 수 있다(기존 사이트는 유지). 바꾼 뒤 `gh workflow run pages.yml --ref main` 으로 첫 배포를 한다.
 - 실제 사이트 확인: V-01~V-04, V-10(임시 ID 404 대체 포함). V-05~V-07 은 샘플 결과로 갈음. V-08 은 people 데이터가 생긴 뒤에만 가능하다.
 - S4-02: docx 4개와 최종 PROGRESS 를 작은 PR 로 커밋(사용자 승인 후). 웹 반영 예약 작업의 수정 금지 범위에 docs/ 를 넣는다.
 - S4-03: 시트에 인물·팀 탭 추가와 기존 인원 채우기, 예약 작업 4개 지시문 변경(예약 작업 변경 설계서 8장 2~4번). 이번 구현 범위 밖.
 - 알려진 제한 안내: 정적 페이지가 없는 상세 주소는 HTTP 404 로 열리고, 공유 미리보기는 people 데이터가 생긴 뒤에만 선수 이름으로 나온다(설계노트 S3-04 주의).
+- 워크플로 권한 확인: 첫 배포의 deploy job 이 pages·id-token 권한으로 성공하는지 본다(5-2 요청 2 의 실제 확인).
+- 일정 날짜 검증 보강(js/views/schedule.js): 문자열 날짜("11/5–11/8" 등)의 연도 추정과 끝남·D-n 표시 시험. 이번 범위 밖.
+- 건의 폼 CAPTCHA(js/views/suggest.js): 외부 서비스로 바로 보내는 폼에 봇 방지가 없다. 이번 범위 밖, 남용이 보이면 처리.
 
 ## 다음 회차에 알릴 점
 - renderRoute() 는 상세일 때 #tabs·#summary·#filters·#fresh·#sgview·.notes 를 숨기고, 목록으로 돌아오면 #tabs·.notes 를 되살린 뒤 renderChrome·renderView 가 나머지를 정한다. 목록 → 목록(같은 탭) 이동은 기존처럼 다시 그리지 않는다. 상세 → 목록은 같은 탭이어도 다시 그린다.  스크롤 복원은 2회차 S1-05 에서 추가했다(목록 항목의 history.state).
