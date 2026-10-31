@@ -149,7 +149,7 @@ node scripts/dev-server.mjs 8705 C:/Users/KDB/AppData/Local/Temp/vct-fixture
   - /VCT-board/t/fx-alpha/index.html: title "Alpha Test · VCT LFT·FA 현황", description "Alpha Test · 아메리카 · 들어온 0명 · 나간 4명", canonical .../t/fx-alpha/.
 - V-10: 팀 상세 직접 진입, 팀 상세 ↔ 인물 상세 이동과 뒤로 동작(샘플, 정적 페이지 있는 주소). 정적 페이지가 없는 임시 ID(/p/fx-six/, data 에 있으나 people 행 없음): HTTP 404 상태로 열리고 앱이 인물 상세를 그림(title "FX SIX · VCT LFT·FA 현황"). 없는 ID(/p/zzz-none/)는 "찾을 수 없는 선수입니다".
 - sitemap.xml: XML 파싱 성공(Python ElementTree), loc 11개 = 1 + 인물 6 + 팀 4.
-- V-09: 원격 확인 불가. gh 가 설치돼 있지 않고(gh: command not found) 이 세션에 GitHub 토큰이 없다. 그래서 테스트 브랜치(test/broken-data)는 만들지 않았다. 대체 확인: (a) pages.yml 을 js-yaml 로 파싱해 needs·if·단계 순서를 확인, (b) 깨진 샘플 b1(없는 personId)·b4(잘못된 birth)에서 validate 가 exit 1 이므로 워크플로의 뒤 단계(build·deploy)가 실행되지 않는 순서임을 확인. 실제 Actions 실행은 사용자 확인이 필요하다.
+- V-09: 원격 확인 불가. gh 가 설치돼 있지 않다(gh: command not found). GitHub API 를 직접 쓰는 방법은 확인하지 않았다. 그래서 테스트 브랜치(test/broken-data)는 만들지 않았다. 대체 확인: (a) pages.yml 을 js-yaml 로 파싱해 needs·if·단계 순서를 확인, (b) 깨진 샘플 b1(없는 personId)·b4(잘못된 birth)에서 validate 가 exit 1 이므로 워크플로의 뒤 단계(build·deploy)가 실행되지 않는 순서임을 확인. 실제 Actions 실행은 사용자 확인이 필요하다.
 - 현재 data/: validate 는 1회차와 같은 출력(오류 0, 경고 9). build 는 오류 없이 끝남. V-01~V-04(s1-10) 모두 통과, 목록 V-01 은 2회차와 같다.
 - 샘플 V-05·V-06 는 이전 회차와 같다(s2-fixture 통과).
 
