@@ -98,7 +98,7 @@ function careerHTML(p, teams) {
   if (!rows.length) return "";
   var items = rows.map(function (c) {
     var t = teams[c.team], name = t ? t.name : c.team;
-    return '<li class="dp-cr' + (c.current ? " now" : "") + '"><span class="dp-cr-when">' + dotYM(c.from) + " – " + (c.to ? dotYM(c.to) : "") + "</span>" +
+    return '<li class="dp-cr' + (c.current ? " now" : "") + '"><span class="dp-cr-when">' + esc(dotYM(c.from)) + " – " + (c.to ? esc(dotYM(c.to)) : "") + "</span>" +
       '<a href="' + esc(teamUrl(c.team)) + '">' + esc(name) + "</a>" +
       (c.role ? ' <span class="dp-cr-role">(' + esc(c.role) + ")</span>" : "") +
       (c.current ? ' <span class="dp-now">진행 중</span>' : "") + "</li>";

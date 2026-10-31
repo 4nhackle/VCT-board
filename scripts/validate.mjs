@@ -55,6 +55,9 @@ const people = hasPeople ? read("people") : [];
 const teams = hasTeams ? read("teams") : [];
 const pIds = new Set(), tIds = new Set();
 
+// 경력 기간 형식: yyyy-mm, 월은 01~12.
+const YM = /^\d{4}-(0[1-9]|1[0-2])$/;
+
 // 생년: "yyyy" 또는 실제 있는 "yyyy-mm-dd" 만 허용한다.
 function validBirth(s) {
   if (/^\d{4}$/.test(s)) return true;
@@ -103,6 +106,9 @@ if (hasPeople) {
     for (const c of p.career || []) {
       if (hasTeams && !tIds.has(c.team)) errors.push(`${at}: career.team "${c.team}" 이(가) teams.json 에 없습니다`);
       else if (!ID_RE.test(String(c.team))) errors.push(`${at}: career.team "${c.team}" 의 ID 형식이 맞지 않습니다`);
+      // 기간은 yyyy-mm(월 01~12). 끝이 없으면(null) 진행 중이다. 화면에 그대로 나가므로 형식을 엄격히 본다.
+      if (!YM.test(String(c.from || ""))) errors.push(`${at}: career.from "${c.from}" 은(는) yyyy-mm 이어야 합니다`);
+      if (c.to != null && !YM.test(String(c.to))) errors.push(`${at}: career.to "${c.to}" 은(는) yyyy-mm 또는 null 이어야 합니다`);
     }
     // 경력 기간 겹침: 시작 순으로 보고, 앞 칸이 끝나기 전에 다음 칸이 시작하면 경고.
     const c = [...(p.career || [])].sort((a, b) => ((a.from || "") < (b.from || "") ? -1 : 1));
