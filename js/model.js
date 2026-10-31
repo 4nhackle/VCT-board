@@ -57,7 +57,7 @@ export function idsOf(r, kind) {
   function tidOf(id, name) { return id || (name ? slugOf(name) : ""); }
   if (kind === "watch") {
     // 한 행에 팀이 여럿일 수 있다("FURIA / M80 / FlyQuest").
-    return { tids: r.teamIds || String(r.team || "").split(" / ").filter(Boolean).map(slugOf) };
+    return { tids: [].concat(r.teamIds || String(r.team || "").split(" / ").filter(Boolean).map(slugOf)) };
   }
   // 이름이 빈 행은 인물 ID 를 만들지 않는다(이름 링크도 없다).
   var o = { pid: r.personId || (r.name ? slugOf(r.name) : "") };
