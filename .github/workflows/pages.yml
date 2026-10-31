@@ -10,9 +10,9 @@ permissions:
   pages: write
   id-token: write
 
-# 연속 push 는 마지막 것만 배포한다.
+# 같은 브랜치의 연속 push 는 마지막 것만 남긴다. 브랜치마다 그룹이 달라, 다른 브랜치 push 가 main 배포를 취소하지 않는다.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

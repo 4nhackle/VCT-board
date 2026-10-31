@@ -153,6 +153,11 @@ node scripts/dev-server.mjs 8705 C:/Users/KDB/AppData/Local/Temp/vct-fixture
 - 현재 data/: validate 는 1회차와 같은 출력(오류 0, 경고 9). build 는 오류 없이 끝남. V-01~V-04(s1-10) 모두 통과, 목록 V-01 은 2회차와 같다.
 - 샘플 V-05·V-06 는 이전 회차와 같다(s2-fixture 통과).
 
+## 5회차 결정·변경 (2026-10-31)
+- (요청 1, concurrency) pages.yml 의 concurrency 를 `group: pages-${{ github.ref }}`, `cancel-in-progress: true` 로 바꿨다(설계 변경). 4회차에 적은 위험(다른 브랜치 push 가 main 배포를 취소)은 이것으로 없어진다. 같은 브랜치의 연속 push 는 여전히 마지막 것만 남는다.
+- (요청 2, V-09) 4회차의 로컬 대체 확인을 원격으로 했다(아래 확인 결과).
+- (요청 3) '다음 회차에 알릴 점'에서 팀 상세 임시 화면 메모를 지웠다(3회차 S3-01 에서 이미 실제 화면으로 바꿨다).
+
 ## 5회차에 넘길 것
 - S3-06: 사용자가 Settings → Pages → Source 를 GitHub Actions 로 바꾼다(워크플로 병합 직후).
 - V-09 실제 Actions 확인(테스트 브랜치 test/broken-data). gh 가 있으면 이 세션에서도 할 수 있다.
@@ -160,7 +165,6 @@ node scripts/dev-server.mjs 8705 C:/Users/KDB/AppData/Local/Temp/vct-fixture
 - 404 대체의 미리보기 한계(설계노트 S3-04 주의)를 사용자에게 알린다.
 
 ## 다음 회차에 알릴 점
-- (1회차 항목은 2회차에서 처리됨: 인물 상세 화면 구현, 제목 변경.) 팀 상세는 아직 임시 화면이다(js/main.js showDetail, TEMP). 3단계 S3-01 에서 교체.
 - renderRoute() 는 상세일 때 #tabs·#summary·#filters·#fresh·#sgview·.notes 를 숨기고, 목록으로 돌아오면 #tabs·.notes 를 되살린 뒤 renderChrome·renderView 가 나머지를 정한다. 목록 → 목록(같은 탭) 이동은 기존처럼 다시 그리지 않는다. 상세 → 목록은 같은 탭이어도 다시 그린다.  스크롤 복원은 2회차 S1-05 에서 추가했다(목록 항목의 history.state).
 - 데이터는 아직 `fetch("data/...")` 상대 경로다. 처음 로드 때만 쓰므로 지금은 문제없다(직접 진입은 dev-server·404.html 의 base 가 맞춰 준다). 상세 화면에서 다시 불러올 일이 생기면 BASE 를 붙인다.
 - buildIndex 는 데이터 로드 뒤 main.js 에서 한 번 만들어 IDX 에 둔다(2회차부터).
