@@ -101,7 +101,8 @@ function careerHTML(p, teams) {
     return '<li class="dp-cr' + (c.current ? " now" : "") + '"><span class="dp-cr-when">' + esc(dotYM(c.from)) + " – " + (c.to ? esc(dotYM(c.to)) : "") + "</span>" +
       '<a href="' + esc(teamUrl(c.team)) + '">' + esc(name) + "</a>" +
       (c.role ? ' <span class="dp-cr-role">(' + esc(c.role) + ")</span>" : "") +
-      (c.current ? ' <span class="dp-now">진행 중</span>' : "") + "</li>";
+      (c.current ? ' <span class="dp-now">진행 중</span>' : "") +
+      (c.upcoming ? ' <span class="dp-facts-inline">예정</span>' : "") + "</li>";
   });
   return '<section class="dp-sec"><h2>경력</h2><ol class="dp-career">' + items.join("") + "</ol></section>";
 }

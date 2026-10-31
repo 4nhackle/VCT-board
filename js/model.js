@@ -95,12 +95,16 @@ export function contractState(until, today) {
 }
 
 // 경력: from 최신순. current 는 to 가 없는(진행 중) 칸이다.
-export function careerOf(p) {
+// 끝이 없고 시작이 오늘(KST, 달 단위) 이전이거나 같으면 current(진행 중), 아직 안 왔으면 upcoming(예정).
+// 예정 칸은 팀 로스터에 들어가지 않는다. today 기본값은 TODAY.
+export function careerOf(p, today) {
+  var now = isoOf(today == null ? TODAY : today).slice(0, 7);
   return ((p && p.career) || []).slice().sort(function (a, b) {
     var x = a.from || "", y = b.from || "";
     return x < y ? 1 : x > y ? -1 : 0;
   }).map(function (c) {
-    return { team: c.team, from: c.from, to: c.to || null, role: c.role || "", current: !c.to };
+    var open = !c.to, started = (c.from || "") <= now;
+    return { team: c.team, from: c.from, to: c.to || null, role: c.role || "", current: open && started, upcoming: open && !started };
   });
 }
 
