@@ -11,7 +11,7 @@ export var ID_RE = /^[a-z0-9-]+$/;
 // 이름 → 임시 ID. 소문자, 악센트 제거, 영문·숫자 외는 하이픈. 남는 글자가 없으면(한자 이름 등) "x-" + 짧은 해시.
 export function slugOf(s) {
   var raw = String(s == null ? "" : s).trim();
-  var id = raw.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  var id = raw.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   if (id) return id;
   // FNV-1a 32비트
   var h = 2166136261;
@@ -53,7 +53,8 @@ export function idsOf(r, kind) {
     // 한 행에 팀이 여럿일 수 있다("FURIA / M80 / FlyQuest").
     return { tids: r.teamIds || String(r.team || "").split(" / ").filter(Boolean).map(slugOf) };
   }
-  var o = { pid: r.personId || slugOf(r.name) };
+  // 이름이 빈 행은 인물 ID 를 만들지 않는다(이름 링크도 없다).
+  var o = { pid: r.personId || (r.name ? slugOf(r.name) : "") };
   if (kind === "t") {
     o.tidFrom = tidOf(r.fromTeam, r.from);
     o.tidTo = tidOf(r.toTeam, r.to);
@@ -110,7 +111,7 @@ export function buildIndex(D) {
     (rows || []).forEach(function (r) {
       var it = toItem(r, kind, S), e = { kind: kind, row: r, item: it }, ids = idsOf(r, kind);
       Object.assign(it, ids);
-      if (kind !== "watch") add(IDX.byPerson, ids.pid, e);
+      if (kind !== "watch" && ids.pid) add(IDX.byPerson, ids.pid, e);
       var tids = kind === "watch" ? ids.tids : kind === "t" ? [ids.tidFrom, ids.tidTo] : [ids.tid];
       tids.forEach(function (id) { if (id) add(IDX.byTeam, id, e); });
     });
