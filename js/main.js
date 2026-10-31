@@ -1,4 +1,4 @@
-import { isNew, esc } from "./format.js";
+import { isNew } from "./format.js";
 import { REGIONS, REGION_KO, buildTabs, buildIndex, matches, cls } from "./model.js";
 import { state, saveOrder, pushTab, go, BASE, parseRoute } from "./state.js";
 import { regionsHTML } from "./views/regions.js";

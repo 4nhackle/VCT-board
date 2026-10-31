@@ -44,10 +44,6 @@ export function go(url) {
   }
 }
 
-export function hashTab() {
-  try { return (location.hash || "").replace("#", ""); } catch (e) { return ""; }
-}
-
 // 탭을 바꾸면 주소 뒤의 #탭이름도 바꾼다. 그래야 탭 링크를 공유하고 뒤로 가기를 쓸 수 있다.
 export function pushTab() {
   try {

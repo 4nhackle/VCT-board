@@ -1,14 +1,9 @@
-import { esc, relDate, stampOf, stampLabel, srcHTML, fmtDate, isoOf } from "../format.js";
+import { esc, srcHTML, fmtDate, isoOf } from "../format.js";
 import { REGION_KO, TIER_KO, pillOf, ageOf, contractState, careerOf, newestFirst } from "../model.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
 import { listUrl, teamUrl } from "../state.js";
-
-// 소식 줄 앞에 붙는 탭 이름. 이적 행은 선수·코치 구분 없이 "이적 완료" 탭에 모인다.
-var TAB_NAME = { player: "선수", coach: "코치·스태프", t: "이적 완료" };
-
-// 빈 칸과 "-" 는 보여 주지 않는다.
-function val(v) { return v && v !== "-" ? v : ""; }
+import { val, newsRow } from "./common.js";
 
 // "2026-11" → "2026.11"
 function dotYM(s) { return String(s || "").replace("-", "."); }
@@ -107,15 +102,6 @@ function careerHTML(p, teams) {
   return '<section class="dp-sec"><h2>경력</h2><ol class="dp-career">' + items.join("") + "</ol></section>";
 }
 
-function newsRow(e) {
-  var it = e.item;
-  var when = relDate(it.date) + (stampLabel(it) ? " " + stampLabel(it) : "");
-  var teamText = e.kind === "t" ? [val(it.team), val(it.next)].filter(Boolean).join(" → ") : val(it.team);
-  var meta = [TAB_NAME[e.kind], teamText].filter(Boolean).map(esc).join(" · ");
-  return '<li class="dp-row"><p class="dp-meta">' + when + (meta ? " · " + meta : "") + "</p>" +
-    '<p class="dp-line">' + pill(pillOf(it)) + badge(it) + (val(it.note) ? " " + esc(it.note) : "") + srcHTML(it.src) + "</p></li>";
-}
-
 // 인물 상세 화면. 찾지 못하면 name 이 빈 문자열이다.
 export function personHTML(id, IDX) {
   var list = (IDX.byPerson[id] || []).slice().sort(newestFirst), p = IDX.people[id], teams = IDX.teams;
@@ -136,7 +122,7 @@ export function personHTML(id, IDX) {
   var notice = p ? "" : '<p class="dp-note">선수 정보는 정리 중입니다.</p>';
   var move = list.length ? moveHTML(list, p) : "";
   var teamSec = teamsHTML(list, p, teams);
-  var news = list.length ? '<ul class="dp-list">' + list.map(newsRow).join("") + "</ul>" : '<p class="dp-note">관련 소식이 없습니다.</p>';
+  var news = list.length ? '<ul class="dp-list">' + list.map(function (e) { return newsRow(e, false); }).join("") + "</ul>" : '<p class="dp-note">관련 소식이 없습니다.</p>';
   return {
     name: name,
     html: '<section class="detail-page">' + backHTML() + head + notice + move + teamSec + careerHTML(p, teams) +
