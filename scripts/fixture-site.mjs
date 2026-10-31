@@ -14,6 +14,9 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 for (const f of ["index.html", "og.png"]) fs.copyFileSync(path.join(root, f), path.join(out, f));
 for (const d of ["css", "js"]) fs.cpSync(path.join(root, d), path.join(out, d), { recursive: true });
+// 샘플 사이트에서도 build.mjs 를 돌릴 수 있게 scripts/build.mjs 를 함께 복사한다.
+fs.mkdirSync(path.join(out, "scripts"), { recursive: true });
+fs.copyFileSync(path.join(root, "scripts", "build.mjs"), path.join(out, "scripts", "build.mjs"));
 // data/ 자리에 샘플을 넣는다. 배포 코드에는 이런 분기가 없다.
 fs.cpSync(path.join(root, "scripts", "fixtures"), path.join(out, "data"), { recursive: true });
 console.log("샘플 사이트:", out);

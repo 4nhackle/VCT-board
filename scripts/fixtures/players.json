@@ -58,5 +58,19 @@
     "personId": "fx-five",
     "teamId": "fx-delta",
     "contractUntil": 46325
+  },
+  {
+    "region": "Americas",
+    "team": "Alpha Test",
+    "name": "FX SIX",
+    "position": "Initiator",
+    "nationality": "Brazil",
+    "status": "구직 중",
+    "date": 46325,
+    "conf": "C",
+    "note": "가상 행. people 행이 없어 임시 ID 로 묶인다(404 대체 진입 확인용)",
+    "src": "fx1",
+    "teamId": "fx-alpha",
+    "contractUntil": 46326
   }
 ]
