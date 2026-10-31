@@ -1,5 +1,62 @@
 [
-  {"region":"Americas","team":"Alpha Test","name":"FX ONE","position":"Duelist","nationality":"Canada","status":"탐색 허가","date":46322,"conf":"C","note":"가상 행","src":"fx1","personId":"fx-one","teamId":"fx-alpha","contractUntil":46326},
-  {"region":"Americas","team":"Alpha Test","name":"FX TWO","position":"Sentinel","nationality":"United States","status":"FA","date":46318,"conf":"C","note":"가상 행","src":"fx1","personId":"fx-two","teamId":"fx-alpha","contractUntil":46325},
-  {"region":"EMEA","team":"Beta Test","name":"FX FOUR","position":"Controller","nationality":"Finland","status":"LFT 게시","date":46321,"conf":"C","note":"가상 행","src":"fx1","personId":"fx-four","teamId":"fx-beta","contractUntil":46327}
+  {
+    "region": "Americas",
+    "team": "Alpha Test",
+    "name": "FX ONE",
+    "position": "Duelist",
+    "nationality": "Canada",
+    "status": "탐색 허가",
+    "date": 46322,
+    "conf": "C",
+    "note": "가상 행",
+    "src": "fx1",
+    "personId": "fx-one",
+    "teamId": "fx-alpha",
+    "contractUntil": 46326
+  },
+  {
+    "region": "Americas",
+    "team": "Alpha Test",
+    "name": "FX TWO",
+    "position": "Sentinel",
+    "nationality": "United States",
+    "status": "FA",
+    "date": 46318,
+    "conf": "C",
+    "note": "가상 행",
+    "src": "fx1",
+    "personId": "fx-two",
+    "teamId": "fx-alpha",
+    "contractUntil": 46325
+  },
+  {
+    "region": "EMEA",
+    "team": "Beta Test",
+    "name": "FX FOUR",
+    "position": "Controller",
+    "nationality": "Finland",
+    "status": "LFT 게시",
+    "date": 46321,
+    "conf": "C",
+    "note": "가상 행",
+    "src": "fx1",
+    "personId": "fx-four",
+    "teamId": "fx-beta",
+    "contractUntil": 46327
+  },
+  {
+    "region": "Pacific",
+    "team": "Delta Test",
+    "name": "FX FIVE",
+    "position": "Flex",
+    "nationality": "Japan",
+    "status": "팀 이탈 · 제한적 FA",
+    "date": 46316,
+    "conf": "C",
+    "note": "가상 행. 운영 종료 팀 소속",
+    "src": "fx1",
+    "personId": "fx-five",
+    "teamId": "fx-delta",
+    "contractUntil": 46325
+  }
 ]
