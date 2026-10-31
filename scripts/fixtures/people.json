@@ -1,0 +1,7 @@
+[
+  {"id":"fx-one","name":"FX ONE","realName":"Alex Test","kind":"player","role":"Duelist","nationality":"Canada","birth":"2001-10-31","contractUntil":46326,"career":[{"team":"fx-alpha","from":"2023-03","to":"2026-10"},{"team":"fx-beta","from":"2026-11","to":null,"role":"Initiator"}],"links":{"vlr":"https://example.com/vlr/fx-one","liquipedia":"https://example.com/liquipedia/fx-one"},"src":"fx1"},
+  {"id":"fx-two","name":"FX TWO","realName":"Blake Sample","kind":"player","role":"Sentinel","nationality":"United States","birth":"2001-11-01","contractUntil":46325,"career":[{"team":"fx-delta","from":"2022-01","to":"2023-06"},{"team":"fx-alpha","from":"2023-07","to":null}],"links":{"vlr":"https://example.com/vlr/fx-two"},"src":"fx1"},
+  {"id":"fx-three","name":"FX THREE","kind":"player","role":"Controller","nationality":"Germany","birth":"2001","career":[],"links":{},"src":"fx1"},
+  {"id":"fx-four","name":"FX FOUR","kind":"player","role":"Controller","nationality":"Finland","birth":"2001-10-30","contractUntil":46327,"career":[{"team":"fx-beta","from":"2024-05","to":null}],"links":{},"src":"fx1"},
+  {"id":"fx-coach","name":"FX COACH","kind":"coach","role":"헤드 코치","nationality":"Canada","career":[{"team":"fx-alpha","from":"2024-01","to":null,"role":"헤드 코치"}],"links":{},"src":"fx1"}
+]
