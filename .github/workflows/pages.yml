@@ -1,0 +1,51 @@
+name: pages
+
+# main 에 push 되면 검증 → 빌드 → 배포. main 이 아닌 브랜치 push 는 검증과 빌드까지만 하고 배포하지 않는다.
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 같은 브랜치의 연속 push 는 마지막 것만 남긴다. 브랜치마다 그룹이 달라, 다른 브랜치 push 가 main 배포를 취소하지 않는다.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 단위 시험
+        run: node scripts/test.mjs
+      # 검증이 실패하면 이 단계에서 멈추고, 뒤의 단계(빌드·배포)는 실행되지 않는다.
+      - name: 데이터 검증
+        run: node scripts/validate.mjs
+      - name: 정적 페이지 빌드
+        run: node scripts/build.mjs _site
+      # 배포용 산출물은 main 에서만 올린다. 다른 브랜치는 검증과 빌드까지만 한다.
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    # main 에서만 배포한다.
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    # 배포에 필요한 권한은 이 job 에만 준다.
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

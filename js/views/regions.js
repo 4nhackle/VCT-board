@@ -1,6 +1,7 @@
 import { esc } from "../format.js";
 import { REGIONS, REGION_KO } from "../model.js";
 import { rowHTML } from "../components/row.js";
+import { teamUrl } from "../state.js";
 
 export function regionsHTML(items, tab) {
   var out = "";
@@ -19,7 +20,9 @@ export function regionsHTML(items, tab) {
     teams.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
     teams.forEach(function (t) {
       var inTeam = inReg.filter(function (it) { return it.team === t; });
-      out += '<h3 class="th">' + esc(t) + (inTeam.length > 1 ? '<span class="n">' + inTeam.length + "명</span>" : "") + "</h3>";
+      // 팀 머리글도 팀 상세로 간다. 같은 팀 이름의 행은 같은 팀 ID 이므로 첫 행의 ID 를 쓴다.
+      var tid = inTeam[0].tid, tname = tid ? '<a href="' + esc(teamUrl(tid)) + '">' + esc(t) + "</a>" : esc(t);
+      out += '<h3 class="th">' + tname + (inTeam.length > 1 ? '<span class="n">' + inTeam.length + "명</span>" : "") + "</h3>";
       out += '<ul class="list">' + inTeam.map(function (it) { return rowHTML(it, tab, { noTeam: true }); }).join("") + "</ul>";
     });
   });
