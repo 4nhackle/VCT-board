@@ -7,6 +7,7 @@ import { scheduleHTML } from "./views/schedule.js";
 import { suggestHTML, bindSuggest } from "./views/suggest.js";
 
 var FILES = ["sources", "players", "coaches", "transfers", "watch", "schedule"];
+var OPTIONAL = ["people", "teams"];
 var STATUS_LABELS = [["all", "전체"], ["open", "구직 중"], ["signed", "새 팀 합류"], ["left", "팀 떠남"]];
 var D = {}, TABS = [];
 
@@ -106,13 +107,18 @@ $("q").addEventListener("input", function (e) {
   renderView();
 });
 
-Promise.all(FILES.map(function (f) {
+function load(f) {
   return fetch("data/" + f + ".json").then(function (r) {
     if (!r.ok) throw new Error(f + " " + r.status);
     return r.json();
   });
-})).then(function (all) {
-  FILES.forEach(function (f, i) { D[f] = all[i]; });
+}
+// 선택 파일은 아직 없을 수 있다(배포 초기에는 정상). 실패하면 조용히 빈 배열로 둔다.
+Promise.all(FILES.map(load).concat(OPTIONAL.map(function (f) {
+  return load(f).catch(function () { return []; });
+}))).then(function (all) {
+  FILES.concat(OPTIONAL).forEach(function (f, i) { D[f] = all[i]; });
+  OPTIONAL.forEach(function (f) { if (!Array.isArray(D[f])) D[f] = []; });
   TABS = buildTabs(D);
   if (tabById(hashTab())) state.tab = hashTab();
   renderChrome();

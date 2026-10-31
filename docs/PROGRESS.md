@@ -9,7 +9,7 @@
 - [x] S0-02 작업 브랜치 생성과 기준 확인
 
 ### 1단계: ID·라우팅·인물 상세 뼈대 (S1)
-- [ ] S1-01 데이터 로더 확장
+- [x] S1-01 데이터 로더 확장
 - [ ] S1-02 인덱스 생성
 - [ ] S1-03 ID·경로 유틸
 - [ ] S1-04 라우터
@@ -46,6 +46,6 @@
 
 ## 결정·변경
 - (1회차) pandoc 이 설치돼 있지 않아 docx 는 python(zipfile + XML)으로 본문을 추출해 읽었다. 문서 내용에는 영향 없음.
-- (1회차, S0-02) 기준 캡처는 `python -m http.server` 로 저장소 루트(/)를 열어 Playwright 로 찍었다. 위치: 저장소 밖 /tmp/vct-baseline/ (Windows: %TEMP%ct-baseline). 탭 6개 + 선수 탭 최근 소식순, 폭 390·1280, 각 .png 와 .page DOM(.html).
+- (1회차, S0-02) 기준 캡처는 `python -m http.server` 로 저장소 루트(/)를 열어 Playwright 로 찍었다. 위치: 저장소 밖 /tmp/vct-baseline/ (Windows: %TEMP%\vct-baseline). 탭 6개 + 선수 탭 최근 소식순, 폭 390·1280, 각 .png 와 .page DOM(.html).
 
 ## 다음 회차에 알릴 점
