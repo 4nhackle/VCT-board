@@ -107,6 +107,17 @@ export function newestFirst(a, b) {
   return sb - sa;
 }
 
+// 팀 이름: teams.json 에 있으면 그 이름, 없으면 소식 행의 팀 이름(이적은 이전 팀 쪽), 그래도 없으면 ID.
+export function teamNameOf(id, list) {
+  for (var i = 0; i < list.length; i++) {
+    var e = list[i];
+    if (e.kind === "watch") continue;
+    var n = e.kind === "t" ? (e.item.tidFrom === id ? e.item.team : e.item.next) : e.item.team;
+    if (n && n !== "-") return n;
+  }
+  return id;
+}
+
 export var TIER_KO = { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" };
 
 // 팀 화면용: 현재 로스터(진행 중 경력 칸이 이 팀인 인물), 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).

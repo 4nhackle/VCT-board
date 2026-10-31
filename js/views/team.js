@@ -1,5 +1,5 @@
 import { esc, relDate, srcHTML, stampLabel } from "../format.js";
-import { REGION_KO, TIER_KO, pillOf, teamMoves, newestFirst } from "../model.js";
+import { REGION_KO, TIER_KO, pillOf, teamMoves, teamNameOf, newestFirst } from "../model.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
 import { personUrl } from "../state.js";
@@ -13,17 +13,6 @@ function val(v) { return v && v !== "-" ? v : ""; }
 // 인물 이름. pid 가 없으면 링크 없이 글자만 둔다.
 function nameLink(pid, text) {
   return pid ? '<a href="' + esc(personUrl(pid)) + '">' + esc(text) + "</a>" : esc(text);
-}
-
-// 팀 이름: teams.json 에 있으면 그 이름, 없으면 소식 행의 팀 이름(이적은 이전 팀 쪽), 그래도 없으면 ID.
-function teamNameOf(id, list) {
-  for (var i = 0; i < list.length; i++) {
-    var e = list[i];
-    if (e.kind === "watch") continue;
-    var n = e.kind === "t" ? (e.item.tidFrom === id ? e.item.team : e.item.next) : e.item.team;
-    if (val(n)) return n;
-  }
-  return id;
 }
 
 // 들어온·나간 인물 한 줄: 이름, 날짜, 이동 경로(이적) 또는 소속 팀·상태(LFT·FA).
