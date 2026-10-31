@@ -8,6 +8,13 @@ export function saveOrder(order) {
   try { localStorage.setItem("vct-order", order); } catch (e) {}
 }
 
+// 사이트 루트 경로(이 파일 js/state.js 기준). 배포는 "/VCT-board/", 루트로 열면 "/".
+// 상세 주소로 pushState 하면 상대 경로의 기준이 바뀌므로 사이트 안 주소는 항상 BASE 로 시작하는 절대 경로로 만든다.
+export var BASE = new URL("../", import.meta.url).pathname;
+export function personUrl(id) { return BASE + "p/" + id + "/"; }
+export function teamUrl(id) { return BASE + "t/" + id + "/"; }
+export function listUrl(tab) { return BASE + "#" + tab; }
+
 export function hashTab() {
   try { return (location.hash || "").replace("#", ""); } catch (e) { return ""; }
 }

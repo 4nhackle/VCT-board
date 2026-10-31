@@ -3,6 +3,20 @@ export var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
 export var REGION_KO = { Americas: "아메리카", EMEA: "유럽·중동·아프리카", Pacific: "아시아태평양", China: "중국" };
 var KR_TEAMS = /^(T1|KIWOOM DRX|Nongshim RedForce|Gen\.G|DRX)$/i;
 
+// 인물·팀 ID 형식. 주소(p/<id>/, t/<id>/)에 그대로 쓴다.
+export var ID_RE = /^[a-z0-9-]+$/;
+
+// 이름 → 임시 ID. 소문자, 악센트 제거, 영문·숫자 외는 하이픈. 남는 글자가 없으면(한자 이름 등) "x-" + 짧은 해시.
+export function slugOf(s) {
+  var raw = String(s == null ? "" : s).trim();
+  var id = raw.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  if (id) return id;
+  // FNV-1a 32비트
+  var h = 2166136261;
+  for (var i = 0; i < raw.length; i++) { h ^= raw.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return "x-" + h.toString(36);
+}
+
 export function toItem(r, kind, S) {
   if (kind === "player") return { region: r.region, team: r.team, name: r.name, sub: [r.position, r.nationality].filter(Boolean).join(", "), status: r.status, date: r.date, conf: r.conf, note: r.note, src: S[r.src] };
   if (kind === "coach") return { region: r.region, team: r.team, name: r.name, sub: r.role, status: r.status, date: r.date, conf: r.conf, note: r.note, src: S[r.src] };
