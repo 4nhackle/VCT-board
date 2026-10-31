@@ -10,7 +10,7 @@
 
 ### 1단계: ID·라우팅·인물 상세 뼈대 (S1)
 - [x] S1-01 데이터 로더 확장
-- [ ] S1-02 인덱스 생성
+- [x] S1-02 인덱스 생성
 - [x] S1-03 ID·경로 유틸
 - [ ] S1-04 라우터
 - [ ] S1-05 목록 상태·스크롤 복원
@@ -47,5 +47,12 @@
 ## 결정·변경
 - (1회차) pandoc 이 설치돼 있지 않아 docx 는 python(zipfile + XML)으로 본문을 추출해 읽었다. 문서 내용에는 영향 없음.
 - (1회차, S0-02) 기준 캡처는 `python -m http.server` 로 저장소 루트(/)를 열어 Playwright 로 찍었다. 위치: 저장소 밖 /tmp/vct-baseline/ (Windows: %TEMP%\vct-baseline). 탭 6개 + 선수 탭 최근 소식순, 폭 390·1280, 각 .png 와 .page DOM(.html).
+- (1회차, S0-02) 폭 390 에서 탭·지역 줄의 가운데 맞춤(scrollLeft)이 폰트 로드 시점에 따라 흔들려, 같은 코드끼리도 캡처가 달라졌다. 비교용 캡처는 찍기 직전 #tabs·#regions 의 scrollLeft 를 0 으로 고정한다(캡처 스크립트만의 처리, 사이트 코드는 그대로).
+- (1회차, S1-03) slugOf 가 S1-02 에 필요해 S1-03 을 S1-02 보다 먼저 했다(S1-03 의 선행은 S0-02 뿐이라 체크리스트 순서와 충돌 없음). 해시는 FNV-1a 32비트를 36진수로 쓴다.
+- (1회차, S1-02) buildIndex 의 kind 는 toItem 의 kind 그대로("player", "coach", "t", "watch")다. watch 행은 인물 ID 가 없고 item.tids(배열)만 붙인다. 이적 행의 from·to 가 같은 팀이면 byTeam 에 한 번만 넣는다.
+- (1회차, S1-02) 임시 ID 충돌 점검(현재 data/, 2026-10-31):
+  - 인물: 충돌 없음. 한 임시 ID 에 서로 다른 이름 표기가 묶이거나 선수·코치가 섞인 경우 0건, 같은 파일 안에서 같은 ID 가 두 행 이상인 경우(동명이인 후보) 0건.
+  - 팀 `leviatan`: "Leviatán" 과 "LEVIATÁN" 이 묶인다. 같은 팀이므로 의도대로다.
+  - 팀 `sentinels`: players 의 TenZ 행 팀 칸 "(은퇴 · 전 Sentinels)" 이 한글·기호가 빠지며 Sentinels 와 같은 ID 가 된다. 그래서 임시 ID 로는 TenZ 소식이 Sentinels 팀 소식에 섞인다. 설계(slugOf 규칙)를 바꾸지 않고 그대로 두었다. 시트에 teamId 가 채워지면 해결된다. 3회차 팀 상세(S3-01) 전까지 데이터가 그대로면 다시 판단한다.
 
 ## 다음 회차에 알릴 점

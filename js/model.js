@@ -42,6 +42,46 @@ export function buildTabs(D) {
   ];
 }
 
+// 인물·팀별 소식 모음. 탭과 상관없이 한 사람·한 팀의 행을 모은다.
+// 반환: { people: {id → 인물}, teams: {id → 팀}, byPerson: {id → [{kind, row, item}]}, byTeam: {id → [...]} }
+// ID 가 없는 행은 이름으로 만든 임시 ID(slugOf)로 묶는다. item 은 toItem() 결과에 pid·tid(이적은 tidFrom·tidTo, watch 는 tids)만 붙인다.
+export function buildIndex(D) {
+  var IDX = { people: {}, teams: {}, byPerson: {}, byTeam: {} };
+  var S = D.sources || {}, T = D.transfers || {};
+  (D.people || []).forEach(function (p) { IDX.people[p.id] = p; });
+  (D.teams || []).forEach(function (t) { IDX.teams[t.id] = t; });
+  function add(map, id, e) { if (map[id]) { if (map[id].indexOf(e) < 0) map[id].push(e); } else map[id] = [e]; }
+  function tidOf(id, name) { return id || (name ? slugOf(name) : ""); }
+  function each(rows, kind) {
+    (rows || []).forEach(function (r) {
+      var it = toItem(r, kind, S), e = { kind: kind, row: r, item: it }, tids;
+      if (kind === "watch") {
+        // 한 행에 팀이 여럿일 수 있다("FURIA / M80 / FlyQuest").
+        it.tids = r.teamIds || String(r.team || "").split(" / ").filter(Boolean).map(slugOf);
+        tids = it.tids;
+      } else {
+        it.pid = r.personId || slugOf(r.name);
+        add(IDX.byPerson, it.pid, e);
+        if (kind === "t") {
+          it.tidFrom = tidOf(r.fromTeam, r.from);
+          it.tidTo = tidOf(r.toTeam, r.to);
+          tids = [it.tidFrom, it.tidTo];
+        } else {
+          it.tid = tidOf(r.teamId, r.team);
+          tids = [it.tid];
+        }
+      }
+      tids.forEach(function (id) { if (id) add(IDX.byTeam, id, e); });
+    });
+  }
+  each(D.players, "player");
+  each(D.coaches, "coach");
+  each(T.players, "t");
+  each(T.coaches, "t");
+  each(D.watch, "watch");
+  return IDX;
+}
+
 // 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남.
 export function pillOf(it) {
   if (it.moved) return ["signed", /잔류/.test(it.status) ? "잔류" : it.next + " 합류"];
