@@ -12,7 +12,7 @@ var FILES = ["sources", "players", "coaches", "transfers", "watch", "schedule"];
 var OPTIONAL = ["people", "teams"];
 var STATUS_LABELS = [["all", "전체"], ["open", "구직 중"], ["signed", "새 팀 합류"], ["left", "팀 떠남"]];
 var DETAIL_HIDE = ["tabs", "summary", "filters", "fresh", "sgview"];
-var D = {}, TABS = [], IDX = { people: {}, teams: {}, byPerson: {}, byTeam: {} };
+var D = {}, TABS = [], IDX = { people: Object.create(null), teams: Object.create(null), byPerson: Object.create(null), byTeam: Object.create(null) };
 // 지금 화면(list, person, team, notfound)과, 상세로 오기 직전이 목록이었는지.
 var VIEW = "", FROM_LIST = false;
 

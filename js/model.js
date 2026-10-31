@@ -2,7 +2,8 @@
 import { TODAY, isoOf, stampOf } from "./format.js";
 
 export var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
-export var REGION_KO = { Americas: "아메리카", EMEA: "유럽·중동·아프리카", Pacific: "아시아태평양", China: "중국" };
+// 데이터 값으로 찾는 표는 상속 속성(constructor 등)이 걸리지 않게 null 원형으로 만든다.
+export var REGION_KO = Object.assign(Object.create(null), { Americas: "아메리카", EMEA: "유럽·중동·아프리카", Pacific: "아시아태평양", China: "중국" });
 var KR_TEAMS = /^(T1|KIWOOM DRX|Nongshim RedForce|Gen\.G|DRX)$/i;
 
 // 인물·팀 ID 형식. 주소(p/<id>/, t/<id>/)에 그대로 쓴다.
@@ -19,11 +20,16 @@ export function slugOf(s) {
   return "x-" + h.toString(36);
 }
 
+// 객체에서 자기 속성만 읽는다. 데이터 값이 constructor 같은 이름이어도 상속 속성을 돌려주지 않는다.
+export function own(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined;
+}
+
 export function toItem(r, kind, S) {
-  if (kind === "player") return { region: r.region, team: r.team, name: r.name, sub: [r.position, r.nationality].filter(Boolean).join(", "), status: r.status, date: r.date, conf: r.conf, note: r.note, src: S[r.src] };
-  if (kind === "coach") return { region: r.region, team: r.team, name: r.name, sub: r.role, status: r.status, date: r.date, conf: r.conf, note: r.note, src: S[r.src] };
-  if (kind === "watch") return { region: r.region, team: r.team, name: r.targets, note: r.situation, src: S[r.src] };
-  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, src: S[r.src] };
+  if (kind === "player") return { region: r.region, team: r.team, name: r.name, sub: [r.position, r.nationality].filter(Boolean).join(", "), status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
+  if (kind === "coach") return { region: r.region, team: r.team, name: r.name, sub: r.role, status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
+  if (kind === "watch") return { region: r.region, team: r.team, name: r.targets, note: r.situation, src: own(S, r.src) };
+  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
 }
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
@@ -118,7 +124,7 @@ export function teamNameOf(id, list) {
   return id;
 }
 
-export var TIER_KO = { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" };
+export var TIER_KO = Object.assign(Object.create(null), { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" });
 
 // 팀 화면용: 현재 로스터(진행 중 경력 칸이 이 팀인 인물), 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
 // 인물은 한 번만 넣는다(가장 최근 소식 기준). 반환 인물 목록은 같은 규칙으로 정렬한다.
@@ -144,7 +150,7 @@ export function teamMoves(id, IDX) {
 // 반환: { people: {id → 인물}, teams: {id → 팀}, byPerson: {id → [{kind, row, item}]}, byTeam: {id → [...]} }
 // ID 가 없는 행은 이름으로 만든 임시 ID(slugOf)로 묶는다. item 은 toItem() 결과에 pid·tid(이적은 tidFrom·tidTo, watch 는 tids)만 붙인다.
 export function buildIndex(D) {
-  var IDX = { people: {}, teams: {}, byPerson: {}, byTeam: {} };
+  var IDX = { people: Object.create(null), teams: Object.create(null), byPerson: Object.create(null), byTeam: Object.create(null) };
   var S = D.sources || {}, T = D.transfers || {};
   (D.people || []).forEach(function (p) { IDX.people[p.id] = p; });
   (D.teams || []).forEach(function (t) { IDX.teams[t.id] = t; });

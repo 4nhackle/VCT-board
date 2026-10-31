@@ -32,7 +32,7 @@ for (const [file, rows] of Object.entries(sets)) {
   rows.forEach((r, i) => {
     const at = `${file}[${i}] ${r.name || r.team || ""}`;
     if (!REGIONS.includes(r.region)) errors.push(`${at}: 지역 "${r.region}" 이(가) REGIONS에 없습니다`);
-    if (!(r.src in sources)) errors.push(`${at}: 출처 키 "${r.src}" 이(가) sources.json에 없습니다`);
+    if (!Object.prototype.hasOwnProperty.call(sources, r.src)) errors.push(`${at}: 출처 키 "${r.src}" 이(가) sources.json에 없습니다`);
     else used.add(r.src);
     if ("date" in r && typeof r.date !== "number") warns.push(`${at}: 날짜가 숫자(시트 일련번호)가 아닙니다`);
     if ("conf" in r && !["C", "R"].includes(r.conf)) errors.push(`${at}: conf "${r.conf}" 은(는) C나 R이어야 합니다`);
