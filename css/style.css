@@ -109,6 +109,12 @@ p.site { font-size: var(--fs-2); font-weight: 700; color: var(--mute); letter-sp
 .th a { color: var(--ink); text-decoration: none; }
 .th a:hover { text-decoration: underline; }
 .th .n { font-weight: 400; font-size: var(--fs-1); font-variant-numeric: tabular-nums; }
+/* 팀 공통 배경: 팀 머리 아래 한 번. 왼쪽 선으로 묶고 본문은 --fs-2 로 줄인다. */
+.tnote { max-width: 72ch; margin: 0 0 var(--sp-2); padding-left: var(--sp-3); border-left: 2px solid var(--line); color: var(--mute); font-size: var(--fs-2); }
+.tnote .detail { margin: 0; font-size: var(--fs-2); line-height: 1.6; }
+.tnote .srcs { margin-top: var(--sp-1); }
+.tnote + .list > .row:first-child { border-top: 0; }
+.tlink { color: var(--mute); font-size: var(--fs-1); }
 .list { list-style: none; margin: 0; padding: 0; }
 
 /* ── 행: 왼쪽 띠(상태색) | 이름·메타 | 상태·날짜, 아래에 본문과 출처 줄 */

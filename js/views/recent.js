@@ -1,6 +1,6 @@
-import { fmtDate, dayWord, stampOf } from "../format.js";
-import { REGIONS } from "../model.js";
-import { state } from "../state.js";
+import { esc, fmtDate, dayWord, stampOf } from "../format.js";
+import { REGIONS, ownItem } from "../model.js";
+import { state, teamUrl } from "../state.js";
 import { rowHTML } from "../components/row.js";
 
 // 최근 소식순: 보도 날짜별로 묶어 최신부터.
@@ -29,6 +29,10 @@ export function recentHTML(items, tab) {
       if (w === fmtDate(n)) head = full; else { head = w; sub = full; }
     }
     return '<div class="rh"><h2>' + head + '</h2><span class="en">' + sub + '</span><span class="n">' + inDay.length + "건</span></div>" +
-      '<ul class="list">' + inDay.map(function (it) { return rowHTML(it, tab, { region: state.region === "all" }); }).join("") + "</ul>";
+      '<ul class="list">' + inDay.map(function (it) {
+        // 팀이 섞여 있으므로 팀 공통 배경은 행에서 빼고, 팀 상세로 가는 작은 링크만 둔다.
+        var o = ownItem(it, tab.shared), moved = o !== it && it.tid;
+        return rowHTML(o, tab, { region: state.region === "all", more: moved ? '<p class="detail"><a class="tlink" href="' + esc(teamUrl(it.tid)) + '">팀 공통 소식 →</a></p>' : "" });
+      }).join("") + "</ul>";
   }).join("");
 }

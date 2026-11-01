@@ -39,5 +39,5 @@ export function rowHTML(it, tab, opt) {
     (meta ? '<span class="meta">' + esc(meta) + "</span>" : "") + "</div>" +
     '<div class="state">' + pill(p) + badge(it) +
     '<span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "") + " 보도</span></div>" +
-    (lead || sp.body ? '<p class="detail">' + lead + esc(sp.body) + "</p>" : "") + srcsHTML(sp, it.src) + "</li>";
+    (lead || sp.body ? '<p class="detail">' + lead + esc(sp.body) + "</p>" : "") + (opt.more || "") + srcsHTML(sp, it.src) + "</li>";
 }

@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, cls } from "../js/model.js";
+import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, cls, noteSegments, sharedTails, ownPart } from "../js/model.js";
 import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
@@ -250,6 +250,37 @@ t("cls: 보도·확정 모두 signed, 임박 글은 unknown 그대로(필터 불
   assert.equal(cls({ status: "계약 완료(Mandatory)", conf: "C" }), "signed");
   assert.equal(cls(mv({ conf: "R" })), "signed");
   assert.equal(cls({ status: "BLG 합류 임박(보도)", conf: "R" }), "unknown");
+});
+
+// P2 메모: 같은 팀의 같은 꼬리는 팀 머리에 한 번, 행에는 개인 부분만. 화면 나눔이고 데이터는 그대로다.
+const memo = (team, note) => ({ team, note });
+t("sharedTails: 같은 팀 세 행이 같은 꼬리면 공통 꼬리 하나, 개인 부분은 나머지", () => {
+  const items = [memo("FURIA", "개인 A / 발로란트 철수 (출처 10/30)"), memo("FURIA", "개인 B / 발로란트 철수 (출처 10/30)"), memo("FURIA", "개인 C / 발로란트 철수 (출처 10/30)")];
+  const S = sharedTails(items);
+  assert.equal(S.size, 1);
+  assert.equal(S.get("FURIA"), "발로란트 철수 (출처 10/30)");
+  assert.deepEqual(items.map(it => ownPart(it.note, S.get(it.team))), ["개인 A", "개인 B", "개인 C"]);
+});
+t("sharedTails: 꼬리가 같아도 팀이 다르면 공통 아님", () => {
+  const items = [memo("FURIA", "개인 / 꼬리"), memo("NRG", "개인 / 꼬리")];
+  assert.equal(sharedTails(items).size, 0);
+});
+t("sharedTails: 한 행에만 있는 꼬리는 공통 아님, ownPart 는 메모 전체", () => {
+  const items = [memo("EG", "개인 / 한 행의 꼬리"), memo("EG", "다른 메모")];
+  const S = sharedTails(items);
+  assert.equal(S.size, 0);
+  assert.equal(ownPart(items[0].note, S.get("EG")), "개인 / 한 행의 꼬리");
+});
+t("sharedTails: 메모 전체가 같은 한 조각(EG 꼴)이면 개인 부분은 빈 문자열", () => {
+  const items = [memo("EG", "EG는 11/2 운영 종료."), memo("EG", "EG는 11/2 운영 종료."), memo("EG", "EG는 11/2 운영 종료.")];
+  assert.equal(ownPart(items[0].note, sharedTails(items).get("EG")), "");
+});
+t("noteSegments·sharedTails·ownPart: 빈 메모와 ' / ' 없는 메모에서 오류 없음", () => {
+  assert.deepEqual(noteSegments(""), []);
+  assert.deepEqual(noteSegments(undefined), []);
+  assert.equal(sharedTails([memo("X", ""), memo("X", null), memo("X", undefined)]).size, 0);
+  assert.equal(ownPart(undefined, undefined), "");
+  assert.equal(ownPart("한 조각", "한 조각"), "");
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
