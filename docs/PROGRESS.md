@@ -281,6 +281,42 @@ node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
 - 확인 방법: `git ls-remote https://github.com/actions/<이름> 'refs/tags/v4' 'refs/tags/v4.*'` 로 메이저 태그와 같은 커밋을 가진 정확한 버전을 찾았다.
 - 제안(추가하지 않음): 버전 올림은 Dependabot 같은 도구로 자동화할 수 있다.
 
+## 10회차 영문판 1: 화면 문구 사전 분리와 영문 표기 형식 (2026-11-02)
+- 브랜치 feature/i18n-1 (origin/main `036b399` 기준, worktree). 화면 변화 없음(한국어 출력 그대로, 영문은 아직 주소로 열리지 않는다).
+- 영문판 전체 계획(지시문 기준):
+
+| 단계 | 내용 | 회차 |
+|---|---|---|
+| 1 | 화면 문구를 사전으로 분리. 한국어 화면은 한 글자도 바뀌지 않음 | 10 |
+| 2 | 언어별 표기 형식: 시각, 상대 날짜, 인원·나이·계약 문구 | 10 |
+| 3 | 상태 알약과 상태 용어집의 영문 | 11 |
+| 4 | `/VCT-board/en/` 주소, 정적 빌드, EN/KR 전환 버튼 | 11 |
+| 5 | 예약 작업이 비고·상황·일정 제목을 번역해 `*_en` 필드에 씀 | 12(예약 작업 변경) |
+| 6 | 건의 폼, 약관·개인정보 영문 요약 | 12 |
+
+- 지킬 결정: 주소로만 언어를 정한다(`en/` 아래). 전환은 페이지를 실제로 이동한다. 고른 언어는 `vct-lang` 에 기억(아직 미구현). 데이터 원문은 한국어 그대로 둔다. GoatCounter 는 같은 사이트 코드.
+- 처리:
+  - `js/i18n.js`: `LANG`, `setLang`, `t`, `tIn(lang, key, params)`. 브라우저에서는 주소가 `…/en/` 이면 en, 아니면 ko. Node 에서는 ko.
+  - `js/i18n/ko.js`(값은 지금 화면 글자 그대로), `js/i18n/en.js`(같은 키). 두 사전의 키 집합은 같다(시험으로 확인).
+  - `REGION_KO`·`TIER_KO`·`TAB_NAME` 을 `regionName()`·`tierName()`·`tabName()` 으로 바꿨다(쓰는 시점에 사전을 읽는다).
+  - 화면 문구를 사전으로 옮김: `model.js`(탭·알약·계약·지켜볼 팀 종류), `format.js`(오전·오후, 오늘·어제·N일 전, 출처), `main.js`, `views/common·person·team·regions·recent·schedule·suggest.js`, `components/row·route·badge.js`, `scripts/build.mjs`(제목 접미사, 설명 문장).
+  - 데이터 판정 정규식은 그대로 두고 `데이터 판정용` 주석을 달았다: `/계약 완료/`, `/잔류/`, `/구직|탐색/`, `REPORTED_RE`, `/방출|결별|이탈/`, `/^\[확정\]/`, `" 합류"` 검색, `WATCH_KINDS` 정규식, `CROSS_RE`, 소식 줄 앞머리 정규식, `South Korea`·팀 이름 판정.
+  - 표기 함수가 언어를 받는다(기본값 `LANG`): `fmtDate`, `dateWord`, `clockText`, `stampLabel`, `dayWord`, `relDate`, `srcHTML`. 날짜 계산(일련번호, `stampOf`, `parseStamp`, `TODAY`)은 그대로.
+  - 영문 표기: 날짜 `Oct 25`, 시각 `1:30 AM`, 상대 날짜 `Today`·`Yesterday`·`3 days ago`, 인원 `3 players`, 나이 `24`, D-day `in 3 days`. 최근 소식순 머리는 `Oct 25 (Mon)`.
+- 조사 결과(1장): 한글 문자열 리터럴 187곳 중 화면 문구가 대부분이고, 데이터 판정은 약 12곳, 빌드 로그·오류 메시지 6곳(화면이 아니라서 그대로). 판정으로 남긴 문자열은 위 목록.
+- 새로 정한 영문 문구(사전 밖 표현은 같은 어조로): "VCT LFT·FA Tracker", "Latest news", "New in the last 3 days", "{n} new", "Jump to", "Not yet official", "Expires today", "Date unknown", "Transfer completed", "Team-wide news →", "Career data source, CC BY-SA 3.0", "Send with email app", "Copy message", "Reference link (optional)", "Reported: joined {team}", "Stayed", "Looking for team", "Unverified", "Withdrawn or disbanded", "Lost partnership", "Contract expiring", "Reported joining", "No related news.", "This team has closed. There is no current roster."
+- 남긴 것(다음 회차, 3·4단계 입력):
+  - 상태 원문이 화면에 그대로 나오는 곳: `row.js` 줄 머리(`esc(it.status)`)와 `person.js` 이번 이동 제목의 대체 글(`val(it.status)`). 영문에서도 원문은 한국어로 보인다.
+  - 경로 줄(`routeHTML`)의 어순: 한국어 "A 에서 B 로" 구조라 영문 어순("from A to B")은 3단계에서 맞춘다.
+  - `recent.js` 의 "M월 D일 (요일)" 은 한국어 분기에만 있다(영문 분기는 `dateWord` 사용).
+  - `index.html` 정적 문구, 약관·개인정보 페이지, 건의 폼의 안내 문단 일부: 4단계.
+- 확인:
+  - `node scripts/test.mjs` 77개 통과. 새 시험 7개: 사전(키·빈 값·매개변수·영문 한글 없음), `tIn`(폴백·끼우기), ko 출력 고정, en 표기, 보도 시각 날짜 넘김, `dayWord`, en 화면 문구에 한글 없음.
+  - `node scripts/validate.mjs` 오류 0, 경고 469(작업 전과 같음).
+  - `build.mjs _site` 인물 139쪽·팀 334쪽·sitemap 476개(작업 전과 같음). 정적 HTML 은 기준선과 전부 같다. 바뀐 것은 `js/` 파일과 새 `js/i18n/` 뿐이다.
+  - 브라우저 40 화면(375·1280 × 라이트·다크 × 목록 7개·인물·팀·없는 주소): 렌더된 DOM 은 40/40 같고 콘솔 오류 0.
+  - 픽셀 비교는 끝내지 못했다. 같은 기준선을 두 번 찍어도 40 화면 중 12개가 달라서, 이 하네스의 스크린샷은 원래 흔들린다. 지시문의 픽셀 비교를 대신할 방법(고정 시각 캡처 등)이 필요하다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
