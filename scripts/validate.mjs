@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { REGIONS, toItem, pillOf, idsOf, ID_RE } from "../js/model.js";
+import { REGIONS, toItem, pillOf, idsOf, ID_RE, slugOf } from "../js/model.js";
 import { stampOf } from "../js/format.js";
 
 const dir = process.argv[2] ? path.resolve(process.argv[2]) : fileURLToPath(new URL("../data/", import.meta.url));
@@ -41,7 +41,7 @@ for (const [file, rows] of Object.entries(sets)) {
     if (kindOf[file]) {
       const it = toItem(r, kindOf[file], sources);
       if (pillOf(it)[0] === "unknown") warn(file, "상태 읽기", `${at}: 상태 "${it.status}" 을(를) 화면이 읽지 못해 "확인 필요"로 나옵니다`);
-      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각이 날짜 칸과 맞지 않아 화면에서 빠집니다`);
+      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각(M/D)이 날짜 칸과 다른 날이라 날짜 옆 시각 표시만 빠집니다(출처 줄에는 나옵니다). 날짜 칸이나 비고 중 하나가 틀렸는지 확인하세요`);
     }
     const id = [r.team, r.name, r.targets].join("|").toLowerCase();
     if (seen.has(id)) errors.push(`${at}: ${seen.get(id)}번째 행과 중복입니다`);
@@ -137,6 +137,47 @@ if (hasPeople) {
     else if (!String(p.nationality || "").trim() || p.nationality === "-" || !String(p.role || "").trim() || p.role === "-") warn("people", "국적·역할 빈 칸", `people ${pid}: 국적 또는 역할이 빈 칸입니다`);
   }
 }
+
+// ── 같은 ID 가 되는 서로 다른 이름·팀 (경고만). slugOf 는 대소문자·악센트·기호를 지워서 "ZYZZ"와 "zyzz"가 한 ID 가 된다.
+// 같은 글자가 여러 행에 나오는 것은 정상이라 경고하지 않는다. "-" 와 빈 칸은 이름이 없는 것이다.
+function clashes(list, what, tail) {
+  const byId = new Map();
+  for (const { text, where } of list) {
+    const id = slugOf(text);
+    if (!byId.has(id)) byId.set(id, new Map());
+    const forms = byId.get(id);
+    if (!forms.has(text)) forms.set(text, []);
+    forms.get(text).push(where);
+  }
+  for (const [id, forms] of byId) {
+    if (forms.size < 2) continue;
+    const parts = [...forms].map(([text, wheres]) => `'${text}'(${wheres[0]}${wheres.length > 1 ? ` 외 ${wheres.length - 1}건` : ""})`);
+    warn(what, what + " 충돌", `${what} ${parts.join(", ")}가 같은 ID '${id}'가 됩니다. ${tail}`);
+  }
+}
+const nameOk = (v) => v != null && String(v).trim() !== "" && String(v).trim() !== "-";
+const nameList = [];
+for (const file of ["players", "coaches", "transfers.players", "transfers.coaches"]) {
+  sets[file].forEach((r, i) => { if (!r.personId && nameOk(r.name)) nameList.push({ text: String(r.name).trim(), where: `${file} ${i + 1}행` }); });
+}
+if (hasPeople) {
+  for (const p of people) for (const nm of [p.name, ...(Array.isArray(p.aliases) ? p.aliases : [])]) if (nameOk(nm)) nameList.push({ text: String(nm).trim(), where: `people ${p.id}` });
+}
+clashes(nameList, "인물 이름", "같은 사람이면 표기를 맞추고, 다른 사람이면 인물ID를 따로 지정하세요");
+const teamList = [];
+for (const file of ["players", "coaches"]) {
+  sets[file].forEach((r, i) => { if (!r.teamId && nameOk(r.team)) teamList.push({ text: String(r.team).trim(), where: `${file} ${i + 1}행` }); });
+}
+for (const file of ["transfers.players", "transfers.coaches"]) {
+  sets[file].forEach((r, i) => {
+    if (!r.fromTeam && nameOk(r.from)) teamList.push({ text: String(r.from).trim(), where: `${file} ${i + 1}행` });
+    if (!r.toTeam && nameOk(r.to)) teamList.push({ text: String(r.to).trim(), where: `${file} ${i + 1}행` });
+  });
+}
+sets.watch.forEach((r, i) => {
+  if (!r.teamIds) for (const t of String(r.team || "").split(" / ")) if (nameOk(t)) teamList.push({ text: t.trim(), where: `watch ${i + 1}행` });
+});
+clashes(teamList, "팀 이름", "같은 팀이면 표기를 맞추고, 다른 팀이면 팀ID를 따로 지정하세요");
 
 if (warns.length <= 10) {
   warns.forEach((w) => console.warn("경고  " + w.text));

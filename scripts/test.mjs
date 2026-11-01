@@ -6,11 +6,11 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf } from "../js/model.js";
-import { splitNote } from "../js/views/common.js";
+import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
+import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
-import { withKst } from "../js/format.js";
+import { withKst, stampOf, stampLabel, parseStamp, fmtDate } from "../js/format.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 
 const T = 46326; // 2026-10-31 (KST)
@@ -377,6 +377,116 @@ t("teamMoves: 다른 팀 소속 선수 행 '계약 완료(t2)' 가 t2 의 들어
     people: [{ id: "mover", name: "Mover", kind: "player", career: [{ team: "t1", from: "2025-01", to: null }] }] };
   assert.deepEqual(teamMoves("t2", buildIndex(D), T).incoming.map(e => e.item.pid), ["mover"]);
   assert.deepEqual(teamMoves("t1", buildIndex(D), T).outgoing.map(e => e.item.pid), ["mover"]);
+});
+
+// ── 9회차 F-06: 핵심 규칙을 지금 동작대로 고정한다. 날짜는 절대 일련번호로 적는다.
+const serialOf = (y, m, d) => (Date.UTC(y, m - 1, d) - Date.UTC(1899, 11, 30)) / 864e5;
+
+t("serialOf: 기준일 T 는 2026-10-31", () => {
+  assert.equal(serialOf(2026, 10, 31), T);
+});
+
+t("parseStamp: 범위 안의 값은 읽고, 범위 밖이면 null", () => {
+  assert.deepEqual(parseStamp("10/24 16:30 UTC"), { mon: 10, day: 24, hh: 16, mm: 30, tz: "UTC", min: 16 * 60 + 30 + 540 });
+  assert.deepEqual(parseStamp("10/24 16:30 KST"), { mon: 10, day: 24, hh: 16, mm: 30, tz: "KST", min: 16 * 60 + 30 });
+  assert.equal(parseStamp("13/1 10:00 UTC"), null);
+  assert.equal(parseStamp("10/24 24:00 UTC"), null);
+  assert.equal(parseStamp("10/24 10:60 KST"), null);
+  assert.equal(parseStamp("시각 없음"), null);
+});
+
+t("stampOf: 날짜 칸과 같은 날이면 한국 시간 분을 낸다", () => {
+  // 10/24 16:30 UTC 는 10/25 01:30 KST 다.
+  const it = { date: serialOf(2026, 10, 25), note: "LFT 게시 (Sheep 10/24 16:30 UTC)" };
+  assert.equal(stampOf(it), serialOf(2026, 10, 24) * 1440 + 1530);
+  assert.equal(stampLabel(it), "오전 1:30");
+});
+
+t("stampOf: 날짜 칸이 전날이면 null (UTC 가 KST 로 넘어가는 경우 포함)", () => {
+  assert.equal(stampOf({ date: serialOf(2026, 10, 24), note: "(Sheep 10/24 16:30 UTC)" }), null);
+  assert.notEqual(stampOf({ date: serialOf(2026, 10, 25), note: "발표 10/25 16:30 KST" }), null);
+});
+
+t("stampOf: 연말·연초 경계 (12/31 ↔ 1/1)", () => {
+  // 12/31 23:30 UTC 는 1/1 08:30 KST 라 날짜 칸 1/1 과 맞는다.
+  assert.equal(stampOf({ date: serialOf(2027, 1, 1), note: "x (A 12/31 23:30 UTC)" }), serialOf(2026, 12, 31) * 1440 + 23 * 60 + 30 + 540);
+  // 12/31 23:30 KST 는 날짜 칸 1/1 과 다른 날이다.
+  assert.equal(stampOf({ date: serialOf(2027, 1, 1), note: "x (A 12/31 23:30 KST)" }), null);
+  // 1/1 00:10 KST 는 날짜 칸 12/31 과 다른 날이다.
+  assert.equal(stampOf({ date: serialOf(2026, 12, 31), note: "x (A 1/1 00:10 KST)" }), null);
+});
+
+t("splitNote: 출처 이름·시각 분리, 교차 확인 분리, 범위 밖 시각은 원문 그대로", () => {
+  const a = splitNote("LFT 게시. 교차 확인: VLR, Rib. (Sheep 10/24 16:30 UTC)");
+  assert.deepEqual(a.src, { name: "Sheep", when: "10/25 오전 1:30" });
+  assert.deepEqual(a.cross, ["VLR", "Rib"]);
+  assert.equal(a.body, "LFT 게시.");
+  const b = splitNote("메모 (A 13/1 10:00 UTC)");
+  assert.equal(b.src, null);
+  assert.equal(b.body, "메모 (A 13/1 10:00 UTC)");
+  assert.equal(splitNote("").body, "");
+});
+
+t("newestFirst: 최신 날짜 먼저, 같은 날은 시각 있는 것, 그다음 늦은 시각", () => {
+  const e = (date, note, id) => ({ kind: "player", item: { date, note, id } });
+  const day = serialOf(2026, 10, 25);
+  const ids = [e(serialOf(2026, 10, 24), "", "older"), e(day, "", "plain"), e(day, "(A 10/24 16:30 UTC)", "stamped"), e(day, "(A 10/24 20:00 UTC)", "later")]
+    .sort(newestFirst).map((x) => x.item.id);
+  assert.deepEqual(ids, ["later", "stamped", "plain", "older"]);
+});
+
+t("newestFirst: 같은 날 같은 시각은 원래 순서를 지킨다(동률)", () => {
+  const e = (note, id) => ({ kind: "t", item: { date: serialOf(2026, 10, 25), note, id } });
+  assert.deepEqual([e("(A 10/24 16:30 UTC)", "first"), e("(B 10/24 16:30 UTC)", "second")].sort(newestFirst).map((x) => x.item.id), ["first", "second"]);
+});
+
+t("idsOf: ZYZZ 와 zyzz 는 같은 ID 가 된다(의도된 현재 동작, F-05 경고로 감시)", () => {
+  assert.equal(idsOf({ name: "ZYZZ" }, "player").pid, "zyzz");
+  assert.equal(idsOf({ name: "zyzz" }, "player").pid, "zyzz");
+});
+
+t("idsOf: 이름이나 팀이 \"-\" 면 빈 ID (F-02)", () => {
+  assert.deepEqual(idsOf({ name: "-", team: "-" }, "player"), { pid: "", tid: "" });
+  assert.deepEqual(idsOf({ from: "-", to: "-", name: "-" }, "t"), { pid: "", tidFrom: "", tidTo: "", tid: "" });
+});
+
+t("idsOf: personId·teamId 가 있으면 이름보다 우선한다", () => {
+  assert.equal(idsOf({ personId: "abc", name: "Other" }, "player").pid, "abc");
+  assert.equal(idsOf({ teamId: "t1", team: "Other" }, "player").tid, "t1");
+});
+
+t("idsOf: 지켜볼 팀은 \" / \" 로 나누고 빈 칸을 거른다. teamIds 가 문자열이면 그대로 한 칸(R-05)", () => {
+  assert.deepEqual(idsOf({ team: "FURIA / - / M80" }, "watch").tids, ["furia", "m80"]);
+  assert.deepEqual(idsOf({ teamIds: "raw-id" }, "watch").tids, ["raw-id"]);
+});
+
+t("matches: 검색은 대소문자를 무시하고 팀 이름으로도 찾는다. 악센트는 무시하지 않는다(현재 동작)", () => {
+  const tab = { status: true }, all = { region: "all", status: "all", q: "" };
+  const it = { name: "TenZ", team: "Sentinels", region: "Americas", status: "구직 중" };
+  assert.equal(matches(it, tab, { ...all, q: "tenz" }), true);
+  assert.equal(matches(it, tab, { ...all, q: "sentinels" }), true);
+  assert.equal(matches({ name: "Jóhn", region: "EMEA", status: "구직 중" }, tab, { ...all, q: "john" }), false);
+});
+
+t("matches: 지역과 상태 필터", () => {
+  const it = { name: "A", team: "T", region: "Americas", status: "구직 중" }, tab = { status: true };
+  assert.equal(matches(it, tab, { region: "EMEA", status: "all", q: "" }), false);
+  assert.equal(matches(it, tab, { region: "Americas", status: "open", q: "" }), true);
+  assert.equal(matches(it, tab, { region: "Americas", status: "signed", q: "" }), false);
+});
+
+t("fmtDate: 일련번호는 M/D, 글자는 그대로", () => {
+  assert.equal(fmtDate(serialOf(2026, 10, 25)), "10/25");
+  assert.equal(fmtDate("TBD"), "TBD");
+});
+
+t("newsRow (F-01): 같은 보도 시각이 날짜 줄과 출처 줄에 두 번 나오지 않는다", () => {
+  const count = (html) => html.split("오전 1:30").length - 1;
+  const withSrc = newsRow({ kind: "player", item: { name: "A", team: "Sentinels", date: serialOf(2026, 10, 25), note: "LFT 게시 (Sheep 10/24 16:30 UTC)", status: "LFT 게시", src: ["Sheep", null], conf: "R" } }, false);
+  assert.equal(count(withSrc), 1);
+  assert.match(withSrc, /Sheep <time>10\/25 오전 1:30<\/time>/);
+  const noSrc = newsRow({ kind: "player", item: { name: "A", team: "Sentinels", date: serialOf(2026, 10, 25), note: "발표 10/24 16:30 UTC", status: "LFT 게시", src: null, conf: "R" } }, false);
+  assert.equal(count(noSrc), 1);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

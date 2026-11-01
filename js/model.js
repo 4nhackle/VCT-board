@@ -67,13 +67,15 @@ export function buildTabs(D) {
 // 행의 인물·팀 ID. 시트에 personId·teamId 등이 있으면 그것을, 없으면 이름에서 임시 ID(slugOf)를 만든다.
 // 이적 행의 tid 는 이전 팀(tidFrom)이다. 목록의 팀 링크가 이전 팀을 가리키기 때문이다.
 export function idsOf(r, kind) {
-  function tidOf(id, name) { return id || (name ? slugOf(name) : ""); }
+  // "-" 는 빈 칸이다(cleanName). 빈 칸에서 ID 를 만들면 없는 주소로 링크된다.
+  function tidOf(id, name) { name = cleanName(name); return id || (name ? slugOf(name) : ""); }
   if (kind === "watch") {
-    // 한 행에 팀이 여럿일 수 있다("FURIA / M80 / FlyQuest").
-    return { tids: [].concat(r.teamIds || String(r.team || "").split(" / ").filter(Boolean).map(slugOf)) };
+    // 한 행에 팀이 여럿일 수 있다("FURIA / M80 / FlyQuest"). 빈 칸은 거른다.
+    return { tids: [].concat(r.teamIds || String(r.team || "").split(" / ").map(cleanName).filter(Boolean).map(slugOf)) };
   }
   // 이름이 빈 행은 인물 ID 를 만들지 않는다(이름 링크도 없다).
-  var o = { pid: r.personId || (r.name ? slugOf(r.name) : "") };
+  var name = cleanName(r.name);
+  var o = { pid: r.personId || (name ? slugOf(name) : "") };
   if (kind === "t") {
     o.tidFrom = tidOf(r.fromTeam, r.from);
     o.tidTo = tidOf(r.toTeam, r.to);
