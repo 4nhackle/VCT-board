@@ -198,6 +198,16 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 .notes { border-top: 1px solid var(--line); padding-top: var(--sp-3); color: var(--mute); font-size: var(--fs-2); }
 .notes ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: var(--sp-1); }
 .note-lfx { display: none; }
+.site-foot { border-top: 1px solid var(--line); padding-top: var(--sp-3); padding-bottom: 56px; color: var(--mute); font-size: var(--fs-1); line-height: 1.6; display: flex; flex-direction: column; gap: var(--sp-2); }
+.site-foot p { margin: 0; }
+.site-foot .legal { font-size: var(--fs-2); }
+.doc { max-width: 680px; line-height: 1.75; }
+.doc h1 { font-size: var(--fs-5); margin: 0 0 var(--sp-2); letter-spacing: -0.02em; }
+.doc h2 { font-size: var(--fs-4); margin: var(--sp-5) 0 var(--sp-2); }
+.doc p, .doc ul { margin: 0 0 var(--sp-3); }
+.doc ul { padding-left: 1.2em; }
+.doc .meta { color: var(--mute); font-size: var(--fs-2); }
+.doc .back { display: inline-block; margin-bottom: var(--sp-4); }
 
 /* 건의 */
 .sg { display: flex; flex-direction: column; gap: var(--sp-4); max-width: 560px; margin-top: var(--sp-2); }
