@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { esc, isoOf, TODAY } from "../js/format.js";
-import { buildIndex, pillOf, teamMoves, teamNameOf, newestFirst, REGION_KO, ID_RE } from "../js/model.js";
+import { buildIndex, pillOf, pillText, teamMoves, teamNameOf, newestFirst, REGION_KO, ID_RE } from "../js/model.js";
 import { prepareOut } from "./out-dir.mjs";
 
 // 배포 경로와 주소. 이 파일에서 이 두 곳만 고치면 된다.
@@ -44,7 +44,7 @@ function personDesc(id) {
     const route = [top.item.team, top.item.next].filter(Boolean).join(" → ");
     return name + " · " + route + " 이적 " + (typeof top.row.signedDate === "number" ? "확정" : "보도");
   }
-  return [name, top.item.team, pillOf(top.item)[1]].filter(Boolean).join(" · ");
+  return [name, top.item.team, pillText(pillOf(top.item))].filter(Boolean).join(" · ");
 }
 function teamName(id) {
   const t = IDX.teams[id];

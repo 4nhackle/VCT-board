@@ -218,6 +218,8 @@ export function pillOf(it) {
   return ["unknown", "확인 필요"];
 }
 export function cls(it) { return pillOf(it)[0]; }
+// 화면과 설명문에 쓰는 상태 글. 합류 보도는 뒤에 "보도"를 붙여 "Sentinels 합류 보도" 로 보인다.
+export function pillText(p) { return p[1] + (p[2] === "reported" ? " 보도" : ""); }
 
 // 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
 export var WATCH_KINDS = [

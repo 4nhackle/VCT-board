@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, cls, noteSegments, sharedTails, ownPart } from "../js/model.js";
+import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart } from "../js/model.js";
 import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
@@ -236,6 +236,7 @@ t("teamMoves: 같은 날 이적 행과 \"계약 완료(새 팀)\" 행이 함께 
 const mv = (over) => toItem(Object.assign({ region: "EMEA", from: "A", to: "B", fromTeam: "a", toTeam: "b", name: "X", type: "이적", date: 46320, conf: "C", note: "", src: "s" }, over), "t", SRC);
 t("pillOf: 단일 출처(R) 계약 완료는 합류 보도", () => {
   assert.deepEqual(pillOf({ status: "계약 완료(Sentinels)", conf: "R" }), ["signed", "Sentinels 합류", "reported"]);
+  assert.equal(pillText(pillOf({ status: "계약 완료(Sentinels)", conf: "R" })), "Sentinels 합류 보도"); // 화면 글
 });
 t("pillOf: 확정 표현 계약 완료(C)는 확정", () => {
   assert.deepEqual(pillOf({ status: "계약 완료(Mandatory)", conf: "C" }), ["signed", "Mandatory 합류", "confirmed"]);
