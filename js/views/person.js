@@ -3,7 +3,7 @@ import { REGION_KO, TIER_KO, pillOf, ageOf, contractState, careerOf, newestFirst
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
 import { listUrl, teamUrl } from "../state.js";
-import { val, newsRow } from "./common.js";
+import { val, newsRow, infoHTML, monoHTML } from "./common.js";
 
 // "2026-11" → "2026.11"
 function dotYM(s) { return String(s || "").replace("-", "."); }
@@ -26,12 +26,13 @@ function ageText(birth) {
   return (a.approx ? "약 " : "") + a.age + "세";
 }
 
-// 외부 링크(VLR·Liquipedia). 주소가 http(s) 인 것만 낸다.
+// 외부 링크(VLR·Liquipedia). 주소가 http(s) 인 것만 낸다. Liquipedia 에는 CC BY-SA 출처 표기를 붙인다.
 function linksHTML(links) {
   var out = [["vlr", "VLR"], ["liquipedia", "Liquipedia"]].filter(function (l) {
     return links && /^https?:\/\//i.test(links[l[0]] || "");
   }).map(function (l) {
-    return '<a href="' + esc(links[l[0]]) + '" target="_blank" rel="noopener">' + l[1] + "</a>";
+    return '<a href="' + esc(links[l[0]]) + '" target="_blank" rel="noopener">' + l[1] + "</a>" +
+      (l[0] === "liquipedia" ? ' <span class="lic">(경력 정보 출처, CC BY-SA 3.0)</span>' : "");
   });
   return out.length ? '<p class="dp-links">' + out.join("") + "</p>" : "";
 }
@@ -102,6 +103,28 @@ function careerHTML(p, teams) {
   return '<section class="dp-sec"><h2>경력</h2><ol class="dp-career">' + items.join("") + "</ol></section>";
 }
 
+// 정보 칸: 소속 팀, 역할, 국적, 나이(생년), 계약 만료, 이적 완료. 사람마다 같은 여섯 칸.
+function personInfo(list, p, teams, nat, role) {
+  var top = list[0], cur = careerOf(p).filter(function (c) { return c.current; })[0], team = "", until, done = "";
+  if (cur) team = '<a href="' + esc(teamUrl(cur.team)) + '">' + esc(teams[cur.team] ? teams[cur.team].name : cur.team) + "</a>";
+  else if (top) team = esc(top.kind === "t" ? val(top.item.next) : val(top.item.team));
+  if (top && top.kind === "t") {
+    until = top.row.contractUntil;
+    done = typeof top.row.signedDate === "number" ? isoOf(top.row.signedDate) : "공식 발표 전";
+  } else {
+    until = top && typeof top.row.contractUntil === "number" ? top.row.contractUntil : p ? p.contractUntil : undefined;
+  }
+  var a = p && p.birth ? ageText(p.birth) : "";
+  return [
+    ["소속 팀", team],
+    ["역할", esc(role)],
+    ["국적", esc(nat)],
+    ["나이(생년)", a ? esc(a + " (" + String(p.birth).slice(0, 4) + ")") : ""],
+    ["계약 만료", typeof until === "number" ? esc(contractText(until)) : ""],
+    ["이적 완료", esc(done)]
+  ];
+}
+
 // 인물 상세 화면. 찾지 못하면 name 이 빈 문자열이다.
 export function personHTML(id, IDX) {
   var list = (IDX.byPerson[id] || []).slice().sort(newestFirst), p = IDX.people[id], teams = IDX.teams;
@@ -113,13 +136,11 @@ export function personHTML(id, IDX) {
     if (!nat) nat = val(e.row.nationality);
     if (!role) role = val(e.row.role) || val(e.row.position);
   });
-  var sub = [nat, role, p && p.birth ? ageText(p.birth) : ""].filter(Boolean).join(" · ");
-  var head = '<header class="dp-head"><h2 class="dp-name">' + esc(name) +
-    (p && val(p.realName) ? ' <span class="dp-real">' + esc(p.realName) + "</span>" : "") + "</h2>" +
-    (sub ? '<p class="dp-sub">' + esc(sub) + "</p>" : "") +
+  var head = '<header class="dp-head">' + monoHTML(name) + '<h1 class="dp-name">' + esc(name) +
+    "</h1>" + (p && val(p.realName) ? '<p class="dp-real">' + esc(p.realName) + "</p>" : "") +
     (list.length ? '<div class="dp-state">' + pill(pillOf(list[0].item)) + badge(list[0].item) + "</div>" : "") +
-    (p ? linksHTML(p.links) : "") + "</header>";
-  var notice = p ? "" : '<p class="dp-note">선수 정보는 정리 중입니다.</p>';
+    (p ? linksHTML(p.links) : "") + (p ? "" : '<p class="dp-note">선수 정보는 정리 중입니다.</p>') + "</header>";
+  var notice = infoHTML(personInfo(list, p, teams, nat, role));
   var move = list.length ? moveHTML(list, p) : "";
   var teamSec = teamsHTML(list, p, teams);
   var news = list.length ? '<ul class="dp-list">' + list.map(function (e) { return newsRow(e, false); }).join("") + "</ul>" : '<p class="dp-note">관련 소식이 없습니다.</p>';

@@ -6,8 +6,11 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem } from "../js/model.js";
+import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart } from "../js/model.js";
+import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
+import { sortSchedule } from "../js/views/schedule.js";
+import { withKst } from "../js/format.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 
 const T = 46326; // 2026-10-31 (KST)
@@ -154,6 +157,165 @@ t("out-dir 실제 동작: 표시 파일 없는 폴더는 그대로 남고, 표�
   prepareOut(withMark, root); // 같은 폴더 재실행은 정상
   assert.ok(fs.existsSync(path.join(withMark, MARK)));
   for (const d of [root, noMark, withMark]) fs.rmSync(d, { recursive: true, force: true });
+});
+
+t("splitNote: 끝의 출처·시각(UTC→KST)과 교차 확인을 떼고 본문은 남김", () => {
+  const r = splitNote("Sentinels 공식 X 방출 발표(VLR·Strafe 원문 확인). 2026.3 G2에서 합류, 8개월 만에 이탈. 교차 확인: VLR, Strafe, Liquipedia 이적 로그(10/30) (Sentinels X 10/31 00:15 UTC)");
+  assert.equal(r.body, "Sentinels 공식 X 방출 발표(VLR·Strafe 원문 확인). 2026.3 G2에서 합류, 8개월 만에 이탈.");
+  assert.deepEqual(r.src, { name: "Sentinels X", when: "10/31 오전 9:15" });
+  assert.deepEqual(r.cross, ["VLR", "Strafe", "Liquipedia 이적 로그(10/30)"]);
+});
+t("splitNote: 날짜 넘김·연말·KST 그대로·문장 가운데 교차 확인", () => {
+  assert.equal(splitNote("a (Sentinels X 10/30 20:31 UTC)").src.when, "10/31 오전 5:31");
+  assert.equal(splitNote("a (X 12/31 20:00 UTC)").src.when, "1/1 오전 5:00");
+  assert.equal(splitNote("a (GM X 10/25 18:35 KST)").src.when, "10/25 오후 6:35");
+  const r = splitNote("LOUD 챔피언. 교차 확인: Sheep(10/28), TheSpike. 팀 공식 발표 전 (TheSpike 10/29 16:13 UTC)");
+  assert.equal(r.body, "LOUD 챔피언. 팀 공식 발표 전");
+  assert.deepEqual(r.cross, ["Sheep(10/28)", "TheSpike"]);
+});
+t("splitNote: 규칙에 안 맞는 글은 원문 그대로, 빈 값", () => {
+  const raw = "Barça 2027 합류 보도(Sheep), 공식 발표 전 (갱신 10/31 23:58 UTC, 보도 시각 미확인)";
+  assert.deepEqual(splitNote(raw), { body: raw, src: null, cross: null });
+  assert.deepEqual(splitNote("Sheep 10/25 15:44 UTC / 결별"), { body: "Sheep 10/25 15:44 UTC / 결별", src: null, cross: null });
+  assert.equal(splitNote("a (X 13/40 25:00 UTC)").src, null);
+  assert.deepEqual(splitNote(undefined), { body: "", src: null, cross: null });
+});
+
+t("watchMeta: 종류 판정(앞선 규칙 우선), 없음", () => {
+  const k = (s) => watchMeta(s).kind;
+  assert.equal(k("FURIA는 10/30 공식 발표로 발로란트 믹스 철수(전 선수·코치 11/2 FA)"), "withdraw");
+  assert.equal(k("팀 해체"), "withdraw");
+  assert.equal(k("파트너십 탈락. NAVI는 10/28 로스터 전원 방출"), "dropped");
+  assert.equal(k("계약 11/2 만료 (NRG는 파트너 유지) / eeiu 합류 구두 합의 보도"), "expiring");
+  assert.equal(k("계약 만료 예정"), "expiring");
+  assert.equal(k("kiNgg·Sato: G2 합류 의향 보도(9/16)"), "joining");
+  assert.equal(k("2027-28 VCT Americas 파트너 팀 선정. 재계약 구두 합의 보도"), "");
+  assert.equal(watchMeta("x").label, "");
+});
+t("watchMeta: [확정]·(확인 M/D) 를 읽고 본문에서 뗌", () => {
+  assert.deepEqual(watchMeta("[확정] 발로란트 철수 발표 (확인 11/1)"), { kind: "withdraw", label: "철수·해체", confirmed: true, checked: "11/1", body: "발로란트 철수 발표" });
+  assert.deepEqual(watchMeta("계약 만료 예정"), { kind: "expiring", label: "계약 만료", confirmed: false, checked: "", body: "계약 만료 예정" });
+});
+
+t("teamMoves: 방출된 인물은 로스터에서 빠짐(Sentinels/JonahP), 남은 인물은 유지", () => {
+  const D = { sources: SRC, coaches: [], transfers: { players: [], coaches: [] }, watch: [],
+    players: [row({ name: "JonahP", personId: "jonahp", team: "Sentinels", teamId: "sentinels", status: "방출(Sentinels 공식 발표)", date: 46326 })],
+    teams: [{ id: "sentinels", name: "Sentinels", active: true }],
+    people: [{ id: "jonahp", name: "JonahP", kind: "player", career: [{ team: "sentinels", from: "2026-03", to: null }] },
+      { id: "zekken", name: "zekken", kind: "player", career: [{ team: "sentinels", from: "2023-01", to: null }] }] };
+  const m = teamMoves("sentinels", buildIndex(D), T);
+  assert.deepEqual(m.roster.map(p => p.id), ["zekken"]);
+  assert.deepEqual(m.outgoing.map(e => e.item.pid), ["jonahp"]);
+  assert.equal(m.closed, false);
+});
+t("teamMoves: 이 팀에서 나간 이적이 가장 최근이면 로스터에서 빠짐, 구직 중(계약 중)은 유지", () => {
+  const D = { sources: SRC, coaches: [], watch: [], teams: [],
+    players: [row({ name: "Stay", personId: "stay", teamId: "t1", status: "탐색 허가(계약 중)" })],
+    transfers: { players: [row({ name: "Go", personId: "go", from: "T1", to: "T2", fromTeam: "t1", toTeam: "t2", type: "이적" })], coaches: [] },
+    people: ["stay", "go"].map(id => ({ id, name: id, kind: "player", career: [{ team: "t1", from: "2025-01", to: null }] })) };
+  assert.deepEqual(teamMoves("t1", buildIndex(D), T).roster.map(p => p.id), ["stay"]);
+});
+t("teamMoves: 운영 종료 팀(FURIA, active:false)은 로스터가 비고 closed", () => {
+  const D = { sources: SRC, players: [], coaches: [], transfers: { players: [], coaches: [] }, watch: [],
+    teams: [{ id: "furia", name: "FURIA", active: false }],
+    people: [{ id: "mwzera", name: "mwzera", kind: "player", career: [{ team: "furia", from: "2025-01", to: null }] }] };
+  const m = teamMoves("furia", buildIndex(D), T);
+  assert.deepEqual(m.roster, []);
+  assert.equal(m.closed, true);
+});
+
+t("teamMoves: 같은 날 이적 행과 \"계약 완료(새 팀)\" 행이 함께 있어도 이 팀 로스터에서 빠짐(FURIA/eeiu)", () => {
+  const D = { sources: SRC, coaches: [], watch: [], teams: [{ id: "furia", name: "FURIA", active: true }],
+    players: [row({ name: "eeiu", personId: "eeiu", team: "FURIA", teamId: "furia", status: "계약 완료(NRG) · 구두 합의 보도", date: 46325 })],
+    transfers: { players: [row({ name: "eeiu", personId: "eeiu", from: "FURIA", to: "NRG", fromTeam: "furia", toTeam: "nrg", type: "이적", date: 46325 })], coaches: [] },
+    people: [{ id: "eeiu", name: "eeiu", kind: "player", career: [{ team: "furia", from: "2025-12", to: null }] }] };
+  assert.deepEqual(teamMoves("furia", buildIndex(D), T).roster, []);
+});
+
+// P1: 단일 출처나 구두 합의 글은 합류 보도(◇), 공식 확정 표현이나 발표일이 있을 때만 확정(✓).
+const mv = (over) => toItem(Object.assign({ region: "EMEA", from: "A", to: "B", fromTeam: "a", toTeam: "b", name: "X", type: "이적", date: 46320, conf: "C", note: "", src: "s" }, over), "t", SRC);
+t("pillOf: 단일 출처(R) 계약 완료는 합류 보도", () => {
+  assert.deepEqual(pillOf({ status: "계약 완료(Sentinels)", conf: "R" }), ["signed", "Sentinels 합류", "reported"]);
+  assert.equal(pillText(pillOf({ status: "계약 완료(Sentinels)", conf: "R" })), "Sentinels 합류 보도"); // 화면 글
+});
+t("pillOf: 확정 표현 계약 완료(C)는 확정", () => {
+  assert.deepEqual(pillOf({ status: "계약 완료(Mandatory)", conf: "C" }), ["signed", "Mandatory 합류", "confirmed"]);
+});
+t("pillOf: 이적 행은 발표일이 숫자면 R 이어도 확정, 없고 R 이면 보도", () => {
+  assert.deepEqual(pillOf(mv({ conf: "R", signedDate: 46320 })), ["signed", "B 합류", "confirmed"]);
+  assert.deepEqual(pillOf(mv({ conf: "R" })), ["signed", "B 합류", "reported"]);
+});
+t("pillOf: \"X 합류 임박(보도)\" 은 팀 이름을 읽되 분류는 확인 필요 그대로", () => {
+  assert.deepEqual(pillOf({ status: "BLG 합류 임박(보도)", conf: "R" }), ["unknown", "BLG 합류 보도"]);
+});
+t("cls: 보도·확정 모두 signed, 임박 글은 unknown 그대로(필터 불변)", () => {
+  assert.equal(cls({ status: "계약 완료(Sentinels)", conf: "R" }), "signed");
+  assert.equal(cls({ status: "계약 완료(Mandatory)", conf: "C" }), "signed");
+  assert.equal(cls(mv({ conf: "R" })), "signed");
+  assert.equal(cls({ status: "BLG 합류 임박(보도)", conf: "R" }), "unknown");
+});
+
+// P2 메모: 같은 팀의 같은 꼬리는 팀 머리에 한 번, 행에는 개인 부분만. 화면 나눔이고 데이터는 그대로다.
+const memo = (team, note) => ({ team, note });
+t("sharedTails: 같은 팀 세 행이 같은 꼬리면 공통 꼬리 하나, 개인 부분은 나머지", () => {
+  const items = [memo("FURIA", "개인 A / 발로란트 철수 (출처 10/30)"), memo("FURIA", "개인 B / 발로란트 철수 (출처 10/30)"), memo("FURIA", "개인 C / 발로란트 철수 (출처 10/30)")];
+  const S = sharedTails(items);
+  assert.equal(S.size, 1);
+  assert.equal(S.get("FURIA"), "발로란트 철수 (출처 10/30)");
+  assert.deepEqual(items.map(it => ownPart(it.note, S.get(it.team))), ["개인 A", "개인 B", "개인 C"]);
+});
+t("sharedTails: 꼬리가 같아도 팀이 다르면 공통 아님", () => {
+  const items = [memo("FURIA", "개인 / 꼬리"), memo("NRG", "개인 / 꼬리")];
+  assert.equal(sharedTails(items).size, 0);
+});
+t("sharedTails: 한 행에만 있는 꼬리는 공통 아님, ownPart 는 메모 전체", () => {
+  const items = [memo("EG", "개인 / 한 행의 꼬리"), memo("EG", "다른 메모")];
+  const S = sharedTails(items);
+  assert.equal(S.size, 0);
+  assert.equal(ownPart(items[0].note, S.get("EG")), "개인 / 한 행의 꼬리");
+});
+t("sharedTails: 메모 전체가 같은 한 조각(EG 꼴)이면 개인 부분은 빈 문자열", () => {
+  const items = [memo("EG", "EG는 11/2 운영 종료."), memo("EG", "EG는 11/2 운영 종료."), memo("EG", "EG는 11/2 운영 종료.")];
+  assert.equal(ownPart(items[0].note, sharedTails(items).get("EG")), "");
+});
+t("noteSegments·sharedTails·ownPart: 빈 메모와 ' / ' 없는 메모에서 오류 없음", () => {
+  assert.deepEqual(noteSegments(""), []);
+  assert.deepEqual(noteSegments(undefined), []);
+  assert.equal(sharedTails([memo("X", ""), memo("X", null), memo("X", undefined)]).size, 0);
+  assert.equal(ownPart(undefined, undefined), "");
+  assert.equal(ownPart("한 조각", "한 조각"), "");
+});
+
+// P2 일정: 시작일 순. 기준일 2026-11-01(46327)로 고정한다.
+const S0 = 46327;
+const sch = (date, title) => ({ date, title, source: "s" });
+t("sortSchedule: 현재 일정과 같은 꼴 10행이 시작일 순(Pacific 1/11 이 4개 지역 1/14 보다 앞)", () => {
+  const rows = [sch("2027-01-14 ~ 02-07", "4개 지역 Kickoff"), sch("2027-01-11 ~ 01-31", "VCT Pacific Kickoff"), sch(46328, "2026 시즌 종료"),
+    sch("11/5 ~ 11/8", "Americas 오픈 예선"), sch("11/25 ~ 12/5", "유럽 예선"), sch(46329, "FA 본격 개시"), sch("12/1", "12월 행사"),
+    sch("미정", "날짜 미정"), sch(46328, "Cloud9 발표"), sch("2026-12-20 ~ 12-22", "연말 행사")];
+  assert.deepEqual(sortSchedule(rows, S0).map(r => r.title), ["2026 시즌 종료", "Cloud9 발표", "FA 본격 개시", "Americas 오픈 예선", "유럽 예선", "12월 행사", "연말 행사", "VCT Pacific Kickoff", "4개 지역 Kickoff", "날짜 미정"]);
+});
+t("sortSchedule: 연도 없는 11/2 와 2027 연도 있는 날짜가 섞여도 순서가 맞음", () => {
+  const rows = [sch("2027-01-11 ~ 01-31", "b"), sch("11/2", "a")];
+  assert.deepEqual(sortSchedule(rows, S0).map(r => r.title), ["a", "b"]);
+});
+t("sortSchedule: 날짜를 못 읽은 행은 맨 뒤, 같은 시작일은 끝일 순·원래 순서", () => {
+  const rows = [sch("미정", "A"), sch(46330, "B"), sch("11/2 ~ 11/3", "C"), sch(46330, "D")];
+  assert.deepEqual(sortSchedule(rows, S0).map(r => r.title), ["C", "B", "D", "A"]);
+});
+
+// P3: 머리말 갱신 시각에 시간대(KST)를 붙인다. 이미 있으면 그대로(멱등).
+t("withKst: 머리말 시각에 KST 를 붙임", () => {
+  assert.equal(withKst("2026-11-01 13:58 기준입니다."), "2026-11-01 13:58 KST 기준입니다.");
+});
+t("withKst: 이미 KST 가 있으면 그대로, 두 번 붙지 않음", () => {
+  const once = withKst("2026-11-01 13:58 기준입니다.");
+  assert.equal(withKst(once), once);
+  assert.equal(withKst("2026-11-01 13:58 KST 기준입니다."), "2026-11-01 13:58 KST 기준입니다.");
+});
+t("withKst: 시각이 없는 글은 그대로", () => {
+  const plain = "LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.";
+  assert.equal(withKst(plain), plain);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

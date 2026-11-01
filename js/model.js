@@ -29,7 +29,7 @@ export function toItem(r, kind, S) {
   if (kind === "player") return { region: r.region, team: r.team, name: r.name, sub: [r.position, r.nationality].filter(Boolean).join(", "), status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
   if (kind === "coach") return { region: r.region, team: r.team, name: r.name, sub: r.role, status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
   if (kind === "watch") return { region: r.region, team: r.team, name: r.targets, note: r.situation, src: own(S, r.src) };
-  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
+  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src), signed: r.signedDate };
 }
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
@@ -37,18 +37,25 @@ export function buildTabs(D) {
   // 화면 항목에도 인물·팀 ID 를 붙여, 목록 행을 상세 링크로 만들 수 있게 한다.
   function items(rows, kind) { return rows.map(function (r) { return Object.assign(toItem(r, kind, D.sources), idsOf(r, kind)); }); }
   var P = items(D.players, "player"), CO = items(D.coaches, "coach"), W = items(D.watch, "watch");
+  // 지켜볼 팀의 팀 링크는 teams 에 있는 ID 만 건다.
+  var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
   var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
   var PK = P.filter(function (it) { return /South Korea/.test(it.sub); });
   var CK = CO.filter(function (it) { return KR_TEAMS.test(it.team); });
-  return [
+  var TABS = [
     { id: "players", label: "선수", mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
     { id: "coaches", label: "코치·스태프", mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
     { id: "korea", label: "한국", mode: "entry", status: true, size: PK.length + CK.length, hint: "국적이 South Korea인 선수와 한국 팀(T1, KIWOOM DRX, Nongshim RedForce) 소속 코치·스태프입니다.", groups: [{ title: "선수", items: PK }, { title: "코치·스태프", items: CK }] },
     { id: "transfers", label: "이적 완료", mode: "entry", size: T1.length + T2.length, hint: "이전 소속 팀 기준으로 묶었습니다.", groups: [{ title: "선수", items: T1 }, { title: "코치·스태프", items: T2 }] },
-    { id: "watch", label: "지켜볼 팀", mode: "watch", size: W.length, hint: "계약 만료나 존속 여부가 정해지지 않은 팀입니다.", groups: [{ items: W }] },
+    { id: "watch", label: "지켜볼 팀", mode: "watch", size: W.length, teams: TS, hint: "계약 만료나 존속 여부가 정해지지 않은 팀입니다.", groups: [{ items: W }] },
     { id: "schedule", label: "일정", mode: "schedule", size: D.schedule.length },
     { id: "suggest", label: "건의", mode: "suggest" }
   ];
+  // 팀 공통 배경은 탭 전체 항목으로 한 번 정한다. 필터나 검색에 따라 행 모양이 바뀌지 않게 하려고.
+  TABS.forEach(function (tab) {
+    if (tab.mode === "entry") tab.shared = sharedTails([].concat.apply([], tab.groups.map(function (g) { return g.items; })));
+  });
+  return TABS;
 }
 
 // 행의 인물·팀 ID. 시트에 personId·teamId 등이 있으면 그것을, 없으면 이름에서 임시 ID(slugOf)를 만든다.
@@ -130,7 +137,9 @@ export function teamNameOf(id, list) {
 
 export var TIER_KO = Object.assign(Object.create(null), { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" });
 
-// 팀 화면용: 현재 로스터(진행 중 경력 칸이 이 팀인 인물), 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
+// 팀 화면용: 현재 로스터, 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
+// 로스터는 진행 중 경력 칸이 이 팀인 인물에서 (i) 이 팀에 대한 가장 최근 소식이 방출·결별·이탈이거나 이 팀에서 나간 이적인 인물,
+// (ii) 팀이 운영 종료(active:false)면 전원을 뺀다. closed 는 (ii) 여부.
 // 인물은 한 번만 넣는다(가장 최근 소식 기준). 반환 인물 목록은 같은 규칙으로 정렬한다.
 export function teamMoves(id, IDX, today) {
   var news = (IDX.byTeam[id] || []).slice().sort(newestFirst), seenIn = new Set(), seenOut = new Set(), incoming = [], outgoing = [];
@@ -140,14 +149,22 @@ export function teamMoves(id, IDX, today) {
     if (e.kind === "t" && e.item.tidTo === id && !seenIn.has(pid)) { seenIn.add(pid); incoming.push(e); }
     if (((e.kind === "t" && e.item.tidFrom === id) || (e.kind !== "t" && e.item.tid === id)) && !seenOut.has(pid)) { seenOut.add(pid); outgoing.push(e); }
   });
-  var roster = Object.keys(IDX.people).map(function (k) { return IDX.people[k]; }).filter(function (p) {
-    return careerOf(p, today).some(function (c) { return c.current && c.team === id; });
+  var team = own(IDX.teams, id), closed = !!team && team.active === false;
+  // 같은 날 이적 행과 "계약 완료(새 팀)" 행이 함께 있으면 이적 행이 맨 앞이 아닐 수 있어, 가장 최근 날짜의 이적도 함께 본다.
+  function gone(pid) {
+    var mine = news.filter(function (x) { return x.kind !== "watch" && x.item.pid === pid; }), e = mine[0];
+    if (!e) return false;
+    if (e.kind !== "t" && /방출|결별|이탈/.test(e.item.status || "")) return true;
+    return mine.some(function (x) { return x.kind === "t" && x.item.date === e.item.date && x.item.tidFrom === id && x.item.tidTo !== id; });
+  }
+  var roster = closed ? [] : Object.keys(IDX.people).map(function (k) { return IDX.people[k]; }).filter(function (p) {
+    return careerOf(p, today).some(function (c) { return c.current && c.team === id; }) && !gone(p.id);
   }).sort(function (a, b) {
     var ca = a.kind === "coach" ? 1 : 0, cb = b.kind === "coach" ? 1 : 0;
     if (ca !== cb) return ca - cb;
     return String(a.name || "") < String(b.name || "") ? -1 : 1;
   });
-  return { roster: roster, incoming: incoming, outgoing: outgoing, news: news };
+  return { roster: roster, incoming: incoming, outgoing: outgoing, news: news, closed: closed };
 }
 
 // 인물·팀별 소식 모음. 탭과 상관없이 한 사람·한 팀의 행을 모은다.
@@ -176,21 +193,93 @@ export function buildIndex(D) {
   return IDX;
 }
 
-// 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남.
+// 합류 단계. 이적 행은 공식 발표일(signedDate)이 있어야 확정이다. 그 밖의 합류는 단일 출처(R)이거나 구두 합의·임박 글이면 보도다.
+var REPORTED_RE = /보도|구두|합의|임박/;
+function joinStage(it) {
+  if (it.moved && typeof it.signed === "number") return "confirmed";
+  return it.conf === "R" || REPORTED_RE.test(it.status || "") ? "reported" : "confirmed";
+}
+
+// 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남. 합류는 세 번째 값으로 단계("confirmed" 또는 "reported")를 준다.
 export function pillOf(it) {
-  if (it.moved) return ["signed", /잔류/.test(it.status) ? "잔류" : it.next + " 합류"];
+  if (it.moved) return ["signed", /잔류/.test(it.status) ? "잔류" : it.next + " 합류", joinStage(it)];
   var s = it.status;
   if (/계약 완료/.test(s)) {
     var m = s.match(/\((.+)\)/);
-    return ["signed", m ? (/잔류/.test(m[1]) ? m[1] : m[1] + " 합류") : "새 팀 합류"];
+    return ["signed", m ? (/잔류/.test(m[1]) ? m[1] : m[1] + " 합류") : "새 팀 합류", joinStage(it)];
   }
   // 팀을 떠났어도 새 팀을 찾는 중이면("팀 이탈 · 제한적 FA", "탐색 허가(팀 이탈)") 구직 중으로 본다.
   if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", "구직 중"];
   if (/방출/.test(s)) return ["left", "방출"];
   if (/이탈|결별/.test(s)) return ["left", "팀 떠남"];
+  // "BLG 합류 임박(보도)" 은 팀 이름을 읽어 보여 준다. 분류는 확인 필요 그대로 둬 "새 팀 합류" 개수가 바뀌지 않게 한다.
+  var j = /^(.+?) 합류 임박/.exec(s);
+  if (j) return ["unknown", j[1] + " 합류 보도"];
   return ["unknown", "확인 필요"];
 }
 export function cls(it) { return pillOf(it)[0]; }
+// 화면과 설명문에 쓰는 상태 글. 합류 보도는 뒤에 "보도"를 붙여 "Sentinels 합류 보도" 로 보인다.
+export function pillText(p) { return p[1] + (p[2] === "reported" ? " 보도" : ""); }
+
+// 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
+export var WATCH_KINDS = [
+  ["withdraw", "철수·해체", /철수|해체/],
+  ["dropped", "파트너십 탈락", /파트너십 탈락/],
+  ["expiring", "계약 만료", /계약\s.*만료/],
+  ["joining", "합류 보도", /합류.*(보도|합의)/]
+];
+// 상황 글 → 종류, 확정 여부(앞의 "[확정]"), 확인 날짜(끝의 "(확인 M/D)"), 둘을 뗀 본문.
+export function watchMeta(text) {
+  var s = String(text == null ? "" : text).trim(), confirmed = false, checked = "", m;
+  if (/^\[확정\]/.test(s)) { confirmed = true; s = s.replace(/^\[확정\]\s*/, ""); }
+  if ((m = /\s*\(확인\s*(\d{1,2}\/\d{1,2})\)\s*$/.exec(s))) { checked = m[1]; s = s.slice(0, m.index); }
+  var k = WATCH_KINDS.filter(function (w) { return w[2].test(s); })[0];
+  return { kind: k ? k[0] : "", label: k ? k[1] : "", confirmed: confirmed, checked: checked, body: s };
+}
+
+// 메모는 " / " 로 이어 쓴 조각들이다. 빈 메모는 조각이 없다.
+export function noteSegments(note) {
+  var s = String(note == null ? "" : note);
+  return s === "" ? [] : s.split(" / ");
+}
+
+// 팀 공통 배경(꼬리): 같은 팀에서 마지막 조각이 글자까지 같은 행이 2개 이상인 그 글. 팀마다 가장 많이 나온 하나를 고른다.
+// 반환: Map(팀 이름 → 꼬리). 같은 개수면 먼저 나온 것.
+export function sharedTails(items) {
+  var counts = new Map();
+  items.forEach(function (it) {
+    var segs = noteSegments(it.note), tail = segs[segs.length - 1];
+    if (!tail) return;
+    var byTail = counts.get(it.team) || new Map();
+    counts.set(it.team, byTail);
+    byTail.set(tail, (byTail.get(tail) || 0) + 1);
+  });
+  var out = new Map();
+  counts.forEach(function (byTail, team) {
+    var best = null, bestN = 1;
+    byTail.forEach(function (n, tail) { if (n > bestN) { best = tail; bestN = n; } });
+    if (best !== null) out.set(team, best);
+  });
+  return out;
+}
+
+// 메모의 마지막 조각이 꼬리와 같은가.
+export function hasTail(note, tail) {
+  var segs = noteSegments(note);
+  return !!tail && segs.length > 0 && segs[segs.length - 1] === tail;
+}
+
+// 메모에서 꼬리를 뺀 개인 부분. 꼬리가 없으면 메모 전체, 메모 전체가 꼬리면 "".
+export function ownPart(note, tail) {
+  return hasTail(note, tail) ? noteSegments(note).slice(0, -1).join(" / ") : String(note == null ? "" : note);
+}
+
+// 팀 공통 꼬리를 뺀 항목 복사본. 본문만 줄이고 보도 시각(_st)은 원래 메모 기준으로 남긴다. 꼬리가 없으면 그대로.
+export function ownItem(it, shared) {
+  var tail = shared.get(it.team);
+  if (!hasTail(it.note, tail)) return it;
+  return Object.assign({}, it, { note: ownPart(it.note, tail), _st: stampOf(it) });
+}
 
 export function matches(it, tab, state) {
   if (state.region !== "all" && it.region !== state.region) return false;

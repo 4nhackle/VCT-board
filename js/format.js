@@ -12,6 +12,10 @@ export function fmtDate(n) {
 export var TODAY = Math.floor((Date.now() + 9 * 36e5) / 864e5) + 25569;
 export function isNew(it) { return typeof it.date === "number" && TODAY - it.date >= 0 && TODAY - it.date <= 2; }
 export function isoOf(n) { return new Date(Date.UTC(1899, 11, 30) + n * 864e5).toISOString().slice(0, 10); }
+// 머리말 시각 뒤에 시간대(KST)를 붙인다. 이미 KST 가 있으면 그대로 둔다(예약 작업이 직접 써도 두 번 붙지 않는다).
+export function withKst(text) {
+  return String(text).replace(/(\d{4}-\d{2}-\d{2} \d{1,2}:\d{2})(?!\s*KST)(\s*기준)/, "$1 KST$2");
+}
 // 비고에 적힌 보도 시각("10/24 16:30 UTC" 또는 "... KST")을 한국 시간 기준 분 단위로. 없으면 null.
 export function stampOf(it) {
   if (it._st !== undefined) return it._st;
