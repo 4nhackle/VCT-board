@@ -10,6 +10,7 @@ import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, t
 import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
+import { withKst } from "../js/format.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 
 const T = 46326; // 2026-10-31 (KST)
@@ -300,6 +301,20 @@ t("sortSchedule: 연도 없는 11/2 와 2027 연도 있는 날짜가 섞여도 �
 t("sortSchedule: 날짜를 못 읽은 행은 맨 뒤, 같은 시작일은 끝일 순·원래 순서", () => {
   const rows = [sch("미정", "A"), sch(46330, "B"), sch("11/2 ~ 11/3", "C"), sch(46330, "D")];
   assert.deepEqual(sortSchedule(rows, S0).map(r => r.title), ["C", "B", "D", "A"]);
+});
+
+// P3: 머리말 갱신 시각에 시간대(KST)를 붙인다. 이미 있으면 그대로(멱등).
+t("withKst: 머리말 시각에 KST 를 붙임", () => {
+  assert.equal(withKst("2026-11-01 13:58 기준입니다."), "2026-11-01 13:58 KST 기준입니다.");
+});
+t("withKst: 이미 KST 가 있으면 그대로, 두 번 붙지 않음", () => {
+  const once = withKst("2026-11-01 13:58 기준입니다.");
+  assert.equal(withKst(once), once);
+  assert.equal(withKst("2026-11-01 13:58 KST 기준입니다."), "2026-11-01 13:58 KST 기준입니다.");
+});
+t("withKst: 시각이 없는 글은 그대로", () => {
+  const plain = "LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.";
+  assert.equal(withKst(plain), plain);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

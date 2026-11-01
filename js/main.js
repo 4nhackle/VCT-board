@@ -1,4 +1,4 @@
-import { isNew, esc } from "./format.js";
+import { isNew, esc, withKst } from "./format.js";
 import { REGIONS, REGION_KO, buildTabs, buildIndex, matches, cls } from "./model.js";
 import { state, saveOrder, pushTab, go, BASE, parseRoute } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
@@ -216,6 +216,13 @@ function showDetail(r) {
   }
   $("view").innerHTML = html;
   document.title = (name || "찾을 수 없음") + " · VCT LFT·FA 현황";
+}
+
+// 머리말 시각에 KST 를 붙인다. 텍스트 노드만 고쳐 .intro·.more 의 구조는 그대로 둔다.
+var LEDE = document.querySelector(".lede");
+if (LEDE) {
+  var walker = document.createTreeWalker(LEDE, NodeFilter.SHOW_TEXT);
+  for (var tn = walker.nextNode(); tn; tn = walker.nextNode()) tn.nodeValue = withKst(tn.nodeValue);
 }
 
 function load(f) {
