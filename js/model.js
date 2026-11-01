@@ -221,6 +221,54 @@ export function cls(it) { return pillOf(it)[0]; }
 // 화면과 설명문에 쓰는 상태 글. 합류 보도는 뒤에 "보도"를 붙여 "Sentinels 합류 보도" 로 보인다.
 export function pillText(p) { return p[1] + (p[2] === "reported" ? " 보도" : ""); }
 
+// 빈 칸과 "-" 는 이름이 없다.
+function cleanName(v) { return v && v !== "-" ? String(v) : ""; }
+// 팀 ID: 시트에 있으면 그것, 없으면 이름에서 만든다. 이름이 없으면 ID 도 없다.
+function toIdOf(name, id) { return id || (name ? slugOf(name) : ""); }
+// 상태 글에서 경로 말고 남은 꾸밈말. 계약 완료(…), 이전 팀 이탈(…), "X 합류" 를 뗀다.
+function noteOf(s, to) {
+  return s.split(" · ").map(function (seg) {
+    seg = seg.trim();
+    if (/^계약 완료\(/.test(seg)) seg = seg.replace(/^계약 완료\([^)]*\)\s*/, "");
+    else if (/이탈/.test(seg) && !/합류/.test(seg)) return "";
+    if (to) seg = seg.split(to + " 합류").join("");
+    return seg.trim();
+  }).filter(Boolean).join(" · ");
+}
+
+// 이동 경로 판정: 항목 하나에서 출발 팀과 도착 팀을 뽑는다. 이동이 아니면 null.
+// kind 는 "move"(다른 팀) 또는 "stay"(잔류). stage 는 pillOf(it)[2] 와 같다.
+// teams 는 팀 ID 인덱스(IDX.teams). 있는 ID 만 남기고, 없으면 링크 없이 글자만 쓴다.
+export function routeOf(it, teams) {
+  var T = teams || {}, s = String(it.status || "");
+  function known(id) { return id && own(T, id) ? id : ""; }
+  function out(kind, from, fromId, to, toId, note) {
+    return { kind: kind, from: from, fromId: known(fromId), to: to, toId: known(toId), stage: pillOf(it)[2], note: note };
+  }
+  var from = cleanName(it.team), fromId = it.tid || "";
+  if (it.moved) {
+    var next = cleanName(it.next);
+    if (/잔류/.test(s)) return out("stay", from, fromId, from, fromId, "");
+    return next ? out("move", from, fromId, next, it.tidTo || toIdOf(next), "") : null;
+  }
+  var m = /계약 완료\(([^)]*)\)/.exec(s);
+  if (m) {
+    if (/잔류/.test(m[1])) {
+      var x = cleanName(m[1].replace(/\s*잔류.*$/, "").trim());
+      return x ? out("stay", x, toIdOf(x), x, toIdOf(x), "") : null;
+    }
+    var inner = cleanName(m[1].trim());
+    return inner ? out("move", from, fromId, inner, toIdOf(inner), noteOf(s, inner)) : null;
+  }
+  // "BLG 합류 임박(보도)", "LOUD 이탈(본인 확인) · Leviatán 합류 보도": " 합류" 앞의 마지막 조각이 도착 팀.
+  var j = s.indexOf(" 합류");
+  if (j > 0) {
+    var to = s.slice(0, j).split(" · ").pop().trim();
+    if (to) return out("move", from, fromId, to, toIdOf(to), noteOf(s, to));
+  }
+  return null;
+}
+
 // 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
 export var WATCH_KINDS = [
   ["withdraw", "철수·해체", /철수|해체/],
