@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, cls, noteSegments, sharedTails, ownPart } from "../js/model.js";
 import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
+import { sortSchedule } from "../js/views/schedule.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 
 const T = 46326; // 2026-10-31 (KST)
@@ -281,6 +282,24 @@ t("noteSegments·sharedTails·ownPart: 빈 메모와 ' / ' 없는 메모에서 �
   assert.equal(sharedTails([memo("X", ""), memo("X", null), memo("X", undefined)]).size, 0);
   assert.equal(ownPart(undefined, undefined), "");
   assert.equal(ownPart("한 조각", "한 조각"), "");
+});
+
+// P2 일정: 시작일 순. 기준일 2026-11-01(46327)로 고정한다.
+const S0 = 46327;
+const sch = (date, title) => ({ date, title, source: "s" });
+t("sortSchedule: 현재 일정과 같은 꼴 10행이 시작일 순(Pacific 1/11 이 4개 지역 1/14 보다 앞)", () => {
+  const rows = [sch("2027-01-14 ~ 02-07", "4개 지역 Kickoff"), sch("2027-01-11 ~ 01-31", "VCT Pacific Kickoff"), sch(46328, "2026 시즌 종료"),
+    sch("11/5 ~ 11/8", "Americas 오픈 예선"), sch("11/25 ~ 12/5", "유럽 예선"), sch(46329, "FA 본격 개시"), sch("12/1", "12월 행사"),
+    sch("미정", "날짜 미정"), sch(46328, "Cloud9 발표"), sch("2026-12-20 ~ 12-22", "연말 행사")];
+  assert.deepEqual(sortSchedule(rows, S0).map(r => r.title), ["2026 시즌 종료", "Cloud9 발표", "FA 본격 개시", "Americas 오픈 예선", "유럽 예선", "12월 행사", "연말 행사", "VCT Pacific Kickoff", "4개 지역 Kickoff", "날짜 미정"]);
+});
+t("sortSchedule: 연도 없는 11/2 와 2027 연도 있는 날짜가 섞여도 순서가 맞음", () => {
+  const rows = [sch("2027-01-11 ~ 01-31", "b"), sch("11/2", "a")];
+  assert.deepEqual(sortSchedule(rows, S0).map(r => r.title), ["a", "b"]);
+});
+t("sortSchedule: 날짜를 못 읽은 행은 맨 뒤, 같은 시작일은 끝일 순·원래 순서", () => {
+  const rows = [sch("미정", "A"), sch(46330, "B"), sch("11/2 ~ 11/3", "C"), sch(46330, "D")];
+  assert.deepEqual(sortSchedule(rows, S0).map(r => r.title), ["C", "B", "D", "A"]);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
