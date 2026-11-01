@@ -22,7 +22,8 @@ export function regionsHTML(items, tab) {
       var inTeam = inReg.filter(function (it) { return it.team === t; });
       // 팀 머리글도 팀 상세로 간다. 같은 팀 이름의 행은 같은 팀 ID 이므로 첫 행의 ID 를 쓴다.
       var tid = inTeam[0].tid, tname = tid ? '<a href="' + esc(teamUrl(tid)) + '">' + esc(t) + "</a>" : esc(t);
-      out += '<h3 class="th">' + tname + (inTeam.length > 1 ? '<span class="n">' + inTeam.length + "명</span>" : "") + "</h3>";
+      // 한 명이어도 여러 명과 같은 모양(팀 이름 + 인원 수).
+      out += '<h3 class="th">' + tname + '<span class="n">' + inTeam.length + "명</span></h3>";
       out += '<ul class="list">' + inTeam.map(function (it) { return rowHTML(it, tab, { noTeam: true }); }).join("") + "</ul>";
     });
   });

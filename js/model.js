@@ -37,6 +37,8 @@ export function buildTabs(D) {
   // 화면 항목에도 인물·팀 ID 를 붙여, 목록 행을 상세 링크로 만들 수 있게 한다.
   function items(rows, kind) { return rows.map(function (r) { return Object.assign(toItem(r, kind, D.sources), idsOf(r, kind)); }); }
   var P = items(D.players, "player"), CO = items(D.coaches, "coach"), W = items(D.watch, "watch");
+  // 지켜볼 팀의 팀 링크는 teams 에 있는 ID 만 건다.
+  var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
   var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
   var PK = P.filter(function (it) { return /South Korea/.test(it.sub); });
   var CK = CO.filter(function (it) { return KR_TEAMS.test(it.team); });
@@ -45,7 +47,7 @@ export function buildTabs(D) {
     { id: "coaches", label: "코치·스태프", mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
     { id: "korea", label: "한국", mode: "entry", status: true, size: PK.length + CK.length, hint: "국적이 South Korea인 선수와 한국 팀(T1, KIWOOM DRX, Nongshim RedForce) 소속 코치·스태프입니다.", groups: [{ title: "선수", items: PK }, { title: "코치·스태프", items: CK }] },
     { id: "transfers", label: "이적 완료", mode: "entry", size: T1.length + T2.length, hint: "이전 소속 팀 기준으로 묶었습니다.", groups: [{ title: "선수", items: T1 }, { title: "코치·스태프", items: T2 }] },
-    { id: "watch", label: "지켜볼 팀", mode: "watch", size: W.length, hint: "계약 만료나 존속 여부가 정해지지 않은 팀입니다.", groups: [{ items: W }] },
+    { id: "watch", label: "지켜볼 팀", mode: "watch", size: W.length, teams: TS, hint: "계약 만료나 존속 여부가 정해지지 않은 팀입니다.", groups: [{ items: W }] },
     { id: "schedule", label: "일정", mode: "schedule", size: D.schedule.length },
     { id: "suggest", label: "건의", mode: "suggest" }
   ];
@@ -130,7 +132,9 @@ export function teamNameOf(id, list) {
 
 export var TIER_KO = Object.assign(Object.create(null), { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" });
 
-// 팀 화면용: 현재 로스터(진행 중 경력 칸이 이 팀인 인물), 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
+// 팀 화면용: 현재 로스터, 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
+// 로스터는 진행 중 경력 칸이 이 팀인 인물에서 (i) 이 팀에 대한 가장 최근 소식이 방출·결별·이탈이거나 이 팀에서 나간 이적인 인물,
+// (ii) 팀이 운영 종료(active:false)면 전원을 뺀다. closed 는 (ii) 여부.
 // 인물은 한 번만 넣는다(가장 최근 소식 기준). 반환 인물 목록은 같은 규칙으로 정렬한다.
 export function teamMoves(id, IDX, today) {
   var news = (IDX.byTeam[id] || []).slice().sort(newestFirst), seenIn = new Set(), seenOut = new Set(), incoming = [], outgoing = [];
@@ -140,14 +144,20 @@ export function teamMoves(id, IDX, today) {
     if (e.kind === "t" && e.item.tidTo === id && !seenIn.has(pid)) { seenIn.add(pid); incoming.push(e); }
     if (((e.kind === "t" && e.item.tidFrom === id) || (e.kind !== "t" && e.item.tid === id)) && !seenOut.has(pid)) { seenOut.add(pid); outgoing.push(e); }
   });
-  var roster = Object.keys(IDX.people).map(function (k) { return IDX.people[k]; }).filter(function (p) {
-    return careerOf(p, today).some(function (c) { return c.current && c.team === id; });
+  var team = own(IDX.teams, id), closed = !!team && team.active === false;
+  function gone(pid) {
+    var e = news.filter(function (x) { return x.kind !== "watch" && x.item.pid === pid; })[0];
+    if (!e) return false;
+    return e.kind === "t" ? e.item.tidFrom === id && e.item.tidTo !== id : /방출|결별|이탈/.test(e.item.status || "");
+  }
+  var roster = closed ? [] : Object.keys(IDX.people).map(function (k) { return IDX.people[k]; }).filter(function (p) {
+    return careerOf(p, today).some(function (c) { return c.current && c.team === id; }) && !gone(p.id);
   }).sort(function (a, b) {
     var ca = a.kind === "coach" ? 1 : 0, cb = b.kind === "coach" ? 1 : 0;
     if (ca !== cb) return ca - cb;
     return String(a.name || "") < String(b.name || "") ? -1 : 1;
   });
-  return { roster: roster, incoming: incoming, outgoing: outgoing, news: news };
+  return { roster: roster, incoming: incoming, outgoing: outgoing, news: news, closed: closed };
 }
 
 // 인물·팀별 소식 모음. 탭과 상관없이 한 사람·한 팀의 행을 모은다.
@@ -191,6 +201,22 @@ export function pillOf(it) {
   return ["unknown", "확인 필요"];
 }
 export function cls(it) { return pillOf(it)[0]; }
+
+// 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
+export var WATCH_KINDS = [
+  ["withdraw", "철수·해체", /철수|해체/],
+  ["dropped", "파트너십 탈락", /파트너십 탈락/],
+  ["expiring", "계약 만료", /계약\s.*만료/],
+  ["joining", "합류 보도", /합류.*(보도|합의)/]
+];
+// 상황 글 → 종류, 확정 여부(앞의 "[확정]"), 확인 날짜(끝의 "(확인 M/D)"), 둘을 뗀 본문.
+export function watchMeta(text) {
+  var s = String(text == null ? "" : text).trim(), confirmed = false, checked = "", m;
+  if (/^\[확정\]/.test(s)) { confirmed = true; s = s.replace(/^\[확정\]\s*/, ""); }
+  if ((m = /\s*\(확인\s*(\d{1,2}\/\d{1,2})\)\s*$/.exec(s))) { checked = m[1]; s = s.slice(0, m.index); }
+  var k = WATCH_KINDS.filter(function (w) { return w[2].test(s); })[0];
+  return { kind: k ? k[0] : "", label: k ? k[1] : "", confirmed: confirmed, checked: checked, body: s };
+}
 
 export function matches(it, tab, state) {
   if (state.region !== "all" && it.region !== state.region) return false;

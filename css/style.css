@@ -137,14 +137,13 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 .pill.unknown { --bg-c: transparent; --fg-c: var(--ink); outline: 1px dashed var(--ink); outline-offset: -1px; }
 .pill.unknown::before { content: "?"; content: "?" / ""; }
 .tag { font-size: var(--fs-1); color: var(--mute); border: 1px solid var(--line); border-radius: var(--r-1); padding: 0 6px; }
-.date { font-family: var(--mono); font-size: var(--fs-1); color: var(--mute); }
+.date { font-size: var(--fs-1); color: var(--mute); }
 .date.new { color: var(--accent); font-weight: 700; }
 .date.new::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: currentColor; vertical-align: 1px; }
 .detail { grid-column: 1 / -1; margin: var(--sp-1) 0 0; max-width: 72ch; font-size: var(--fs-3); line-height: 1.65; overflow-wrap: anywhere; }
 /* 출처 줄: 본문에서 떼어 낸 출처·시각·교차 확인과 출처 링크 */
 .srcs { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); margin: var(--sp-1) 0 0; font-size: var(--fs-1); color: var(--mute); }
 .srcs > * { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
-.srcs time { font-family: var(--mono); }
 .srcs b { font-weight: 700; }
 .srcs a { color: var(--accent); }
 .srcs > * + *::before { content: "·"; content: "·" / ""; margin-right: var(--sp-1); }
@@ -271,11 +270,9 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .search { flex: none; font-size: 16px; }
   .sg select, .sg textarea, .sg input { font-size: 16px; }
   .rh { top: 44px; scroll-margin-top: 44px; }
-  .row { grid-template-columns: minmax(0, 1fr); }
-  .state { justify-content: flex-start; text-align: left; grid-row: 2; }
-  .detail { grid-row: 3; }
-  .row.sch { grid-template-columns: minmax(0, 1fr); }
-  .row.sch .detail { grid-column: 1; grid-row: auto; }
+  /* 한 열: DOM 순서(이름, 상태, 본문, 출처 줄) 그대로 쌓는다 */
+  .row { display: flex; flex-direction: column; align-items: stretch; gap: 2px; }
+  .state { justify-content: flex-start; text-align: left; }
   .dp-info { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dp-name { font-size: 24px; }
   .mono { width: 48px; height: 48px; font-size: 19px; }

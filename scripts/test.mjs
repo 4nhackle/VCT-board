@@ -6,7 +6,8 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem } from "../js/model.js";
+import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta } from "../js/model.js";
+import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 
@@ -154,6 +155,71 @@ t("out-dir 실제 동작: 표시 파일 없는 폴더는 그대로 남고, 표�
   prepareOut(withMark, root); // 같은 폴더 재실행은 정상
   assert.ok(fs.existsSync(path.join(withMark, MARK)));
   for (const d of [root, noMark, withMark]) fs.rmSync(d, { recursive: true, force: true });
+});
+
+t("splitNote: 끝의 출처·시각(UTC→KST)과 교차 확인을 떼고 본문은 남김", () => {
+  const r = splitNote("Sentinels 공식 X 방출 발표(VLR·Strafe 원문 확인). 2026.3 G2에서 합류, 8개월 만에 이탈. 교차 확인: VLR, Strafe, Liquipedia 이적 로그(10/30) (Sentinels X 10/31 00:15 UTC)");
+  assert.equal(r.body, "Sentinels 공식 X 방출 발표(VLR·Strafe 원문 확인). 2026.3 G2에서 합류, 8개월 만에 이탈.");
+  assert.deepEqual(r.src, { name: "Sentinels X", when: "10/31 오전 9:15" });
+  assert.deepEqual(r.cross, ["VLR", "Strafe", "Liquipedia 이적 로그(10/30)"]);
+});
+t("splitNote: 날짜 넘김·연말·KST 그대로·문장 가운데 교차 확인", () => {
+  assert.equal(splitNote("a (Sentinels X 10/30 20:31 UTC)").src.when, "10/31 오전 5:31");
+  assert.equal(splitNote("a (X 12/31 20:00 UTC)").src.when, "1/1 오전 5:00");
+  assert.equal(splitNote("a (GM X 10/25 18:35 KST)").src.when, "10/25 오후 6:35");
+  const r = splitNote("LOUD 챔피언. 교차 확인: Sheep(10/28), TheSpike. 팀 공식 발표 전 (TheSpike 10/29 16:13 UTC)");
+  assert.equal(r.body, "LOUD 챔피언. 팀 공식 발표 전");
+  assert.deepEqual(r.cross, ["Sheep(10/28)", "TheSpike"]);
+});
+t("splitNote: 규칙에 안 맞는 글은 원문 그대로, 빈 값", () => {
+  const raw = "Barça 2027 합류 보도(Sheep), 공식 발표 전 (갱신 10/31 23:58 UTC, 보도 시각 미확인)";
+  assert.deepEqual(splitNote(raw), { body: raw, src: null, cross: null });
+  assert.deepEqual(splitNote("Sheep 10/25 15:44 UTC / 결별"), { body: "Sheep 10/25 15:44 UTC / 결별", src: null, cross: null });
+  assert.equal(splitNote("a (X 13/40 25:00 UTC)").src, null);
+  assert.deepEqual(splitNote(undefined), { body: "", src: null, cross: null });
+});
+
+t("watchMeta: 종류 판정(앞선 규칙 우선), 없음", () => {
+  const k = (s) => watchMeta(s).kind;
+  assert.equal(k("FURIA는 10/30 공식 발표로 발로란트 믹스 철수(전 선수·코치 11/2 FA)"), "withdraw");
+  assert.equal(k("팀 해체"), "withdraw");
+  assert.equal(k("파트너십 탈락. NAVI는 10/28 로스터 전원 방출"), "dropped");
+  assert.equal(k("계약 11/2 만료 (NRG는 파트너 유지) / eeiu 합류 구두 합의 보도"), "expiring");
+  assert.equal(k("계약 만료 예정"), "expiring");
+  assert.equal(k("kiNgg·Sato: G2 합류 의향 보도(9/16)"), "joining");
+  assert.equal(k("2027-28 VCT Americas 파트너 팀 선정. 재계약 구두 합의 보도"), "");
+  assert.equal(watchMeta("x").label, "");
+});
+t("watchMeta: [확정]·(확인 M/D) 를 읽고 본문에서 뗌", () => {
+  assert.deepEqual(watchMeta("[확정] 발로란트 철수 발표 (확인 11/1)"), { kind: "withdraw", label: "철수·해체", confirmed: true, checked: "11/1", body: "발로란트 철수 발표" });
+  assert.deepEqual(watchMeta("계약 만료 예정"), { kind: "expiring", label: "계약 만료", confirmed: false, checked: "", body: "계약 만료 예정" });
+});
+
+t("teamMoves: 방출된 인물은 로스터에서 빠짐(Sentinels/JonahP), 남은 인물은 유지", () => {
+  const D = { sources: SRC, coaches: [], transfers: { players: [], coaches: [] }, watch: [],
+    players: [row({ name: "JonahP", personId: "jonahp", team: "Sentinels", teamId: "sentinels", status: "방출(Sentinels 공식 발표)", date: 46326 })],
+    teams: [{ id: "sentinels", name: "Sentinels", active: true }],
+    people: [{ id: "jonahp", name: "JonahP", kind: "player", career: [{ team: "sentinels", from: "2026-03", to: null }] },
+      { id: "zekken", name: "zekken", kind: "player", career: [{ team: "sentinels", from: "2023-01", to: null }] }] };
+  const m = teamMoves("sentinels", buildIndex(D), T);
+  assert.deepEqual(m.roster.map(p => p.id), ["zekken"]);
+  assert.deepEqual(m.outgoing.map(e => e.item.pid), ["jonahp"]);
+  assert.equal(m.closed, false);
+});
+t("teamMoves: 이 팀에서 나간 이적이 가장 최근이면 로스터에서 빠짐, 구직 중(계약 중)은 유지", () => {
+  const D = { sources: SRC, coaches: [], watch: [], teams: [],
+    players: [row({ name: "Stay", personId: "stay", teamId: "t1", status: "탐색 허가(계약 중)" })],
+    transfers: { players: [row({ name: "Go", personId: "go", from: "T1", to: "T2", fromTeam: "t1", toTeam: "t2", type: "이적" })], coaches: [] },
+    people: ["stay", "go"].map(id => ({ id, name: id, kind: "player", career: [{ team: "t1", from: "2025-01", to: null }] })) };
+  assert.deepEqual(teamMoves("t1", buildIndex(D), T).roster.map(p => p.id), ["stay"]);
+});
+t("teamMoves: 운영 종료 팀(FURIA, active:false)은 로스터가 비고 closed", () => {
+  const D = { sources: SRC, players: [], coaches: [], transfers: { players: [], coaches: [] }, watch: [],
+    teams: [{ id: "furia", name: "FURIA", active: false }],
+    people: [{ id: "mwzera", name: "mwzera", kind: "player", career: [{ team: "furia", from: "2025-01", to: null }] }] };
+  const m = teamMoves("furia", buildIndex(D), T);
+  assert.deepEqual(m.roster, []);
+  assert.equal(m.closed, true);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

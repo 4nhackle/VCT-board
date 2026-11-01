@@ -27,6 +27,6 @@ function ddHTML(sp) {
 export function scheduleHTML(rows) {
   return '<ul class="list">' + rows.map(function (r) {
     var sp = spanOf(r.date);
-    return '<li class="row sch' + (sp && sp[1] < TODAY ? " past" : "") + '"><span class="when">' + fmtDate(r.date) + ddHTML(sp) + '</span><p class="detail" style="color:var(--ink);font-size:15px">' + esc(r.title) + " <span style=\"color:var(--mute);font-size:13px\">(" + esc(r.source) + ")</span></p></li>";
+    return '<li class="row sch' + (sp && sp[1] < TODAY ? " past" : "") + '"><span class="when">' + fmtDate(r.date) + ddHTML(sp) + '</span><p class="detail">' + esc(r.title) + ' <span class="src">(' + esc(r.source) + ")</span></p></li>";
   }).join("") + "</ul>";
 }
