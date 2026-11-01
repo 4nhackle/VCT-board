@@ -83,10 +83,11 @@ const urlOf = (rel) => SITE_ORIGIN + SITE_PATH + rel;
 try { prepareOut(OUT, ROOT, { allowSite: true }); } catch (e) { console.error(e.message); process.exit(2); }
 fs.copyFileSync(path.join(ROOT, "index.html"), path.join(OUT, "index.html"));
 fs.copyFileSync(path.join(ROOT, "og.png"), path.join(OUT, "og.png"));
-for (const d of ["css", "js", "data"]) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
+for (const d of ["css", "js", "data", "privacy", "terms"]) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
+// 방침·약관 페이지는 sitemap 에도 넣는다(아래 urls 초기화에서 함께 추가).
 
 // ── 인물·팀 페이지
-const urls = [urlOf("")];
+const urls = [urlOf(""), urlOf("privacy/"), urlOf("terms/")];
 for (const p of D.people) {
   const rel = "p/" + p.id + "/", title = personName(p.id) + TITLE_SUFFIX;
   fs.mkdirSync(path.join(OUT, rel), { recursive: true });
