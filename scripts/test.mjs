@@ -235,15 +235,15 @@ t("teamMoves: 같은 날 이적 행과 \"계약 완료(새 팀)\" 행이 함께 
 // P1: 단일 출처나 구두 합의 글은 합류 보도(◇), 공식 확정 표현이나 발표일이 있을 때만 확정(✓).
 const mv = (over) => toItem(Object.assign({ region: "EMEA", from: "A", to: "B", fromTeam: "a", toTeam: "b", name: "X", type: "이적", date: 46320, conf: "C", note: "", src: "s" }, over), "t", SRC);
 t("pillOf: 단일 출처(R) 계약 완료는 합류 보도", () => {
-  assert.deepEqual(pillOf({ status: "계약 완료(Sentinels)", conf: "R" }), ["signed", "Sentinels 합류", "reported"]);
+  assert.deepEqual(pillOf({ status: "계약 완료(Sentinels)", conf: "R" }), ["signed", "Sentinels 합류", "reported", "합류 보도"]);
   assert.equal(pillText(pillOf({ status: "계약 완료(Sentinels)", conf: "R" })), "Sentinels 합류 보도"); // 화면 글
 });
 t("pillOf: 확정 표현 계약 완료(C)는 확정", () => {
-  assert.deepEqual(pillOf({ status: "계약 완료(Mandatory)", conf: "C" }), ["signed", "Mandatory 합류", "confirmed"]);
+  assert.deepEqual(pillOf({ status: "계약 완료(Mandatory)", conf: "C" }), ["signed", "Mandatory 합류", "confirmed", "합류 확정"]);
 });
 t("pillOf: 이적 행은 발표일이 숫자면 R 이어도 확정, 없고 R 이면 보도", () => {
-  assert.deepEqual(pillOf(mv({ conf: "R", signedDate: 46320 })), ["signed", "B 합류", "confirmed"]);
-  assert.deepEqual(pillOf(mv({ conf: "R" })), ["signed", "B 합류", "reported"]);
+  assert.deepEqual(pillOf(mv({ conf: "R", signedDate: 46320 })), ["signed", "B 합류", "confirmed", "합류 확정"]);
+  assert.deepEqual(pillOf(mv({ conf: "R" })), ["signed", "B 합류", "reported", "합류 보도"]);
 });
 t("pillOf: \"X 합류 임박(보도)\" 은 팀 이름을 읽되 분류는 확인 필요 그대로", () => {
   assert.deepEqual(pillOf({ status: "BLG 합류 임박(보도)", conf: "R" }), ["unknown", "BLG 합류 보도"]);
@@ -368,6 +368,15 @@ t("routeOf: stage 는 pillOf(it)[2] 와 같다", () => {
   assert.equal(routeOf(R, TEAMS).stage, pillOf(R)[2]);
   assert.equal(routeOf(R, TEAMS).stage, "reported");
   assert.equal(routeOf(C, TEAMS).stage, "confirmed");
+});
+
+t("teamMoves: 다른 팀 소속 선수 행 '계약 완료(t2)' 가 t2 의 들어온 인물, t1 의 나간 인물", () => {
+  const D = { sources: SRC, coaches: [], transfers: { players: [], coaches: [] }, watch: [],
+    teams: [{ id: "t1", name: "T1", active: true }, { id: "t2", name: "T2", active: true }],
+    players: [row({ name: "Mover", personId: "mover", team: "T1", teamId: "t1", status: "계약 완료(T2)", conf: "R", date: 46320 })],
+    people: [{ id: "mover", name: "Mover", kind: "player", career: [{ team: "t1", from: "2025-01", to: null }] }] };
+  assert.deepEqual(teamMoves("t2", buildIndex(D), T).incoming.map(e => e.item.pid), ["mover"]);
+  assert.deepEqual(teamMoves("t1", buildIndex(D), T).outgoing.map(e => e.item.pid), ["mover"]);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

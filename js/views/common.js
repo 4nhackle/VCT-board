@@ -1,5 +1,5 @@
 import { esc, relDate, srcHTML, stampLabel } from "../format.js";
-import { pillOf } from "../model.js";
+import { pillOf, routeOf } from "../model.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
 import { personUrl } from "../state.js";
@@ -65,7 +65,8 @@ export function newsRow(e, withName) {
     return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME.watch), esc(it.team)].filter(Boolean).join(" · ") + '</p><p class="dp-line"><span class="lbl">대상</span>' + esc(it.name) +
       (sp.body ? ". " + esc(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
   }
-  var route = e.kind === "t" ? [val(it.team), val(it.next)].filter(Boolean).join(" → ") : val(it.team);
+  // 소식 머리의 경로: 이동이면 "출발 → 도착"(잔류는 "X 잔류"), 아니면 소속 팀. 글자만 쓴다(링크는 줄 안의 이름 링크와 겹치지 않게 뺌).
+  var r = routeOf(it), route = r && r.kind === "stay" ? r.to + " 잔류" : r ? [r.from, r.to].filter(Boolean).join(" → ") : val(it.team);
   return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME[e.kind]), esc(route)].filter(Boolean).join(" · ") + "</p>" +
     '<p class="dp-line">' + pill(pillOf(it)) + badge(it) + (withName ? " " + nameLink(it.pid, it.name) : "") + (sp.body ? " " + esc(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
 }
