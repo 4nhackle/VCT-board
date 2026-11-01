@@ -46,14 +46,26 @@ export function srcsHTML(parts, src) {
   return out.length ? '<p class="srcs">' + out.join("") + "</p>" : "";
 }
 
+// 정보 칸. 사람·팀마다 칸 수가 같도록 값이 없으면 "미공개" 를 흐리게 보여 준다. 값은 이미 이스케이프된 HTML.
+export function infoHTML(pairs) {
+  return '<dl class="dp-info c' + pairs.length + '">' + pairs.map(function (p) {
+    return "<div><dt>" + esc(p[0]) + "</dt>" + (p[1] ? "<dd>" + p[1] + "</dd>" : '<dd class="na">미공개</dd>') + "</div>";
+  }).join("") + "</dl>";
+}
+
+// 상세 머리의 모노그램: 이름 첫 두 글자.
+export function monoHTML(name) {
+  return '<span class="mono" aria-hidden="true">' + esc(Array.from(String(name || "?")).slice(0, 2).join("")) + "</span>";
+}
+
 // 소식 한 줄. withName 이면 인물 이름을 링크로 함께 보여 준다(팀 화면). 지켜볼 팀 줄은 대상과 메모를 보여 준다.
 export function newsRow(e, withName) {
-  var it = e.item, when = relDate(it.date) + (stampLabel(it) ? " " + stampLabel(it) : "");
+  var it = e.item, when = relDate(it.date) + (stampLabel(it) ? " " + stampLabel(it) : ""), sp = splitNote(val(it.note));
   if (e.kind === "watch") {
-    return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME.watch), esc(it.team)].filter(Boolean).join(" · ") + '</p><p class="dp-line">대상: ' + esc(it.name) +
-      (val(it.note) ? ". " + esc(it.note) : "") + srcHTML(it.src) + "</p></li>";
+    return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME.watch), esc(it.team)].filter(Boolean).join(" · ") + '</p><p class="dp-line"><span class="lbl">대상</span>' + esc(it.name) +
+      (sp.body ? ". " + esc(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
   }
   var route = e.kind === "t" ? [val(it.team), val(it.next)].filter(Boolean).join(" → ") : val(it.team);
   return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME[e.kind]), esc(route)].filter(Boolean).join(" · ") + "</p>" +
-    '<p class="dp-line">' + pill(pillOf(it)) + badge(it) + (withName ? " " + nameLink(it.pid, it.name) : "") + (val(it.note) ? " " + esc(it.note) : "") + srcHTML(it.src) + "</p></li>";
+    '<p class="dp-line">' + pill(pillOf(it)) + badge(it) + (withName ? " " + nameLink(it.pid, it.name) : "") + (sp.body ? " " + esc(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
 }

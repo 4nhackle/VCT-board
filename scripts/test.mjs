@@ -222,4 +222,12 @@ t("teamMoves: 운영 종료 팀(FURIA, active:false)은 로스터가 비고 clos
   assert.equal(m.closed, true);
 });
 
+t("teamMoves: 같은 날 이적 행과 \"계약 완료(새 팀)\" 행이 함께 있어도 이 팀 로스터에서 빠짐(FURIA/eeiu)", () => {
+  const D = { sources: SRC, coaches: [], watch: [], teams: [{ id: "furia", name: "FURIA", active: true }],
+    players: [row({ name: "eeiu", personId: "eeiu", team: "FURIA", teamId: "furia", status: "계약 완료(NRG) · 구두 합의 보도", date: 46325 })],
+    transfers: { players: [row({ name: "eeiu", personId: "eeiu", from: "FURIA", to: "NRG", fromTeam: "furia", toTeam: "nrg", type: "이적", date: 46325 })], coaches: [] },
+    people: [{ id: "eeiu", name: "eeiu", kind: "player", career: [{ team: "furia", from: "2025-12", to: null }] }] };
+  assert.deepEqual(teamMoves("furia", buildIndex(D), T).roster, []);
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);

@@ -145,10 +145,12 @@ export function teamMoves(id, IDX, today) {
     if (((e.kind === "t" && e.item.tidFrom === id) || (e.kind !== "t" && e.item.tid === id)) && !seenOut.has(pid)) { seenOut.add(pid); outgoing.push(e); }
   });
   var team = own(IDX.teams, id), closed = !!team && team.active === false;
+  // 같은 날 이적 행과 "계약 완료(새 팀)" 행이 함께 있으면 이적 행이 맨 앞이 아닐 수 있어, 가장 최근 날짜의 이적도 함께 본다.
   function gone(pid) {
-    var e = news.filter(function (x) { return x.kind !== "watch" && x.item.pid === pid; })[0];
+    var mine = news.filter(function (x) { return x.kind !== "watch" && x.item.pid === pid; }), e = mine[0];
     if (!e) return false;
-    return e.kind === "t" ? e.item.tidFrom === id && e.item.tidTo !== id : /방출|결별|이탈/.test(e.item.status || "");
+    if (e.kind !== "t" && /방출|결별|이탈/.test(e.item.status || "")) return true;
+    return mine.some(function (x) { return x.kind === "t" && x.item.date === e.item.date && x.item.tidFrom === id && x.item.tidTo !== id; });
   }
   var roster = closed ? [] : Object.keys(IDX.people).map(function (k) { return IDX.people[k]; }).filter(function (p) {
     return careerOf(p, today).some(function (c) { return c.current && c.team === id; }) && !gone(p.id);
