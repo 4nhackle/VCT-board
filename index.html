@@ -9,36 +9,38 @@
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#F5F8F5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F1915" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111413" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://4nhackle.github.io/VCT-board/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230E6B4E'/%3E%3Cpath d='M8 9l8 15 8-15' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
 <title>VCT LFT·FA 현황</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 
 </head><body><div class="page">
-  <header>
-    <h1>발로란트 VCT 선수 이적 현황</h1>
-    <p class="lede">2026 시즌이 끝나면서 팀을 떠나거나 새 팀을 찾는 선수와 코치를 정리했습니다. <span class="more">LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.</span> 2026-11-01 13:58 기준입니다.</p>
+  <header class="top">
+    <h1 class="site" id="site">발로란트 VCT 선수 이적 현황</h1>
+    <p class="lede"><span class="intro">2026 시즌이 끝나면서 팀을 떠나거나 새 팀을 찾는 선수와 코치를 정리했습니다.</span> <span class="more">LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.</span> 2026-11-01 13:58 기준입니다.</p>
   </header>
 
   <nav class="tabs" id="tabs" aria-label="보기 선택"></nav>
 
-  <div class="summary" id="summary" role="group" aria-label="상태별 인원"></div>
-
   <div class="filters" id="filters">
-    <div class="regions" id="regions" role="group" aria-label="지역"></div>
-    <div class="bar">
-      <div class="order" id="order" role="group" aria-label="정렬"></div>
-      <span class="hint fresh" id="fresh" hidden></span>
+    <div class="bar b1">
+      <div class="summary chips" id="summary" role="group" aria-label="상태별 인원"></div>
       <input class="search" id="q" type="search" placeholder="이름이나 팀 검색" aria-label="검색" autocomplete="off">
+    </div>
+    <div class="bar b2">
+      <div class="regions chips" id="regions" role="group" aria-label="지역"></div>
+      <div class="order chips" id="order" role="group" aria-label="정렬"></div>
     </div>
   </div>
 
   <main><div id="view"></div><div id="sgview" hidden></div></main>
+
+  <div class="dock" id="dock" hidden>
+    <select id="jump" aria-label="구역으로 이동"></select>
+    <button type="button" class="totop" data-top="1" aria-label="맨 위로">↑</button>
+  </div>
 
   <section class="notes" aria-label="참고">
     <ul>
