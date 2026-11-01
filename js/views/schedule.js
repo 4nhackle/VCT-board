@@ -23,7 +23,9 @@ export function spanOf(v, today) {
 // 시작일 순, 같으면 끝일 순, 그다음 원래 순서. 날짜를 못 읽은 행은 맨 뒤에 원래 순서로 둔다.
 export function sortSchedule(rows, today) {
   return rows.map(function (r, i) { return { r: r, i: i, sp: spanOf(r.date, today) }; }).sort(function (a, b) {
-    if (!a.sp || !b.sp) return (!a.sp) - (!b.sp) || a.i - b.i;
+    if (!a.sp && !b.sp) return a.i - b.i;
+    if (!a.sp) return 1;
+    if (!b.sp) return -1;
     return a.sp[0] - b.sp[0] || a.sp[1] - b.sp[1] || a.i - b.i;
   }).map(function (k) { return k.r; });
 }
