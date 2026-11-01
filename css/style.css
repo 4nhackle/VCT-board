@@ -29,6 +29,7 @@
   --warn-bg: #FBE3DD; --warn-fg: #8A2A12;
   /* 떠 있는 컨트롤(막대): 테두리는 본문 글자색 수준, 면은 바탕보다 살짝 밝게, 그림자는 라이트에서만 */
   --float: var(--surface); --line-strong: var(--mute); --shadow-float: 0 2px 8px rgba(22, 24, 29, .14);
+  --mono-bg: var(--ink); --mono-fg: var(--bg);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -39,6 +40,7 @@
     --left-bg: #262E35; --left-fg: #B8C6CF; --left-rail: #8796A3;
     --warn-bg: #43201A; --warn-fg: #F7B4A3;
     --float: #252B28; --shadow-float: none;
+    --mono-bg: var(--float); --mono-fg: var(--ink);
     color-scheme: dark;
   }
 }
@@ -50,6 +52,7 @@
   --left-bg: #262E35; --left-fg: #B8C6CF; --left-rail: #8796A3;
   --warn-bg: #43201A; --warn-fg: #F7B4A3;
   --float: #252B28; --shadow-float: none;
+  --mono-bg: var(--float); --mono-fg: var(--ink);
   color-scheme: dark;
 }
 
@@ -259,7 +262,7 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 .dp-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-2) var(--sp-4); align-items: center; padding-bottom: var(--sp-4); border-bottom: 2px solid var(--ink); }
 .dp-head > :not(.mono) { grid-column: 2; }
 .dp-head > .dp-links, .dp-head > .dp-note { grid-column: 1 / -1; }
-.mono { grid-row: 1 / span 2; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-2); background: var(--ink); color: var(--bg); font-size: var(--fs-5); font-weight: 800; letter-spacing: -0.04em; text-transform: uppercase; }
+.mono { grid-row: 1 / span 2; display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-2); background: var(--mono-bg); color: var(--mono-fg); font-size: var(--fs-5); font-weight: 800; letter-spacing: -0.04em; text-transform: uppercase; }
 .dp-name { margin: 0; font-size: var(--fs-6); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; overflow-wrap: anywhere; }
 .dp-real { margin: 0; font-size: var(--fs-3); font-weight: 400; letter-spacing: 0; color: var(--mute); }
 .dp-state { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); }
