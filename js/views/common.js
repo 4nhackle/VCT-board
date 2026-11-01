@@ -1,4 +1,4 @@
-import { esc, relDate, srcHTML, stampLabel } from "../format.js";
+import { esc, relDate, srcHTML, stampLabel, parseStamp } from "../format.js";
 import { pillOf, routeOf } from "../model.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
@@ -24,9 +24,11 @@ var STAMP_RE = /\s*\(([^()]+?)\s+(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})\s*(UTC
 var CROSS_RE = /\s*교차 확인:\s*(.+?)(?:\.(?=\s|$)|$)/;
 export function splitNote(text) {
   var body = String(text == null ? "" : text).trim(), src = null, cross = null, m = STAMP_RE.exec(body);
-  if (m && +m[2] >= 1 && +m[2] <= 12 && +m[4] < 24 && +m[5] < 60) {
-    // 연도는 날짜 계산에만 쓴다(윤년이 있는 해로 두어 2/29 도 받는다). 보도 시각 환산은 format.js stampOf 와 같이 UTC+9.
-    var d = new Date(Date.UTC(2024, +m[2] - 1, +m[3], +m[4], +m[5]) + (m[6] === "UTC" ? 9 * 36e5 : 0)), h = d.getUTCHours(), mm = d.getUTCMinutes();
+  // 괄호 모양은 여기서 본다. 숫자 해석과 범위 확인은 format.js parseStamp 가 한다(stampOf 와 같은 규칙).
+  var p = m && parseStamp(m[2] + "/" + m[3] + " " + m[4] + ":" + m[5] + " " + m[6]);
+  if (p) {
+    // 연도는 날짜 계산에만 쓴다(윤년이 있는 해로 두어 2/29 도 받는다). p.min 은 한국 시간 분이라 날짜가 넘어가도 맞는다.
+    var d = new Date(Date.UTC(2024, p.mon - 1, p.day) + p.min * 6e4), h = d.getUTCHours(), mm = d.getUTCMinutes();
     src = { name: m[1], when: (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " + (h < 12 ? "오전 " : "오후 ") + (h % 12 || 12) + ":" + (mm < 10 ? "0" : "") + mm };
     body = body.slice(0, m.index);
   }
