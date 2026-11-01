@@ -115,6 +115,19 @@ p.site { font-size: var(--fs-2); font-weight: 700; color: var(--mute); letter-sp
 .tnote .srcs { margin-top: var(--sp-1); }
 .tnote + .list > .row:first-child { border-top: 0; }
 .tlink { color: var(--mute); font-size: var(--fs-1); }
+/* 이동 경로: 출발 → 도착. 도착 팀과 화살표는 한 묶음이라 줄이 바뀌어도 떨어지지 않는다. */
+.route { display: block; margin-top: 2px; color: var(--mute); font-size: var(--fs-2); overflow-wrap: anywhere; }
+.route a { color: inherit; text-decoration: none; }
+.route a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.r-from { color: var(--mute); }
+.r-next { white-space: nowrap; }
+.r-arrow { margin: 0 var(--sp-1); }
+.r-to { color: var(--ink); font-weight: 700; }
+.r-tag { margin-left: var(--sp-1); padding: 0 6px; border: 1px solid var(--line); border-radius: var(--r-1); font-size: var(--fs-1); }
+.dp-route { margin: var(--sp-1) 0 0; font-size: var(--fs-4); font-weight: 700; }
+.dp-route .route { margin: 0; font-size: inherit; }
+/* 스크린 리더에만 읽힌다. */
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 .list { list-style: none; margin: 0; padding: 0; }
 
 /* ── 행: 왼쪽 띠(상태색) | 이름·메타 | 상태·날짜, 아래에 본문과 출처 줄 */

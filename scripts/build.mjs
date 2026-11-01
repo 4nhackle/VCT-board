@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { esc, isoOf, TODAY } from "../js/format.js";
-import { buildIndex, pillOf, pillText, teamMoves, teamNameOf, newestFirst, REGION_KO, ID_RE } from "../js/model.js";
+import { buildIndex, pillOf, pillText, routeOf, teamMoves, teamNameOf, newestFirst, REGION_KO, ID_RE } from "../js/model.js";
 import { prepareOut } from "./out-dir.mjs";
 
 // 배포 경로와 주소. 이 파일에서 이 두 곳만 고치면 된다.
@@ -40,9 +40,11 @@ function personName(id) {
 function personDesc(id) {
   const name = personName(id), top = (IDX.byPerson[id] || []).slice().sort(newestFirst)[0];
   if (!top) return name;
-  if (top.kind === "t") {
-    const route = [top.item.team, top.item.next].filter(Boolean).join(" → ");
-    return name + " · " + route + " 이적 " + (typeof top.row.signedDate === "number" ? "확정" : "보도");
+  // 이동이면 "A → B 이적 확정|보도". 이적 행은 발표일로, 그 밖의 합류는 단계로 가른다.
+  const r = routeOf(top.item, IDX.teams);
+  if (r && r.kind === "move") {
+    const word = top.kind === "t" ? (typeof top.row.signedDate === "number" ? "확정" : "보도") : r.stage === "confirmed" ? "확정" : "보도";
+    return name + " · " + [r.from, r.to].filter(Boolean).join(" → ") + " 이적 " + word;
   }
   return [name, top.item.team, pillText(pillOf(top.item))].filter(Boolean).join(" · ");
 }

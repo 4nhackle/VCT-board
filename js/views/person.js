@@ -1,7 +1,8 @@
 import { esc, srcHTML, fmtDate, isoOf } from "../format.js";
-import { REGION_KO, TIER_KO, pillOf, ageOf, contractState, careerOf, newestFirst } from "../model.js";
+import { REGION_KO, TIER_KO, pillOf, routeOf, ageOf, contractState, careerOf, newestFirst } from "../model.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
+import { routeHTML } from "../components/route.js";
 import { listUrl, teamUrl } from "../state.js";
 import { val, newsRow, infoHTML, monoHTML } from "./common.js";
 
@@ -39,8 +40,11 @@ function linksHTML(links) {
 
 // 이번 이동 카드. 가장 최근 소식이 이적이면 "이전 팀 → 새 팀", 아니면 "소속 팀 · 상태".
 // 보도일(date)과 공식 발표일(signedDate)은 글자로 구분해 따로 적는다.
-function moveHTML(list, p) {
-  var top = list[0], it = top.item, facts = [];
+// 이번 이동과 머리 경로의 기준 항목: 가장 최근 이적 행, 없으면 가장 최근 항목.
+function moveTop(list) { return list.filter(function (e) { return e.kind === "t"; })[0] || list[0]; }
+
+function moveHTML(list, p, teams) {
+  var top = moveTop(list), it = top.item, facts = [], r = routeOf(it, teams);
   var isMove = top.kind === "t";
   facts.push("<li>보도 " + fmtDate(it.date) + (srcHTML(it.src) ? " " + srcHTML(it.src) : "") + "</li>");
   if (isMove) {
@@ -55,9 +59,12 @@ function moveHTML(list, p) {
     var until = typeof top.row.contractUntil === "number" ? top.row.contractUntil : (p ? p.contractUntil : undefined);
     facts.push("<li>계약 만료 " + contractText(until) + "</li>");
   }
-  var title = isMove ? val(it.team) + " → " + val(it.next) : [val(it.team), val(it.status)].filter(Boolean).join(" · ");
+  // 제목은 경로 줄(출발 → 도착). 경로가 없으면 "소속 · 상태". 합류 단계와 꾸밈말은 뒤의 작은 배지로 둔다.
+  var title = r ? routeHTML(r) : esc([val(it.team), val(it.status)].filter(Boolean).join(" · "));
+  var stage = r && r.kind === "move" ? (r.stage === "reported" ? '<span class="tag">◇ 합류 보도</span>' : r.stage === "confirmed" ? '<span class="tag">✓ 합류 확정</span>' : "") : "";
+  var note = r && r.note ? '<span class="tag">' + esc(r.note) + "</span>" : "";
   return '<section class="dp-sec dp-move"><h2>이번 이동</h2>' +
-    '<p class="dp-move-title">' + esc(title) + (badge(it) ? " " + badge(it) : "") + "</p>" +
+    '<p class="dp-move-title">' + title + (badge(it) ? " " + badge(it) : "") + (stage ? " " + stage : "") + (note ? " " + note : "") + "</p>" +
     '<ul class="dp-facts">' + facts.join("") + "</ul></section>";
 }
 
@@ -136,12 +143,15 @@ export function personHTML(id, IDX) {
     if (!nat) nat = val(e.row.nationality);
     if (!role) role = val(e.row.role) || val(e.row.position);
   });
+  // 머리의 경로 줄: 가장 최근 이적의 출발 → 도착. 이동이 아니면 줄을 두지 않는다.
+  var moveRoute = list.length ? routeOf(moveTop(list).item, teams) : null;
   var head = '<header class="dp-head">' + monoHTML(name) + '<h1 class="dp-name">' + esc(name) +
     "</h1>" + (p && val(p.realName) ? '<p class="dp-real">' + esc(p.realName) + "</p>" : "") +
     (list.length ? '<div class="dp-state">' + pill(pillOf(list[0].item)) + badge(list[0].item) + "</div>" : "") +
+    (moveRoute ? '<p class="dp-route">' + routeHTML(moveRoute) + "</p>" : "") +
     (p ? linksHTML(p.links) : "") + (p ? "" : '<p class="dp-note">선수 정보는 정리 중입니다.</p>') + "</header>";
   var notice = infoHTML(personInfo(list, p, teams, nat, role));
-  var move = list.length ? moveHTML(list, p) : "";
+  var move = list.length ? moveHTML(list, p, teams) : "";
   var teamSec = teamsHTML(list, p, teams);
   var news = list.length ? '<ul class="dp-list">' + list.map(function (e) { return newsRow(e, false); }).join("") + "</ul>" : '<p class="dp-note">관련 소식이 없습니다.</p>';
   return {

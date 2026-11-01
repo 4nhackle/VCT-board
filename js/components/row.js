@@ -1,8 +1,9 @@
 import { esc, isNew, relDate, stampLabel } from "../format.js";
-import { REGION_KO, pillOf, slugOf, watchMeta } from "../model.js";
+import { REGION_KO, pillOf, routeOf, slugOf, watchMeta } from "../model.js";
 import { splitNote, srcsHTML } from "../views/common.js";
 import { personUrl, teamUrl } from "../state.js";
 import { pill } from "./pill.js";
+import { routeHTML } from "./route.js";
 import { badge } from "./badge.js";
 
 // id 가 없으면 링크 없이 글자만 둔다.
@@ -33,10 +34,12 @@ export function rowHTML(it, tab, opt) {
   var meta = (it.sub || "").split(", ").filter(function (x) { return x && x !== "-"; }).join(" · ");
   if (!it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status)) lead = esc(it.status) + ". ";
   opt = opt || {};
+  // 이동이면 경로 줄이 출발·도착 팀을 보여 주므로 팀 링크 대신 쓴다. 팀별 보기는 팀 머리가 출발 팀이라 도착만 쓴다.
+  var r = routeOf(it, tab.teamObj), route = r ? routeHTML(r, { noFrom: !!opt.noTeam }) : "";
   return '<li class="row s-' + (p[2] === "reported" ? "reported" : p[0]) + '"><div class="main">' + link("name", it.pid ? personUrl(it.pid) : "", it.name) +
-    (opt.noTeam ? "" : link("team", it.tid ? teamUrl(it.tid) : "", it.team)) +
+    (r || opt.noTeam ? "" : link("team", it.tid ? teamUrl(it.tid) : "", it.team)) +
     (opt.region ? '<span class="reg">' + esc(REGION_KO[it.region] || it.region) + "</span>" : "") +
-    (meta ? '<span class="meta">' + esc(meta) + "</span>" : "") + "</div>" +
+    route + (meta ? '<span class="meta">' + esc(meta) + "</span>" : "") + "</div>" +
     '<div class="state">' + pill(p) + badge(it) +
     '<span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "") + " 보도</span></div>" +
     (lead || sp.body ? '<p class="detail">' + lead + esc(sp.body) + "</p>" : "") + (opt.more || "") + srcsHTML(sp, it.src) + "</li>";

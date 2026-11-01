@@ -39,6 +39,8 @@ export function buildTabs(D) {
   var P = items(D.players, "player"), CO = items(D.coaches, "coach"), W = items(D.watch, "watch");
   // 지켜볼 팀의 팀 링크는 teams 에 있는 ID 만 건다.
   var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
+  var TEAM_OBJ = Object.create(null);
+  (D.teams || []).forEach(function (t) { TEAM_OBJ[t.id] = t; });
   var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
   var PK = P.filter(function (it) { return /South Korea/.test(it.sub); });
   var CK = CO.filter(function (it) { return KR_TEAMS.test(it.team); });
@@ -53,7 +55,11 @@ export function buildTabs(D) {
   ];
   // 팀 공통 배경은 탭 전체 항목으로 한 번 정한다. 필터나 검색에 따라 행 모양이 바뀌지 않게 하려고.
   TABS.forEach(function (tab) {
-    if (tab.mode === "entry") tab.shared = sharedTails([].concat.apply([], tab.groups.map(function (g) { return g.items; })));
+    if (tab.mode === "entry") {
+      tab.shared = sharedTails([].concat.apply([], tab.groups.map(function (g) { return g.items; })));
+      // 경로 줄이 도착 팀 링크를 정할 때 쓴다(IDX.teams 와 같은 모양).
+      tab.teamObj = TEAM_OBJ;
+    }
   });
   return TABS;
 }
@@ -137,16 +143,32 @@ export function teamNameOf(id, list) {
 
 export var TIER_KO = Object.assign(Object.create(null), { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" });
 
+// 선수·코치 행이 이 팀으로 가는 계약인가("계약 완료(이 팀)"). 이적 행과 지켜볼 팀 행은 따로 본다.
+function arrives(e, id, IDX) {
+  if (e.kind === "t" || e.kind === "watch") return false;
+  var r = routeOf(e.item, IDX.teams);
+  return !!r && r.kind === "move" && r.toId === id;
+}
+function arrivalsOf(id, IDX) {
+  var out = [];
+  Object.keys(IDX.byPerson).forEach(function (pid) {
+    IDX.byPerson[pid].forEach(function (e) { if (arrives(e, id, IDX)) out.push(e); });
+  });
+  return out;
+}
+
 // 팀 화면용: 현재 로스터, 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
 // 로스터는 진행 중 경력 칸이 이 팀인 인물에서 (i) 이 팀에 대한 가장 최근 소식이 방출·결별·이탈이거나 이 팀에서 나간 이적인 인물,
 // (ii) 팀이 운영 종료(active:false)면 전원을 뺀다. closed 는 (ii) 여부.
 // 인물은 한 번만 넣는다(가장 최근 소식 기준). 반환 인물 목록은 같은 규칙으로 정렬한다.
 export function teamMoves(id, IDX, today) {
   var news = (IDX.byTeam[id] || []).slice().sort(newestFirst), seenIn = new Set(), seenOut = new Set(), incoming = [], outgoing = [];
-  news.forEach(function (e) {
+  // 다른 팀 소속 선수 행이 이 팀으로 가는 계약("계약 완료(이 팀)")도 들어온 인물에 넣으려고 함께 본다.
+  var pool = news.concat(arrivalsOf(id, IDX)).sort(newestFirst);
+  pool.forEach(function (e) {
     var pid = e.item.pid;
     if (e.kind === "watch" || !pid) return;
-    if (e.kind === "t" && e.item.tidTo === id && !seenIn.has(pid)) { seenIn.add(pid); incoming.push(e); }
+    if (((e.kind === "t" && e.item.tidTo === id) || arrives(e, id, IDX)) && !seenIn.has(pid)) { seenIn.add(pid); incoming.push(e); }
     if (((e.kind === "t" && e.item.tidFrom === id) || (e.kind !== "t" && e.item.tid === id)) && !seenOut.has(pid)) { seenOut.add(pid); outgoing.push(e); }
   });
   var team = own(IDX.teams, id), closed = !!team && team.active === false;
@@ -202,11 +224,14 @@ function joinStage(it) {
 
 // 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남. 합류는 세 번째 값으로 단계("confirmed" 또는 "reported")를 준다.
 export function pillOf(it) {
-  if (it.moved) return ["signed", /잔류/.test(it.status) ? "잔류" : it.next + " 합류", joinStage(it)];
+  // 짧은 문구(p[3])는 팀 이름을 경로 줄이 보여 줄 때 쓴다. 알약에는 단계만 말한다.
+  var short = joinStage(it) === "reported" ? "합류 보도" : "합류 확정";
+  if (it.moved) return /잔류/.test(it.status) ? ["signed", "잔류", joinStage(it)] : ["signed", it.next + " 합류", joinStage(it), short];
   var s = it.status;
   if (/계약 완료/.test(s)) {
     var m = s.match(/\((.+)\)/);
-    return ["signed", m ? (/잔류/.test(m[1]) ? m[1] : m[1] + " 합류") : "새 팀 합류", joinStage(it)];
+    if (!m) return ["signed", "새 팀 합류", joinStage(it)];
+    return /잔류/.test(m[1]) ? ["signed", m[1], joinStage(it)] : ["signed", m[1] + " 합류", joinStage(it), short];
   }
   // 팀을 떠났어도 새 팀을 찾는 중이면("팀 이탈 · 제한적 FA", "탐색 허가(팀 이탈)") 구직 중으로 본다.
   if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", "구직 중"];
@@ -220,6 +245,54 @@ export function pillOf(it) {
 export function cls(it) { return pillOf(it)[0]; }
 // 화면과 설명문에 쓰는 상태 글. 합류 보도는 뒤에 "보도"를 붙여 "Sentinels 합류 보도" 로 보인다.
 export function pillText(p) { return p[1] + (p[2] === "reported" ? " 보도" : ""); }
+
+// 빈 칸과 "-" 는 이름이 없다.
+function cleanName(v) { return v && v !== "-" ? String(v) : ""; }
+// 팀 ID: 시트에 있으면 그것, 없으면 이름에서 만든다. 이름이 없으면 ID 도 없다.
+function toIdOf(name, id) { return id || (name ? slugOf(name) : ""); }
+// 상태 글에서 경로 말고 남은 꾸밈말. 계약 완료(…), 이전 팀 이탈(…), "X 합류" 를 뗀다.
+function noteOf(s, to) {
+  return s.split(" · ").map(function (seg) {
+    seg = seg.trim();
+    if (/^계약 완료\(/.test(seg)) seg = seg.replace(/^계약 완료\([^)]*\)\s*/, "");
+    else if (/이탈/.test(seg) && !/합류/.test(seg)) return "";
+    if (to) seg = seg.split(to + " 합류").join("");
+    return seg.trim();
+  }).filter(Boolean).join(" · ");
+}
+
+// 이동 경로 판정: 항목 하나에서 출발 팀과 도착 팀을 뽑는다. 이동이 아니면 null.
+// kind 는 "move"(다른 팀) 또는 "stay"(잔류). stage 는 pillOf(it)[2] 와 같다.
+// teams 는 팀 ID 인덱스(IDX.teams). 있는 ID 만 남기고, 없으면 링크 없이 글자만 쓴다.
+export function routeOf(it, teams) {
+  var T = teams || {}, s = String(it.status || "");
+  function known(id) { return id && own(T, id) ? id : ""; }
+  function out(kind, from, fromId, to, toId, note) {
+    return { kind: kind, from: from, fromId: known(fromId), to: to, toId: known(toId), stage: pillOf(it)[2], note: note };
+  }
+  var from = cleanName(it.team), fromId = it.tid || "";
+  if (it.moved) {
+    var next = cleanName(it.next);
+    if (/잔류/.test(s)) return out("stay", from, fromId, from, fromId, "");
+    return next ? out("move", from, fromId, next, it.tidTo || toIdOf(next), "") : null;
+  }
+  var m = /계약 완료\(([^)]*)\)/.exec(s);
+  if (m) {
+    if (/잔류/.test(m[1])) {
+      var x = cleanName(m[1].replace(/\s*잔류.*$/, "").trim());
+      return x ? out("stay", x, toIdOf(x), x, toIdOf(x), "") : null;
+    }
+    var inner = cleanName(m[1].trim());
+    return inner ? out("move", from, fromId, inner, toIdOf(inner), noteOf(s, inner)) : null;
+  }
+  // "BLG 합류 임박(보도)", "LOUD 이탈(본인 확인) · Leviatán 합류 보도": " 합류" 앞의 마지막 조각이 도착 팀.
+  var j = s.indexOf(" 합류");
+  if (j > 0) {
+    var to = s.slice(0, j).split(" · ").pop().trim();
+    if (to) return out("move", from, fromId, to, toIdOf(to), noteOf(s, to));
+  }
+  return null;
+}
 
 // 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
 export var WATCH_KINDS = [

@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart } from "../js/model.js";
+import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf } from "../js/model.js";
 import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
@@ -235,15 +235,15 @@ t("teamMoves: 같은 날 이적 행과 \"계약 완료(새 팀)\" 행이 함께 
 // P1: 단일 출처나 구두 합의 글은 합류 보도(◇), 공식 확정 표현이나 발표일이 있을 때만 확정(✓).
 const mv = (over) => toItem(Object.assign({ region: "EMEA", from: "A", to: "B", fromTeam: "a", toTeam: "b", name: "X", type: "이적", date: 46320, conf: "C", note: "", src: "s" }, over), "t", SRC);
 t("pillOf: 단일 출처(R) 계약 완료는 합류 보도", () => {
-  assert.deepEqual(pillOf({ status: "계약 완료(Sentinels)", conf: "R" }), ["signed", "Sentinels 합류", "reported"]);
+  assert.deepEqual(pillOf({ status: "계약 완료(Sentinels)", conf: "R" }), ["signed", "Sentinels 합류", "reported", "합류 보도"]);
   assert.equal(pillText(pillOf({ status: "계약 완료(Sentinels)", conf: "R" })), "Sentinels 합류 보도"); // 화면 글
 });
 t("pillOf: 확정 표현 계약 완료(C)는 확정", () => {
-  assert.deepEqual(pillOf({ status: "계약 완료(Mandatory)", conf: "C" }), ["signed", "Mandatory 합류", "confirmed"]);
+  assert.deepEqual(pillOf({ status: "계약 완료(Mandatory)", conf: "C" }), ["signed", "Mandatory 합류", "confirmed", "합류 확정"]);
 });
 t("pillOf: 이적 행은 발표일이 숫자면 R 이어도 확정, 없고 R 이면 보도", () => {
-  assert.deepEqual(pillOf(mv({ conf: "R", signedDate: 46320 })), ["signed", "B 합류", "confirmed"]);
-  assert.deepEqual(pillOf(mv({ conf: "R" })), ["signed", "B 합류", "reported"]);
+  assert.deepEqual(pillOf(mv({ conf: "R", signedDate: 46320 })), ["signed", "B 합류", "confirmed", "합류 확정"]);
+  assert.deepEqual(pillOf(mv({ conf: "R" })), ["signed", "B 합류", "reported", "합류 보도"]);
 });
 t("pillOf: \"X 합류 임박(보도)\" 은 팀 이름을 읽되 분류는 확인 필요 그대로", () => {
   assert.deepEqual(pillOf({ status: "BLG 합류 임박(보도)", conf: "R" }), ["unknown", "BLG 합류 보도"]);
@@ -316,6 +316,67 @@ t("withKst: 이미 KST 가 있으면 그대로, 두 번 붙지 않음", () => {
 t("withKst: 시각이 없는 글은 그대로", () => {
   const plain = "LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.";
   assert.equal(withKst(plain), plain);
+});
+
+// 이동 경로(routeOf): 출발 팀 → 도착 팀. 팀 ID 는 teams 에 있을 때만 남는다.
+const TEAMS = Object.fromEntries(["eintracht-frankfurt", "team-heretics", "sentinels", "team-liquid", "leviatan", "blg", "t2"].map(id => [id, { id }]));
+const it0 = (over) => Object.assign({ team: "", tid: "", status: "", conf: "R", note: "" }, over);
+t("routeOf: 계약 완료(X) · 구두 합의 보도 → 출발·도착·꾸밈말·단계", () => {
+  const r = routeOf(it0({ team: "Eintracht Frankfurt", tid: "eintracht-frankfurt", status: "계약 완료(Team Heretics) · 구두 합의 보도" }), TEAMS);
+  assert.deepEqual(r, { kind: "move", from: "Eintracht Frankfurt", fromId: "eintracht-frankfurt", to: "Team Heretics", toId: "team-heretics", stage: "reported", note: "구두 합의 보도" });
+});
+t("routeOf: 계약 완료(X) 확정 표현은 꾸밈말 없음", () => {
+  const r = routeOf(it0({ team: "Y", status: "계약 완료(Fnatic)", conf: "C" }), TEAMS);
+  assert.equal(r.to, "Fnatic");
+  assert.equal(r.note, "");
+});
+t("routeOf: 'Y 이탈 · 계약 완료(X) 구두 합의 보도' → 도착 X, 이탈은 꾸밈말에서 뺌", () => {
+  const r = routeOf(it0({ team: "LOUD", status: "LOUD 이탈 · 계약 완료(Leviatán) 구두 합의 보도" }), TEAMS);
+  assert.equal(r.to, "Leviatán");
+  assert.equal(r.note, "구두 합의 보도");
+});
+t("routeOf: 'Y 이탈(본인 확인) · X 합류 보도' → 도착 X", () => {
+  assert.equal(routeOf(it0({ team: "LOUD", status: "LOUD 이탈(본인 확인) · Leviatán 합류 보도" }), TEAMS).to, "Leviatán");
+});
+t("routeOf: 'X 합류 임박(보도)' → 도착 X, 꾸밈말은 '임박(보도)'", () => {
+  const r = routeOf(it0({ team: "M80", status: "BLG 합류 임박(보도)" }), TEAMS);
+  assert.equal(r.to, "BLG");
+  assert.equal(r.note, "임박(보도)");
+});
+t("routeOf: 계약 완료(X 잔류) → 잔류 kind, 팀은 X", () => {
+  const r = routeOf(it0({ team: "Team Liquid", tid: "team-liquid", status: "계약 완료(Team Liquid 잔류)" }), TEAMS);
+  assert.equal(r.kind, "stay");
+  assert.equal(r.to, "Team Liquid");
+});
+t("routeOf: 이적 행은 tidTo 를 도착 ID 로 쓴다", () => {
+  const r = routeOf(it0({ moved: true, team: "A", tid: "a", next: "Sentinels", tidTo: "sentinels", status: "이적" }), TEAMS);
+  assert.deepEqual([r.kind, r.from, r.to, r.toId], ["move", "A", "Sentinels", "sentinels"]);
+});
+t("routeOf: teams 에 없는 도착 팀은 ID 가 빈 값(링크 없음)", () => {
+  assert.equal(routeOf(it0({ team: "Y", status: "계약 완료(Foo)" }), TEAMS).toId, "");
+});
+t("routeOf: 탐색·방출·팀 이탈·FA 는 이동이 아님(null)", () => {
+  for (const status of ["탐색 허가(계약 중)", "방출(Sentinels 공식 발표)", "팀 이탈 · 제한적 FA", "FA(11/2) · FURIA 철수 확정"]) {
+    assert.equal(routeOf(it0({ team: "X", status }), TEAMS), null, status);
+  }
+});
+t("routeOf: 팀이 '-' 이면 출발 팀은 빈 값", () => {
+  assert.equal(routeOf(it0({ team: "-", status: "계약 완료(Fnatic)" }), TEAMS).from, "");
+});
+t("routeOf: stage 는 pillOf(it)[2] 와 같다", () => {
+  const R = it0({ team: "X", status: "계약 완료(Sentinels)", conf: "R" }), C = it0({ team: "X", status: "계약 완료(Mandatory)", conf: "C" });
+  assert.equal(routeOf(R, TEAMS).stage, pillOf(R)[2]);
+  assert.equal(routeOf(R, TEAMS).stage, "reported");
+  assert.equal(routeOf(C, TEAMS).stage, "confirmed");
+});
+
+t("teamMoves: 다른 팀 소속 선수 행 '계약 완료(t2)' 가 t2 의 들어온 인물, t1 의 나간 인물", () => {
+  const D = { sources: SRC, coaches: [], transfers: { players: [], coaches: [] }, watch: [],
+    teams: [{ id: "t1", name: "T1", active: true }, { id: "t2", name: "T2", active: true }],
+    players: [row({ name: "Mover", personId: "mover", team: "T1", teamId: "t1", status: "계약 완료(T2)", conf: "R", date: 46320 })],
+    people: [{ id: "mover", name: "Mover", kind: "player", career: [{ team: "t1", from: "2025-01", to: null }] }] };
+  assert.deepEqual(teamMoves("t2", buildIndex(D), T).incoming.map(e => e.item.pid), ["mover"]);
+  assert.deepEqual(teamMoves("t1", buildIndex(D), T).outgoing.map(e => e.item.pid), ["mover"]);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
