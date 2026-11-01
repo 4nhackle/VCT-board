@@ -69,7 +69,7 @@ function jumpList() {
     opts += '<option value="j' + i + '">' + esc(kind + h.querySelector("h2").textContent) + "</option>";
   });
   $("jump").innerHTML = opts;
-  $("jump").hidden = heads.length < 2;
+  $("jumpbox").hidden = heads.length < 2;
 }
 
 function renderChrome() {
