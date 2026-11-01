@@ -77,17 +77,17 @@ button { cursor: pointer; }
 time, .date { font-variant-numeric: tabular-nums; }
 
 /* ── 머리: 사이트 제목 한 줄과 기준 시각 */
-.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sp-3); }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-2) var(--sp-4); }
+.top-text { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
 .site { margin: 0; font-size: var(--fs-5); font-weight: 800; line-height: 1.3; letter-spacing: -0.02em; }
 p.site { font-size: var(--fs-2); font-weight: 700; color: var(--mute); letter-spacing: 0; }
 .lede { margin: 0; color: var(--mute); font-size: var(--fs-2); }
 .lede .more { display: none; }
 /* 후원 메뉴: 헤더 오른쪽에 항상 보이는 링크 칩. JS 없음. */
-.support-menu { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin-left: auto; align-self: center; font-size: var(--fs-2); }
+.support-menu { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--sp-2); font-size: var(--fs-2); }
 .support-label { color: var(--mute); font-weight: 700; }
 .support-menu a { display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface); color: var(--ink); text-decoration: none; }
 .support-menu a:hover { border-color: var(--mute); text-decoration: underline; text-underline-offset: 3px; }
-.support-note { color: var(--mute); margin-left: var(--sp-1); }
 
 /* ── 탭: 목록을 내려도 위에 붙어 있다 */
 .tabs { position: sticky; top: 0; z-index: 5; display: flex; gap: 0 var(--sp-5); background: var(--bg); border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
@@ -313,6 +313,9 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .page { gap: var(--sp-3); }
   .page > *, .filters > *, .bar > * { min-width: 0; }
   .site { font-size: 19px; }
+  .top { grid-template-columns: minmax(0, 1fr); gap: var(--sp-2); }
+  .top-text { gap: var(--sp-2); }
+  .support-menu { flex-wrap: wrap; }
   .lede .intro { display: none; }
   .lede { font-size: var(--fs-1); }
   .note-lfx { display: list-item; }
