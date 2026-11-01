@@ -33,7 +33,7 @@ export function rowHTML(it, tab, opt) {
   var meta = (it.sub || "").split(", ").filter(function (x) { return x && x !== "-"; }).join(" · ");
   if (!it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status)) lead = esc(it.status) + ". ";
   opt = opt || {};
-  return '<li class="row s-' + p[0] + '"><div class="main">' + link("name", it.pid ? personUrl(it.pid) : "", it.name) +
+  return '<li class="row s-' + (p[2] === "reported" ? "reported" : p[0]) + '"><div class="main">' + link("name", it.pid ? personUrl(it.pid) : "", it.name) +
     (opt.noTeam ? "" : link("team", it.tid ? teamUrl(it.tid) : "", it.team)) +
     (opt.region ? '<span class="reg">' + esc(REGION_KO[it.region] || it.region) + "</span>" : "") +
     (meta ? '<span class="meta">' + esc(meta) + "</span>" : "") + "</div>" +

@@ -29,7 +29,7 @@ export function toItem(r, kind, S) {
   if (kind === "player") return { region: r.region, team: r.team, name: r.name, sub: [r.position, r.nationality].filter(Boolean).join(", "), status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
   if (kind === "coach") return { region: r.region, team: r.team, name: r.name, sub: r.role, status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
   if (kind === "watch") return { region: r.region, team: r.team, name: r.targets, note: r.situation, src: own(S, r.src) };
-  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
+  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src), signed: r.signedDate };
 }
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
@@ -188,18 +188,28 @@ export function buildIndex(D) {
   return IDX;
 }
 
-// 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남.
+// 합류 단계. 이적 행은 공식 발표일(signedDate)이 있어야 확정이다. 그 밖의 합류는 단일 출처(R)이거나 구두 합의·임박 글이면 보도다.
+var REPORTED_RE = /보도|구두|합의|임박/;
+function joinStage(it) {
+  if (it.moved && typeof it.signed === "number") return "confirmed";
+  return it.conf === "R" || REPORTED_RE.test(it.status || "") ? "reported" : "confirmed";
+}
+
+// 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남. 합류는 세 번째 값으로 단계("confirmed" 또는 "reported")를 준다.
 export function pillOf(it) {
-  if (it.moved) return ["signed", /잔류/.test(it.status) ? "잔류" : it.next + " 합류"];
+  if (it.moved) return ["signed", /잔류/.test(it.status) ? "잔류" : it.next + " 합류", joinStage(it)];
   var s = it.status;
   if (/계약 완료/.test(s)) {
     var m = s.match(/\((.+)\)/);
-    return ["signed", m ? (/잔류/.test(m[1]) ? m[1] : m[1] + " 합류") : "새 팀 합류"];
+    return ["signed", m ? (/잔류/.test(m[1]) ? m[1] : m[1] + " 합류") : "새 팀 합류", joinStage(it)];
   }
   // 팀을 떠났어도 새 팀을 찾는 중이면("팀 이탈 · 제한적 FA", "탐색 허가(팀 이탈)") 구직 중으로 본다.
   if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", "구직 중"];
   if (/방출/.test(s)) return ["left", "방출"];
   if (/이탈|결별/.test(s)) return ["left", "팀 떠남"];
+  // "BLG 합류 임박(보도)" 은 팀 이름을 읽어 보여 준다. 분류는 확인 필요 그대로 둬 "새 팀 합류" 개수가 바뀌지 않게 한다.
+  var j = /^(.+?) 합류 임박/.exec(s);
+  if (j) return ["unknown", j[1] + " 합류 보도"];
   return ["unknown", "확인 필요"];
 }
 export function cls(it) { return pillOf(it)[0]; }

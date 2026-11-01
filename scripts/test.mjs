@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta } from "../js/model.js";
+import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, cls } from "../js/model.js";
 import { splitNote } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
@@ -228,6 +228,28 @@ t("teamMoves: 같은 날 이적 행과 \"계약 완료(새 팀)\" 행이 함께 
     transfers: { players: [row({ name: "eeiu", personId: "eeiu", from: "FURIA", to: "NRG", fromTeam: "furia", toTeam: "nrg", type: "이적", date: 46325 })], coaches: [] },
     people: [{ id: "eeiu", name: "eeiu", kind: "player", career: [{ team: "furia", from: "2025-12", to: null }] }] };
   assert.deepEqual(teamMoves("furia", buildIndex(D), T).roster, []);
+});
+
+// P1: 단일 출처나 구두 합의 글은 합류 보도(◇), 공식 확정 표현이나 발표일이 있을 때만 확정(✓).
+const mv = (over) => toItem(Object.assign({ region: "EMEA", from: "A", to: "B", fromTeam: "a", toTeam: "b", name: "X", type: "이적", date: 46320, conf: "C", note: "", src: "s" }, over), "t", SRC);
+t("pillOf: 단일 출처(R) 계약 완료는 합류 보도", () => {
+  assert.deepEqual(pillOf({ status: "계약 완료(Sentinels)", conf: "R" }), ["signed", "Sentinels 합류", "reported"]);
+});
+t("pillOf: 확정 표현 계약 완료(C)는 확정", () => {
+  assert.deepEqual(pillOf({ status: "계약 완료(Mandatory)", conf: "C" }), ["signed", "Mandatory 합류", "confirmed"]);
+});
+t("pillOf: 이적 행은 발표일이 숫자면 R 이어도 확정, 없고 R 이면 보도", () => {
+  assert.deepEqual(pillOf(mv({ conf: "R", signedDate: 46320 })), ["signed", "B 합류", "confirmed"]);
+  assert.deepEqual(pillOf(mv({ conf: "R" })), ["signed", "B 합류", "reported"]);
+});
+t("pillOf: \"X 합류 임박(보도)\" 은 팀 이름을 읽되 분류는 확인 필요 그대로", () => {
+  assert.deepEqual(pillOf({ status: "BLG 합류 임박(보도)", conf: "R" }), ["unknown", "BLG 합류 보도"]);
+});
+t("cls: 보도·확정 모두 signed, 임박 글은 unknown 그대로(필터 불변)", () => {
+  assert.equal(cls({ status: "계약 완료(Sentinels)", conf: "R" }), "signed");
+  assert.equal(cls({ status: "계약 완료(Mandatory)", conf: "C" }), "signed");
+  assert.equal(cls(mv({ conf: "R" })), "signed");
+  assert.equal(cls({ status: "BLG 합류 임박(보도)", conf: "R" }), "unknown");
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

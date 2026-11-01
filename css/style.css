@@ -117,6 +117,7 @@ p.site { font-size: var(--fs-2); font-weight: 700; color: var(--mute); letter-sp
 .row::before { content: ""; position: absolute; left: 0; top: var(--sp-3); bottom: var(--sp-3); width: 3px; border-radius: 2px; background: var(--rail, var(--line)); }
 .row.s-open { --rail: var(--open-rail); }
 .row.s-signed { --rail: var(--signed-rail); }
+.row.s-reported { --rail: var(--mute); }
 .row.s-left { --rail: var(--left-rail); }
 .main { min-width: 0; overflow-wrap: anywhere; }
 .name { font-size: var(--fs-4); font-weight: 700; }
@@ -131,6 +132,9 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 .pill.open::before { content: "○"; content: "○" / ""; }
 .pill.signed { --bg-c: var(--signed-bg); --fg-c: var(--signed-fg); }
 .pill.signed::before { content: "✓"; content: "✓" / ""; }
+/* 합류 보도: 확정 초록을 쓰지 않고 중립색 점선 테두리 + ◇ */
+.pill.signed.reported { --bg-c: transparent; --fg-c: var(--ink); outline: 1px dashed var(--mute); outline-offset: -1px; }
+.pill.signed.reported::before { content: "◇"; content: "◇" / ""; }
 .pill.left { --bg-c: var(--left-bg); --fg-c: var(--left-fg); }
 .pill.left::before { content: "→"; content: "→" / ""; }
 .pill.unknown { --bg-c: transparent; --fg-c: var(--ink); outline: 1px dashed var(--ink); outline-offset: -1px; }
