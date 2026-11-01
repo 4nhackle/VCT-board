@@ -1,4 +1,5 @@
 import { esc, fmtDate, TODAY } from "../format.js";
+import { t } from "../i18n.js";
 
 // 일정 칸의 날짜(일련번호나 "11/5–11/8", "2027-01-14 ~ 02-07" 같은 글)에서 시작일과 끝일을 뽑는다.
 // 연도가 없으면 기준일(today, 기본 TODAY)에 가장 가까운 해로 본다. 시험할 때 기준일을 넣는다.
@@ -33,8 +34,8 @@ export function sortSchedule(rows, today) {
 function ddHTML(sp) {
   if (!sp) return "";
   var a = sp[0] - TODAY, b = sp[1] - TODAY;
-  if (b < 0) return '<span class="dd">끝남</span>';
-  if (a <= 0) return '<span class="dd now">' + (sp[0] === sp[1] ? "오늘" : "진행 중") + "</span>";
+  if (b < 0) return '<span class="dd">' + t("status.ended") + "</span>";
+  if (a <= 0) return '<span class="dd now">' + (sp[0] === sp[1] ? t("date.today") : t("status.ongoing")) + "</span>";
   return '<span class="dd' + (a <= 7 ? " soon" : "") + '">D-' + a + "</span>";
 }
 export function scheduleHTML(rows) {

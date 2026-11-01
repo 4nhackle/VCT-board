@@ -10,7 +10,12 @@ import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, t
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
-import { withKst, stampOf, stampLabel, parseStamp, fmtDate } from "../js/format.js";
+import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, clockText } from "../js/format.js";
+import { tIn, setLang } from "../js/i18n.js";
+import { KO } from "../js/i18n/ko.js";
+import { EN } from "../js/i18n/en.js";
+import { regionName, tierName } from "../js/model.js";
+import { tabName } from "../js/views/common.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 
 const T = 46326; // 2026-10-31 (KST)
@@ -487,6 +492,82 @@ t("newsRow (F-01): 같은 보도 시각이 날짜 줄과 출처 줄에 두 번 �
   assert.match(withSrc, /Sheep <time>10\/25 오전 1:30<\/time>/);
   const noSrc = newsRow({ kind: "player", item: { name: "A", team: "Sentinels", date: serialOf(2026, 10, 25), note: "발표 10/24 16:30 UTC", status: "LFT 게시", src: null, conf: "R" } }, false);
   assert.equal(count(noSrc), 1);
+});
+
+// ── 10회차: 문구 사전과 언어별 표기. 언어를 바꾼 시험은 finally 에서 ko 로 되돌린다.
+const params = (s) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(",");
+
+t("사전: ko 와 en 의 키 집합이 같고, 영문에 한글이 없고, 매개변수 이름이 두 언어에서 같다", () => {
+  assert.deepEqual(Object.keys(EN).sort(), Object.keys(KO).sort());
+  for (const k of Object.keys(KO)) {
+    assert.notEqual(EN[k], "", "빈 영문 값: " + k);
+    assert.equal(params(EN[k]), params(KO[k]), "매개변수 불일치: " + k);
+  }
+  const hangulInEn = Object.keys(EN).filter((k) => /[가-힣]/.test(EN[k]));
+  assert.deepEqual(hangulInEn, [], "영문 사전에 한글이 있다");
+});
+
+t("tIn: 키가 없으면 키 자체, 언어 사전에 없으면 ko 값, {이름} 은 그대로 끼운다", () => {
+  assert.equal(tIn("en", "no.such.key"), "no.such.key");
+  assert.equal(tIn("xx", "tab.players"), "선수");
+  assert.equal(tIn("ko", "pill.joined", { team: "Sentinels" }), "Sentinels 합류");
+  assert.equal(tIn("en", "pill.joined", { team: "Sentinels" }), "Joined Sentinels");
+});
+
+t("ko 출력 고정: 인원·나이·D-day·상대 날짜·날짜·시각 (지금 그대로)", () => {
+  assert.equal(tIn("ko", "count.people", { n: 3 }), "3명");
+  assert.equal(tIn("ko", "age.approx", { n: 24 }), "약 24세");
+  assert.equal(tIn("ko", "age.exact", { n: 24 }), "24세");
+  assert.equal(tIn("ko", "contract.dday", { n: 3 }), "D-3");
+  assert.equal(tIn("ko", "date.ago", { n: 2 }), "2일 전");
+  assert.equal(fmtDate(serialOf(2026, 10, 25), "ko"), "10/25");
+  assert.equal(clockText(0, 5, "ko"), "오전 12:05");
+  assert.equal(clockText(12, 5, "ko"), "오후 12:05");
+});
+
+t("en 표기: 날짜 Oct 25, 시각 1:30 AM, 0시·12시 경계", () => {
+  assert.equal(fmtDate(serialOf(2026, 10, 25), "en"), "Oct 25");
+  assert.equal(dateWord(new Date(Date.UTC(2026, 9, 24)), "en"), "Oct 24");
+  assert.equal(clockText(1, 30, "en"), "1:30 AM");
+  assert.equal(clockText(0, 5, "en"), "12:05 AM");
+  assert.equal(clockText(12, 5, "en"), "12:05 PM");
+  assert.equal(clockText(23, 59, "en"), "11:59 PM");
+});
+
+t("표기: 보도 시각은 UTC→KST 로 날짜가 넘어가도 두 언어에서 같은 시각을 가리킨다", () => {
+  // 10/24 16:30 UTC = 10/25 01:30 KST. 날짜 칸 10/25 와 맞는다.
+  const it = { date: serialOf(2026, 10, 25), note: "x 10/24 16:30 UTC" };
+  assert.equal(stampLabel(it, "ko"), "오전 1:30");
+  assert.equal(stampLabel(it, "en"), "1:30 AM");
+});
+
+t("dayWord: 오늘·어제·N일 전을 두 언어로", () => {
+  const today = Math.floor((Date.now() + 9 * 36e5) / 864e5) + 25569;
+  assert.equal(dayWord(today, "ko"), "오늘");
+  assert.equal(dayWord(today, "en"), "Today");
+  assert.equal(dayWord(today - 1, "ko"), "어제");
+  assert.equal(dayWord(today - 1, "en"), "Yesterday");
+  assert.equal(dayWord(today - 3, "ko"), "3일 전");
+  assert.equal(dayWord(today - 3, "en"), "3 days ago");
+});
+
+t("en 화면 문구: 탭·지역·등급·알약·계약·지켜볼 팀·소식 줄에 한글이 없다", () => {
+  setLang("en");
+  try {
+    const out = [];
+    out.push(...["players", "coaches", "transfers", "watch"].map(tabName));
+    out.push(...["Americas", "EMEA", "Pacific", "China"].map(regionName), tierName("partner"), tierName("academy"));
+    for (const it of [{ status: "구직 중" }, { status: "팀 이탈 · 제한적 FA" }, { status: "방출" }, { status: "이탈" }, { status: "확인" }, { status: "BLG 합류 임박(보도)" }, { status: "계약 완료(T2)", team: "T1", conf: "R" }, { status: "계약 완료(T2)", team: "T1", conf: "R", signedDate: 46330 }]) {
+      out.push(pillText(pillOf(it)));
+    }
+    out.push(contractState(46330, 46326).label, contractState(undefined).label, contractState(46326, 46326).label);
+    out.push(watchMeta("철수 발표").label, watchMeta("[확정] 파트너십 탈락 (확인 10/30)").label, watchMeta("계약 만료 예정").label);
+    out.push(newsRow({ kind: "player", item: { name: "Ann", team: "Sentinels", pid: "ann", date: 46326 - 1, note: "LFT posted (Sheep 10/24 16:30 UTC)", status: "LFT 게시", src: ["Sheep", null], conf: "R", tid: "sentinels", region: "Americas", sub: "Canada" } }, false));
+    const bad = out.join("\n").match(/[가-힣][^<"]{0,20}/g) || [];
+    assert.deepEqual(bad, [], "영문 화면에 한글이 남았다");
+  } finally {
+    setLang("ko");
+  }
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

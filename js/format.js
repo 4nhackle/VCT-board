@@ -1,12 +1,24 @@
+import { tIn, LANG } from "./i18n.js";
+
 export function esc(s) {
   return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
   });
 }
-export function fmtDate(n) {
+// 날짜 글자: 한국어 "10/25", 영문 "Oct 25". 날짜 계산은 일련번호로 하고 여기서는 글자만 바꾼다.
+export function fmtDate(n, lang = LANG) {
   if (typeof n !== "number") return esc(n);
-  var d = new Date(Date.UTC(1899, 11, 30) + n * 864e5);
+  return dateWord(new Date(Date.UTC(1899, 11, 30) + n * 864e5), lang);
+}
+// UTC 기준 날짜 객체(시각을 한국 시간으로 옮긴 뒤의 달·일)를 글자로.
+export function dateWord(d, lang = LANG) {
+  if (lang === "en") return new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" }).format(d) + " " + d.getUTCDate();
   return (d.getUTCMonth() + 1) + "/" + d.getUTCDate();
+}
+// 시각 글: 한국어 "오전 1:30", 영문 "1:30 AM". h 는 0~23, mm 는 0~59.
+export function clockText(h, mm, lang = LANG) {
+  var h12 = h % 12 || 12, mmS = (mm < 10 ? "0" : "") + mm, ampm = tIn(lang, h < 12 ? "time.am" : "time.pm");
+  return lang === "en" ? h12 + ":" + mmS + " " + ampm : ampm + " " + h12 + ":" + mmS;
 }
 // 오늘(한국 시간)을 시트와 같은 날짜 일련번호로. 최근 사흘(오늘·어제·그제) 보도를 새 소식으로 본다.
 export var TODAY = Math.floor((Date.now() + 9 * 36e5) / 864e5) + 25569;
@@ -42,26 +54,27 @@ export function stampOf(it) {
   it._st = r;
   return r;
 }
-export function stampLabel(it) {
+// 보도 시각 글: 한국어 "오전 1:30", 영문 "1:30 AM". 시각 계산은 분 단위로 하고 여기서는 글자만 바꾼다.
+export function stampLabel(it, lang = LANG) {
   var s = stampOf(it);
   if (s === null) return "";
   var mins = s % 1440, h = Math.floor(mins / 60), mm = mins % 60;
-  return (h < 12 ? "오전 " : "오후 ") + (h % 12 || 12) + ":" + (mm < 10 ? "0" : "") + mm;
+  return clockText(h, mm, lang);
 }
-export function dayWord(n) {
+export function dayWord(n, lang = LANG) {
   var d = TODAY - n;
-  if (d === 0) return "오늘";
-  if (d === 1) return "어제";
-  if (d > 1 && d < 7) return d + "일 전";
-  return fmtDate(n);
+  if (d === 0) return tIn(lang, "date.today");
+  if (d === 1) return tIn(lang, "date.yesterday");
+  if (d > 1 && d < 7) return tIn(lang, "date.ago", { n: d });
+  return fmtDate(n, lang);
 }
-export function relDate(n) {
+export function relDate(n, lang = LANG) {
   if (typeof n !== "number") return esc(n);
-  return '<time datetime="' + isoOf(n) + '" title="' + isoOf(n) + '">' + dayWord(n) + "</time>";
+  return '<time datetime="' + isoOf(n) + '" title="' + isoOf(n) + '">' + dayWord(n, lang) + "</time>";
 }
-export function srcHTML(s) {
+export function srcHTML(s, lang = LANG) {
   if (!s) return "";
   return /^https?:\/\//i.test(s[1])
-    ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">출처: ' + esc(s[0]) + "</a>"
-    : " 출처: " + esc(s[0]);
+    ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + tIn(lang, "src.source") + esc(s[0]) + "</a>"
+    : " " + tIn(lang, "src.source") + esc(s[0]);
 }

@@ -1,4 +1,5 @@
-import { esc, relDate, srcHTML, stampLabel, parseStamp } from "../format.js";
+import { esc, relDate, srcHTML, stampLabel, parseStamp, dateWord, clockText } from "../format.js";
+import { t } from "../i18n.js";
 import { pillOf, routeOf } from "../model.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
@@ -6,7 +7,9 @@ import { personUrl } from "../state.js";
 
 // 상세 화면이 함께 쓰는 값과 줄 모양. person.js 와 team.js 가 가져다 쓴다.
 // 소식 줄 앞에 붙는 탭 이름. 이적 행은 선수·코치 구분 없이 "이적 완료" 탭에 모인다.
-export var TAB_NAME = { player: "선수", coach: "코치·스태프", t: "이적 완료", watch: "지켜볼 팀" };
+// 소식 줄 앞의 탭 이름. 쓰는 시점에 사전을 읽는다. 이적 행은 선수·코치 구분 없이 "이적 완료" 탭에 모인다.
+var TAB_KEY = { player: "tab.players", coach: "tab.coaches", t: "tab.transfers", watch: "tab.watch" };
+export function tabName(kind) { return TAB_KEY[kind] ? t(TAB_KEY[kind]) : ""; }
 
 // 빈 칸과 "-" 는 보여 주지 않는다.
 export function val(v) { return v && v !== "-" ? v : ""; }
@@ -29,7 +32,7 @@ export function splitNote(text) {
   if (p) {
     // 연도는 날짜 계산에만 쓴다(윤년이 있는 해로 두어 2/29 도 받는다). p.min 은 한국 시간 분이라 날짜가 넘어가도 맞는다.
     var d = new Date(Date.UTC(2024, p.mon - 1, p.day) + p.min * 6e4), h = d.getUTCHours(), mm = d.getUTCMinutes();
-    src = { name: m[1], when: (d.getUTCMonth() + 1) + "/" + d.getUTCDate() + " " + (h < 12 ? "오전 " : "오후 ") + (h % 12 || 12) + ":" + (mm < 10 ? "0" : "") + mm };
+    src = { name: m[1], when: dateWord(d) + " " + clockText(h, mm) };
     body = body.slice(0, m.index);
   }
   if ((m = CROSS_RE.exec(body))) {
@@ -42,8 +45,8 @@ export function splitNote(text) {
 // 출처 줄: 떼어 낸 원보도·교차 확인과 출처 링크. 아무것도 없으면 빈 문자열.
 export function srcsHTML(parts, src) {
   var out = [], link = srcHTML(src).trim();
-  if (parts.src) out.push('<span class="stamp"><b>보도</b> ' + esc(parts.src.name) + " <time>" + esc(parts.src.when) + "</time></span>");
-  if (parts.cross) out.push('<span class="cross"><b>교차 확인</b> ' + parts.cross.map(esc).join(", ") + "</span>");
+  if (parts.src) out.push('<span class="stamp"><b>' + t("src.reported") + "</b> " + esc(parts.src.name) + " <time>" + esc(parts.src.when) + "</time></span>");
+  if (parts.cross) out.push('<span class="cross"><b>' + t("src.cross") + "</b> " + parts.cross.map(esc).join(", ") + "</span>");
   if (link) out.push("<span>" + link + "</span>");
   return out.length ? '<p class="srcs">' + out.join("") + "</p>" : "";
 }
@@ -51,7 +54,7 @@ export function srcsHTML(parts, src) {
 // 정보 칸. 사람·팀마다 칸 수가 같도록 값이 없으면 "미공개" 를 흐리게 보여 준다. 값은 이미 이스케이프된 HTML.
 export function infoHTML(pairs) {
   return '<dl class="dp-info c' + pairs.length + '">' + pairs.map(function (p) {
-    return "<div><dt>" + esc(p[0]) + "</dt>" + (p[1] ? "<dd>" + p[1] + "</dd>" : '<dd class="na">미공개</dd>') + "</div>";
+    return "<div><dt>" + esc(p[0]) + "</dt>" + (p[1] ? "<dd>" + p[1] + "</dd>" : '<dd class="na">' + t("label.undisclosed") + "</dd>") + "</div>";
   }).join("") + "</dl>";
 }
 
@@ -64,11 +67,11 @@ export function monoHTML(name) {
 export function newsRow(e, withName) {
   var it = e.item, sp = splitNote(val(it.note)), when = relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "");
   if (e.kind === "watch") {
-    return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME.watch), esc(it.team)].filter(Boolean).join(" · ") + '</p><p class="dp-line"><span class="lbl">대상</span>' + esc(it.name) +
+    return '<li class="dp-row"><p class="dp-meta">' + [when, esc(tabName("watch")), esc(it.team)].filter(Boolean).join(" · ") + '</p><p class="dp-line"><span class="lbl">' + t("row.target") + "</span>" + esc(it.name) +
       (sp.body ? ". " + esc(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
   }
   // 소식 머리의 경로: 이동이면 "출발 → 도착"(잔류는 "X 잔류"), 아니면 소속 팀. 글자만 쓴다(링크는 줄 안의 이름 링크와 겹치지 않게 뺌).
-  var r = routeOf(it), route = r && r.kind === "stay" ? r.to + " 잔류" : r ? [r.from, r.to].filter(Boolean).join(" → ") : val(it.team);
-  return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME[e.kind]), esc(route)].filter(Boolean).join(" · ") + "</p>" +
+  var r = routeOf(it), route = r && r.kind === "stay" ? r.to + " " + t("pill.stayed") : r ? [r.from, r.to].filter(Boolean).join(" → ") : val(it.team);
+  return '<li class="dp-row"><p class="dp-meta">' + [when, esc(tabName(e.kind)), esc(route)].filter(Boolean).join(" · ") + "</p>" +
     '<p class="dp-line">' + pill(pillOf(it)) + badge(it) + (withName ? " " + nameLink(it.pid, it.name) : "") + (sp.body ? " " + esc(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
 }

@@ -1,9 +1,10 @@
 import { esc } from "../format.js";
 import { teamUrl } from "../state.js";
+import { t } from "../i18n.js";
 
 // 팀 이름: ID 가 있으면 링크, 없으면 글자만. 출발 팀이 없으면 "소속 없음".
 function teamPart(cls, name, id) {
-  var text = name || "소속 없음";
+  var text = name || t("team.noTeam");
   return id ? '<a class="' + cls + '" href="' + esc(teamUrl(id)) + '">' + esc(text) + "</a>" : '<span class="' + cls + '">' + esc(text) + "</span>";
 }
 
@@ -12,8 +13,8 @@ function teamPart(cls, name, id) {
 export function routeHTML(r, opt) {
   opt = opt || {};
   var arrow = '<span class="r-arrow" aria-hidden="true">→</span>';
-  if (r.kind === "stay") return '<span class="route stay">' + teamPart("r-from", r.to, r.toId) + ' <span class="r-tag">잔류</span></span>';
-  if (opt.noFrom) return '<span class="route"><span class="r-next">' + arrow + " " + teamPart("r-to", r.to, r.toId) + '<span class="sr">로</span></span></span>';
+  if (r.kind === "stay") return '<span class="route stay">' + teamPart("r-from", r.to, r.toId) + ' <span class="r-tag">' + t("route.stayed") + "</span></span>";
+  if (opt.noFrom) return '<span class="route"><span class="r-next">' + arrow + " " + teamPart("r-to", r.to, r.toId) + '<span class="sr">' + t("route.toWord") + "</span></span></span>";
   return '<span class="route">' + teamPart("r-from", r.from, r.fromId) +
-    '<span class="r-next"><span class="sr">에서</span>' + arrow + " " + teamPart("r-to", r.to, r.toId) + '<span class="sr">로</span></span></span>';
+    '<span class="r-next"><span class="sr">' + t("route.fromWord") + "</span>" + arrow + " " + teamPart("r-to", r.to, r.toId) + '<span class="sr">' + t("route.toWord") + "</span></span></span>";
 }

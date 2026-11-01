@@ -1,9 +1,12 @@
 // 순수 함수만: 시트 행 → 화면용 항목, 상태 분류, 필터. DOM과 state를 직접 만지지 않는다.
 import { TODAY, isoOf, stampOf } from "./format.js";
+import { t } from "./i18n.js";
 
 export var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
-// 데이터 값으로 찾는 표는 상속 속성(constructor 등)이 걸리지 않게 null 원형으로 만든다.
-export var REGION_KO = Object.assign(Object.create(null), { Americas: "아메리카", EMEA: "유럽·중동·아프리카", Pacific: "아시아태평양", China: "중국" });
+// 지역·등급 이름은 쓰는 시점에 사전을 읽는다(setLang 뒤에도 맞게). 모르는 값은 "" 를 돌려준다.
+export function regionName(r) { return REGIONS.indexOf(r) >= 0 ? t("region." + r) : ""; }
+var TIERS = ["partner", "ascended", "challengers", "academy"];
+export function tierName(tier) { return TIERS.indexOf(tier) >= 0 ? t("team." + tier) : ""; }
 var KR_TEAMS = /^(T1|KIWOOM DRX|Nongshim RedForce|Gen\.G|DRX)$/i;
 
 // 인물·팀 ID 형식. 주소(p/<id>/, t/<id>/)에 그대로 쓴다.
@@ -45,13 +48,13 @@ export function buildTabs(D) {
   var PK = P.filter(function (it) { return /South Korea/.test(it.sub); });
   var CK = CO.filter(function (it) { return KR_TEAMS.test(it.team); });
   var TABS = [
-    { id: "players", label: "선수", mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
-    { id: "coaches", label: "코치·스태프", mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
-    { id: "korea", label: "한국", mode: "entry", status: true, size: PK.length + CK.length, hint: "국적이 South Korea인 선수와 한국 팀(T1, KIWOOM DRX, Nongshim RedForce) 소속 코치·스태프입니다.", groups: [{ title: "선수", items: PK }, { title: "코치·스태프", items: CK }] },
-    { id: "transfers", label: "이적 완료", mode: "entry", size: T1.length + T2.length, hint: "이전 소속 팀 기준으로 묶었습니다.", groups: [{ title: "선수", items: T1 }, { title: "코치·스태프", items: T2 }] },
-    { id: "watch", label: "지켜볼 팀", mode: "watch", size: W.length, teams: TS, hint: "계약 만료나 존속 여부가 정해지지 않은 팀입니다.", groups: [{ items: W }] },
-    { id: "schedule", label: "일정", mode: "schedule", size: D.schedule.length },
-    { id: "suggest", label: "건의", mode: "suggest" }
+    { id: "players", label: t("tab.players"), mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
+    { id: "coaches", label: t("tab.coaches"), mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
+    { id: "korea", label: t("tab.korea"), mode: "entry", status: true, size: PK.length + CK.length, hint: t("hint.korea"), groups: [{ title: t("group.players"), items: PK }, { title: t("group.coaches"), items: CK }] },
+    { id: "transfers", label: t("tab.transfers"), mode: "entry", size: T1.length + T2.length, hint: t("hint.transfers"), groups: [{ title: t("group.players"), items: T1 }, { title: t("group.coaches"), items: T2 }] },
+    { id: "watch", label: t("tab.watch"), mode: "watch", size: W.length, teams: TS, hint: t("hint.watch"), groups: [{ items: W }] },
+    { id: "schedule", label: t("tab.schedule"), mode: "schedule", size: D.schedule.length },
+    { id: "suggest", label: t("tab.suggest"), mode: "suggest" }
   ];
   // 팀 공통 배경은 탭 전체 항목으로 한 번 정한다. 필터나 검색에 따라 행 모양이 바뀌지 않게 하려고.
   TABS.forEach(function (tab) {
@@ -102,11 +105,11 @@ export function ageOf(birth, today) {
 
 // 계약 만료 상태. until 은 시트 일련번호. 만료 당일은 "오늘 만료", 하루라도 지났으면 "만료됨".
 export function contractState(until, today) {
-  if (typeof until !== "number") return { kind: "unknown", label: "미공개" };
+  if (typeof until !== "number") return { kind: "unknown", label: t("label.undisclosed") };
   var d = until - (today == null ? TODAY : today);
-  if (d < 0) return { kind: "expired", label: "만료됨", days: d };
-  if (d === 0) return { kind: "today", label: "오늘 만료", days: 0 };
-  return { kind: "active", label: "D-" + d, days: d };
+  if (d < 0) return { kind: "expired", label: t("contract.expired"), days: d };
+  if (d === 0) return { kind: "today", label: t("contract.today"), days: 0 };
+  return { kind: "active", label: t("contract.dday", { n: d }), days: d };
 }
 
 // 경력: from 최신순. current 는 to 가 없는(진행 중) 칸이다.
@@ -143,7 +146,6 @@ export function teamNameOf(id, list) {
   return id;
 }
 
-export var TIER_KO = Object.assign(Object.create(null), { partner: "파트너 팀", ascended: "어센션 팀", challengers: "챌린저스", academy: "아카데미" });
 
 // 선수·코치 행이 이 팀으로 가는 계약인가("계약 완료(이 팀)"). 이적 행과 지켜볼 팀 행은 따로 본다.
 function arrives(e, id, IDX) {
@@ -225,28 +227,29 @@ function joinStage(it) {
 }
 
 // 상태를 세 가지 말로 줄인다: 구직 중, 새 팀 합류, 팀 떠남. 합류는 세 번째 값으로 단계("confirmed" 또는 "reported")를 준다.
+// 한국어 상태 글을 읽는 정규식은 데이터 판정용이라 번역하지 않는다. 돌려주는 문구만 사전에서 찾는다.
 export function pillOf(it) {
   // 짧은 문구(p[3])는 팀 이름을 경로 줄이 보여 줄 때 쓴다. 알약에는 단계만 말한다.
-  var short = joinStage(it) === "reported" ? "합류 보도" : "합류 확정";
-  if (it.moved) return /잔류/.test(it.status) ? ["signed", "잔류", joinStage(it)] : ["signed", it.next + " 합류", joinStage(it), short];
+  var short = joinStage(it) === "reported" ? t("pill.reported") : t("pill.confirmed");
+  if (it.moved) return /잔류/.test(it.status) ? ["signed", t("pill.stayed"), joinStage(it)] : ["signed", t("pill.joined", { team: it.next }), joinStage(it), short];
   var s = it.status;
   if (/계약 완료/.test(s)) {
     var m = s.match(/\((.+)\)/);
-    if (!m) return ["signed", "새 팀 합류", joinStage(it)];
-    return /잔류/.test(m[1]) ? ["signed", m[1], joinStage(it)] : ["signed", m[1] + " 합류", joinStage(it), short];
+    if (!m) return ["signed", t("status.signed"), joinStage(it)];
+    return /잔류/.test(m[1]) ? ["signed", m[1], joinStage(it)] : ["signed", t("pill.joined", { team: m[1] }), joinStage(it), short];
   }
   // 팀을 떠났어도 새 팀을 찾는 중이면("팀 이탈 · 제한적 FA", "탐색 허가(팀 이탈)") 구직 중으로 본다.
-  if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", "구직 중"];
-  if (/방출/.test(s)) return ["left", "방출"];
-  if (/이탈|결별/.test(s)) return ["left", "팀 떠남"];
+  if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", t("status.open")];
+  if (/방출/.test(s)) return ["left", t("pill.released")];
+  if (/이탈|결별/.test(s)) return ["left", t("status.left")];
   // "BLG 합류 임박(보도)" 은 팀 이름을 읽어 보여 준다. 분류는 확인 필요 그대로 둬 "새 팀 합류" 개수가 바뀌지 않게 한다.
   var j = /^(.+?) 합류 임박/.exec(s);
-  if (j) return ["unknown", j[1] + " 합류 보도"];
-  return ["unknown", "확인 필요"];
+  if (j) return ["unknown", t("pill.joinedReported", { team: j[1] })];
+  return ["unknown", t("pill.unverified")];
 }
 export function cls(it) { return pillOf(it)[0]; }
 // 화면과 설명문에 쓰는 상태 글. 합류 보도는 뒤에 "보도"를 붙여 "Sentinels 합류 보도" 로 보인다.
-export function pillText(p) { return p[1] + (p[2] === "reported" ? " 보도" : ""); }
+export function pillText(p) { return p[1] + (p[2] === "reported" ? t("pill.reportedMark") : ""); }
 
 // 빈 칸과 "-" 는 이름이 없다.
 function cleanName(v) { return v && v !== "-" ? String(v) : ""; }
@@ -258,6 +261,7 @@ function noteOf(s, to) {
     seg = seg.trim();
     if (/^계약 완료\(/.test(seg)) seg = seg.replace(/^계약 완료\([^)]*\)\s*/, "");
     else if (/이탈/.test(seg) && !/합류/.test(seg)) return "";
+    // 데이터 판정용: 상태 글의 "X 합류" 자리. 번역하지 않는다.
     if (to) seg = seg.split(to + " 합류").join("");
     return seg.trim();
   }).filter(Boolean).join(" · ");
@@ -288,6 +292,7 @@ export function routeOf(it, teams) {
     return inner ? out("move", from, fromId, inner, toIdOf(inner), noteOf(s, inner)) : null;
   }
   // "BLG 합류 임박(보도)", "LOUD 이탈(본인 확인) · Leviatán 합류 보도": " 합류" 앞의 마지막 조각이 도착 팀.
+  // 데이터 판정용: 한국어 상태 글의 " 합류" 자리. 번역하지 않는다.
   var j = s.indexOf(" 합류");
   if (j > 0) {
     var to = s.slice(0, j).split(" · ").pop().trim();
@@ -297,11 +302,12 @@ export function routeOf(it, teams) {
 }
 
 // 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
+// 데이터 판정용 정규식(한국어 상태 글). 번역하지 않는다. 두 번째 칸은 사전 키다.
 export var WATCH_KINDS = [
-  ["withdraw", "철수·해체", /철수|해체/],
-  ["dropped", "파트너십 탈락", /파트너십 탈락/],
-  ["expiring", "계약 만료", /계약\s.*만료/],
-  ["joining", "합류 보도", /합류.*(보도|합의)/]
+  ["withdraw", "watch.withdraw", /철수|해체/],
+  ["dropped", "watch.dropped", /파트너십 탈락/],
+  ["expiring", "watch.expiring", /계약\s.*만료/],
+  ["joining", "watch.joining", /합류.*(보도|합의)/]
 ];
 // 상황 글 → 종류, 확정 여부(앞의 "[확정]"), 확인 날짜(끝의 "(확인 M/D)"), 둘을 뗀 본문.
 export function watchMeta(text) {
@@ -309,7 +315,7 @@ export function watchMeta(text) {
   if (/^\[확정\]/.test(s)) { confirmed = true; s = s.replace(/^\[확정\]\s*/, ""); }
   if ((m = /\s*\(확인\s*(\d{1,2}\/\d{1,2})\)\s*$/.exec(s))) { checked = m[1]; s = s.slice(0, m.index); }
   var k = WATCH_KINDS.filter(function (w) { return w[2].test(s); })[0];
-  return { kind: k ? k[0] : "", label: k ? k[1] : "", confirmed: confirmed, checked: checked, body: s };
+  return { kind: k ? k[0] : "", label: k ? t(k[1]) : "", confirmed: confirmed, checked: checked, body: s };
 }
 
 // 메모는 " / " 로 이어 쓴 조각들이다. 빈 메모는 조각이 없다.
@@ -360,7 +366,7 @@ export function matches(it, tab, state) {
   if (state.region !== "all" && it.region !== state.region) return false;
   if (tab.status && state.status !== "all" && cls(it) !== state.status) return false;
   if (state.q) {
-    var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, REGION_KO[it.region] || ""].join(" ").toLowerCase();
+    var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, regionName(it.region)].join(" ").toLowerCase();
     if (hay.indexOf(state.q.toLowerCase()) < 0) return false;
   }
   return true;

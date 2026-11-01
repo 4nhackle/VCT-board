@@ -1,5 +1,6 @@
 import { isNew, esc, withKst } from "./format.js";
-import { REGIONS, REGION_KO, buildTabs, buildIndex, matches, cls } from "./model.js";
+import { REGIONS, regionName, buildTabs, buildIndex, matches, cls } from "./model.js";
+import { t } from "./i18n.js";
 import { state, saveOrder, pushTab, go, BASE, parseRoute } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
@@ -10,7 +11,8 @@ import { teamHTML } from "./views/team.js";
 
 var FILES = ["sources", "players", "coaches", "transfers", "watch", "schedule"];
 var OPTIONAL = ["people", "teams"];
-var STATUS_LABELS = [["all", "전체"], ["open", "구직 중"], ["signed", "새 팀 합류"], ["left", "팀 떠남"]];
+// 상태 칩 이름은 쓰는 시점에 사전에서 읽는다.
+function statusLabels() { return [["all", t("status.all")], ["open", t("status.open")], ["signed", t("status.signed")], ["left", t("status.left")]]; }
 var DETAIL_HIDE = ["tabs", "filters", "sgview", "dock"];
 var D = {}, TABS = [], IDX = { people: Object.create(null), teams: Object.create(null), byPerson: Object.create(null), byTeam: Object.create(null) };
 // 지금 화면(list, person, team, notfound)과, 상세로 오기 직전이 목록이었는지.
@@ -42,10 +44,10 @@ function renderView() {
       if (g.title) html += '<h2 class="kind">' + g.title + "</h2>";
       html += recent ? recentHTML(items, tab) : regionsHTML(items, tab);
     });
-    if (!total) html = '<div class="empty">조건에 맞는 항목이 없습니다. 지역이나 상태를 바꾸거나 검색어를 지워 보세요.</div>';
+    if (!total) html = '<div class="empty">' + t("msg.empty") + "</div>";
     if (tab.hint) html = '<p class="hint">' + tab.hint + "</p>" + html;
   }
-  if (tab.mode === "entry" && state.order === "recent" && total) html = '<p class="hint">날짜별로 최신부터 나열합니다. 같은 날에는 보도 시각이 확인된 소식이 먼저 나오고, 시각을 모르는 소식은 그 아래에 놓습니다.</p>' + html;
+  if (tab.mode === "entry" && state.order === "recent" && total) html = '<p class="hint">' + t("hint.recent") + "</p>" + html;
   $("view").innerHTML = html;
   // 최근 사흘 새 소식 수는 "최근 소식순" 칩에 붙인다. 따로 줄을 두지 않아 첫 화면이 짧아진다.
   if (tab.mode === "entry" && fresh !== FRESH) { FRESH = fresh; renderOrder(); }
@@ -54,15 +56,15 @@ function renderView() {
 
 // 정렬 칩. 새 소식 수가 바뀔 때도 다시 그린다.
 function renderOrder() {
-  $("order").innerHTML = [["team", "팀별로"], ["recent", "최근 소식순"]].map(function (o) {
+  $("order").innerHTML = [["team", t("order.team")], ["recent", t("order.recent")]].map(function (o) {
     return '<button type="button" class="chip" data-order="' + o[0] + '" aria-pressed="' + (state.order === o[0]) + '">' + o[1] +
-      (o[0] === "recent" && FRESH ? '<span class="n new" title="최근 사흘 새 소식">새 ' + FRESH + "</span>" : "") + "</button>";
+      (o[0] === "recent" && FRESH ? '<span class="n new" title="' + t("order.freshTitle") + '">' + t("order.freshCount", { n: FRESH }) + "</span>" : "") + "</button>";
   }).join("");
 }
 
 // 바로가기: 목록의 구역 머리(.rh)마다 id 를 붙이고 고르기 상자를 채운다. 구역이 둘 미만이면 고르기 상자를 숨긴다.
 function jumpList() {
-  var heads = $("view").hidden ? [] : $("view").querySelectorAll(".rh"), opts = '<option value="">바로가기</option>';
+  var heads = $("view").hidden ? [] : $("view").querySelectorAll(".rh"), opts = '<option value="">' + t("jump.placeholder") + "</option>";
   Array.prototype.forEach.call(heads, function (h, i) {
     var kind = h.previousElementSibling && h.previousElementSibling.classList.contains("kind") ? h.previousElementSibling.textContent + " · " : "";
     h.id = "j" + i;
@@ -83,13 +85,13 @@ function renderChrome() {
   $("summary").hidden = !tab.status;
   if (tab.status) {
     var base = [].concat.apply([], tab.groups.map(function (g) { return g.items; }));
-    $("summary").innerHTML = STATUS_LABELS.map(function (s) {
+    $("summary").innerHTML = statusLabels().map(function (s) {
       var n = s[0] === "all" ? base.length : base.filter(function (it) { return cls(it) === s[0]; }).length;
       return '<button type="button" class="chip sum ' + s[0] + '" data-status="' + s[0] + '" aria-pressed="' + (state.status === s[0]) + '"><span class="k">' + s[1] + '</span><span class="n">' + n + "</span></button>";
     }).join("");
   }
   $("regions").innerHTML = ["all"].concat(REGIONS).map(function (r) {
-    return '<button type="button" class="chip" data-region="' + r + '" aria-pressed="' + (state.region === r) + '">' + (r === "all" ? "모든 지역" : REGION_KO[r]) + "</button>";
+    return '<button type="button" class="chip" data-region="' + r + '" aria-pressed="' + (state.region === r) + '">' + (r === "all" ? t("region.all") : regionName(r)) + "</button>";
   }).join("");
   $("order").hidden = tab.mode !== "entry";
   renderOrder();
@@ -97,7 +99,7 @@ function renderChrome() {
     var box = $(id), cur = box.querySelector('[aria-pressed="true"]');
     if (cur && box.scrollWidth > box.clientWidth) box.scrollLeft = cur.offsetLeft - (box.clientWidth - cur.offsetWidth) / 2;
   });
-  document.title = (state.tab === "players" ? "" : tab.label + " · ") + "VCT LFT·FA 현황";
+  document.title = (state.tab === "players" ? "" : tab.label + " · ") + t("title.site");
 }
 
 // 사이트 안의 인물·팀 상세 주소인지. 다른 출처나 출처 링크(외부)는 해당하지 않는다.
@@ -212,10 +214,10 @@ function showDetail(r) {
     var th = teamHTML(r.id, IDX);
     name = th.name; html = th.html;
   } else {
-    html = '<section class="detail-page">' + backHTML() + '<div class="empty">찾을 수 없는 주소입니다.</div></section>';
+    html = '<section class="detail-page">' + backHTML() + '<div class="empty">' + t("msg.notfound") + "</div></section>";
   }
   $("view").innerHTML = html;
-  document.title = (name || "찾을 수 없음") + " · VCT LFT·FA 현황";
+  document.title = (name || t("title.notfound")) + t("title.suffix");
 }
 
 // 머리말 시각에 KST 를 붙인다. 텍스트 노드만 고쳐 .intro·.more 의 구조는 그대로 둔다.
@@ -243,5 +245,5 @@ Promise.all(FILES.map(load).concat(OPTIONAL.map(function (f) {
   try { history.scrollRestoration = "manual"; } catch (e) {}
   renderRoute();
 }).catch(function () {
-  $("view").innerHTML = '<div class="empty">데이터를 불러오지 못했습니다. 잠시 뒤 다시 열어 보세요.</div>';
+  $("view").innerHTML = '<div class="empty">' + t("msg.loadFail") + "</div>";
 });

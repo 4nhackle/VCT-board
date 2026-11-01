@@ -4,13 +4,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { esc, isoOf, TODAY } from "../js/format.js";
-import { buildIndex, pillOf, pillText, routeOf, teamMoves, teamNameOf, newestFirst, REGION_KO, ID_RE } from "../js/model.js";
+import { buildIndex, pillOf, pillText, routeOf, teamMoves, teamNameOf, newestFirst, regionName, ID_RE } from "../js/model.js";
+import { t } from "../js/i18n.js";
 import { prepareOut } from "./out-dir.mjs";
 
 // 배포 경로와 주소. 이 파일에서 이 두 곳만 고치면 된다.
 const SITE_PATH = "/VCT-board/";
 const SITE_ORIGIN = "https://4nhackle.github.io";
-const TITLE_SUFFIX = " · VCT LFT·FA 현황";
+const TITLE_SUFFIX = t("title.suffix");
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 // 인자 없이 실행하면 저장소 안의 _site 를 쓴다. 인자 경로는 실행한 폴더 기준이다.
@@ -43,8 +44,8 @@ function personDesc(id) {
   // 이동이면 "A → B 이적 확정|보도". 이적 행은 발표일로, 그 밖의 합류는 단계로 가른다.
   const r = routeOf(top.item, IDX.teams);
   if (r && r.kind === "move") {
-    const word = top.kind === "t" ? (typeof top.row.signedDate === "number" ? "확정" : "보도") : r.stage === "confirmed" ? "확정" : "보도";
-    return name + " · " + [r.from, r.to].filter(Boolean).join(" → ") + " 이적 " + word;
+    const word = top.kind === "t" ? (typeof top.row.signedDate === "number" ? t("desc.confirmed") : t("desc.reported")) : r.stage === "confirmed" ? t("desc.confirmed") : t("desc.reported");
+    return name + " · " + [r.from, r.to].filter(Boolean).join(" → ") + t("desc.move") + word;
   }
   return [name, top.item.team, pillText(pillOf(top.item))].filter(Boolean).join(" · ");
 }
@@ -53,8 +54,8 @@ function teamName(id) {
   return t && t.name ? t.name : teamNameOf(id, (IDX.byTeam[id] || []).slice().sort(newestFirst));
 }
 function teamDesc(id) {
-  const t = IDX.teams[id], m = teamMoves(id, IDX);
-  return [teamName(id), t ? REGION_KO[t.region] || t.region : "", "들어온 " + m.incoming.length + "명", "나간 " + m.outgoing.length + "명"].filter(Boolean).join(" · ");
+  const team = IDX.teams[id], m = teamMoves(id, IDX);
+  return [teamName(id), team ? regionName(team.region) || team.region : "", t("desc.in", { n: m.incoming.length }), t("desc.out", { n: m.outgoing.length })].filter(Boolean).join(" · ");
 }
 
 // ── 페이지 틀: index.html 의 메타 태그만 바꾸고, head 맨 앞에 base 를 넣는다
