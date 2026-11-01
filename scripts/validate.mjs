@@ -41,7 +41,7 @@ for (const [file, rows] of Object.entries(sets)) {
     if (kindOf[file]) {
       const it = toItem(r, kindOf[file], sources);
       if (pillOf(it)[0] === "unknown") warn(file, "상태 읽기", `${at}: 상태 "${it.status}" 을(를) 화면이 읽지 못해 "확인 필요"로 나옵니다`);
-      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각이 날짜 칸과 맞지 않아 화면에서 빠집니다`);
+      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각(M/D)이 날짜 칸과 다른 날이라 날짜 옆 시각 표시만 빠집니다(출처 줄에는 나옵니다). 날짜 칸이나 비고 중 하나가 틀렸는지 확인하세요`);
     }
     const id = [r.team, r.name, r.targets].join("|").toLowerCase();
     if (seen.has(id)) errors.push(`${at}: ${seen.get(id)}번째 행과 중복입니다`);
