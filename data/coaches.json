@@ -3,6 +3,8 @@
   {"region":"Americas","team":"Evil Geniuses","name":"potter","role":"헤드 코치","status":"FA(11/2)","date":46315,"conf":"C","note":"EG 운영 종료","src":"s6"},
   {"region":"Americas","team":"Evil Geniuses","name":"Faded","role":"코치","status":"계약 완료(Rex Regum Qeon)","date":46318,"conf":"R","note":"EG 운영 종료 후 RRQ 합류 (Sheep 보도 10/23 14:30 UTC, RRQ 공식 발표 전)","src":"s54"},
   {"region":"Americas","team":"FlyQuest","name":"quail","role":"어시스턴트 코치","status":"팀 이탈","date":46314,"conf":"R","note":"VLR 이적 로그 10/19 이탈. FlyQuest 비파트너","src":"s14"},
+  {"region":"Americas","team":"FURIA","name":"shaW","role":"헤드 코치","status":"FA(11/2)","date":46326,"conf":"C","note":"FURIA 공식 성명: 믹스 발로란트 철수, 전 선수·코칭스태프 11/2 FA. Strafe 원문에서 헤드 코치 shaW(Ian Jardim) 명시, VLR 이적 로그 10/30 이탈 등재 (FURIA X 10/30 22:18 UTC)","src":"s98"},
+  {"region":"Americas","team":"FURIA","name":"Kamino","role":"어시스턴트 코치","status":"FA(11/2)","date":46326,"conf":"C","note":"FURIA 공식 성명(전 코칭스태프 11/2 FA) + VLR 이적 로그 10/30 이탈 등재(assistant coach). 교차 확인: TheSpike (FURIA X 10/30 22:18 UTC)","src":"s14"},
   {"region":"Americas","team":"LOUD","name":"balax","role":"애널리스트","status":"LFT","date":46317,"conf":"C","note":"Champions 우승 합류 후 계약 만료. 어느 지역·직책도 가능","src":"s55"},
   {"region":"Americas","team":"M80","name":"kaplan","role":"헤드 코치","status":"팀 이탈","date":46314,"conf":"R","note":"VLR 이적 로그 10/19 이탈. M80 존속 불투명","src":"s14"},
   {"region":"EMEA","team":"FUT Esports","name":"Vlad","role":"헤드 코치","status":"탐색 허가","date":46310,"conf":"C","note":"","src":"s56"},
