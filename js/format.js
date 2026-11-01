@@ -16,17 +16,27 @@ export function isoOf(n) { return new Date(Date.UTC(1899, 11, 30) + n * 864e5).t
 export function withKst(text) {
   return String(text).replace(/(\d{4}-\d{2}-\d{2} \d{1,2}:\d{2})(?!\s*KST)(\s*기준)/, "$1 KST$2");
 }
-// 비고에 적힌 보도 시각("10/24 16:30 UTC" 또는 "... KST")을 한국 시간 기준 분 단위로. 없으면 null.
+// 보도 시각 글 "M/D HH:mm UTC|KST" 를 읽는다. 월 1~12, 시 0~23, 분 0~59 가 아니면 null.
+// min 은 그 날 0시부터의 한국 시간 분이다(UTC 표기는 +9시간). 하루를 넘으면 1440 이상이다. 날짜 칸과의 대조는 하지 않는다.
+export function parseStamp(text) {
+  var m = /(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})\s*(UTC|KST)/.exec(String(text == null ? "" : text));
+  if (!m) return null;
+  var p = { mon: +m[1], day: +m[2], hh: +m[3], mm: +m[4], tz: m[5] };
+  if (p.mon < 1 || p.mon > 12 || p.hh > 23 || p.mm > 59) return null;
+  p.min = p.hh * 60 + p.mm + (p.tz === "UTC" ? 540 : 0);
+  return p;
+}
+// 비고에 적힌 보도 시각("10/24 16:30 UTC" 또는 "... KST")을 한국 시간 기준 분 단위로. 없으면 null. 날짜 칸과 같은 날일 때만 준다.
 export function stampOf(it) {
   if (it._st !== undefined) return it._st;
-  var m = /(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})\s*(UTC|KST)/.exec(it.note || ""), r = null;
-  if (m && typeof it.date === "number") {
+  var p = parseStamp(it.note), r = null;
+  if (p && typeof it.date === "number") {
     var base = new Date(Date.UTC(1899, 11, 30) + it.date * 864e5).getUTCFullYear(), best = null;
     [base - 1, base, base + 1].forEach(function (yy) {
-      var s = Math.round((Date.UTC(yy, +m[1] - 1, +m[2]) - Date.UTC(1899, 11, 30)) / 864e5);
+      var s = Math.round((Date.UTC(yy, p.mon - 1, p.day) - Date.UTC(1899, 11, 30)) / 864e5);
       if (best === null || Math.abs(s - it.date) < Math.abs(best - it.date)) best = s;
     });
-    r = best * 1440 + (+m[3]) * 60 + (+m[4]) + (m[5] === "UTC" ? 540 : 0);
+    r = best * 1440 + p.min;
     if (Math.floor(r / 1440) !== it.date) r = null;
   }
   it._st = r;

@@ -251,6 +251,35 @@ node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
   - 콘솔 오류: 목록 전부 없음. 없는 주소 점검의 404 1건(작업 전과 같음).
 - 배포 확인: `eea1088` 의 pages 실행은 success. 사용자 스크린샷에서 메뉴 링크가 가려져 보인 이유는 확인하지 못했다. 캐시이거나 이전 배포일 것으로 보지만 재현하지 못했다.
 - 확인 중 발견: 포트 8080 에 이 저장소와 다른 옛 dev 서버가 떠 있었다(`<details>` 마크업 서빙, PID 를 찾지 못함). 측정은 8090(작업본)과 8091(origin/main 내보내기)로 돌렸다. 8080 의 옛 서버는 그대로 두었다.
+## 9회차 점검 결과 수정 (2026-11-02)
+- 브랜치 fix/audit-9 (origin/main `eea1088` 기준, worktree). 항목마다 커밋 하나, 커밋 제목 앞에 F-번호.
+- 처리:
+  - F-01 고침: 인물·팀 상세의 날짜 줄 시각을 출처 줄이 없을 때만 붙인다(목록 row.js 와 같은 조건). `js/views/common.js` 한 줄.
+  - F-02 고침: `idsOf` 가 "-" 를 빈 칸으로 본다(인물·팀·지켜볼 팀). 현재 data/ 에는 "-" 가 없어 `_site` 는 같다.
+  - F-03 고침: 비고 시각 경고 문구를 실제 동작에 맞췄다(출처 줄에는 시각이 나온다). 조건은 그대로.
+  - F-04 고침: `parseStamp` 를 `js/format.js` 에 두고 `stampOf`·`splitNote` 가 같이 쓴다. 옛 함수와 새 함수를 data/ 의 모든 비고(1379건)로 비교해 차이 0.
+    - 줄 수: 예상 -8줄과 달랐다. 실제로는 format.js +10, common.js +2 (범위 확인과 주석 때문). 중복 파서는 없어졌다.
+  - F-05 고침(경고만): 같은 ID 가 되는 서로 다른 인물·팀 이름을 경고한다. 현재 data/ 새 경고 0건. 합성 데이터로 인물·팀 두 경로를 확인했다.
+  - F-06 고침: `stampOf`, `parseStamp`, `splitNote`, `newestFirst`, `idsOf`, `matches`, `fmtDate`, `newsRow`(F-01)에 시험 추가. 시험 70개 통과.
+    - `matches` 는 악센트를 무시하지 않는다. 지시문의 "악센트 무시(지금 동작대로)"는 현재 코드와 달라서, 현재 동작을 그대로 고정하고 보고한다.
+  - F-07 고침: 액션을 커밋 SHA 로 고정(아래 표). 권한·concurrency·조건은 그대로.
+  - F-08 보류: 자정 새로고침은 하지 않았다. 확인해 보니 새로고침하면 지역 필터·검색어·스크롤이 사라지고 탭(#주소)만 남았다. 지시문의 "복원이 안 되면 하지 말고 보고" 조건에 해당한다.
+    - 대안(사용자 결정): `TODAY` 를 갱신하는 함수를 두고 다시 그린다(다시 불러오지 않음). 화면 상태는 그대로 둔다.
+- 기준선 대비 차이: `/tmp/before_site` 와 비교하면 JS 파일 세 개(`format.js`, `model.js`, `views/common.js`)만 다르다. 정적 HTML 은 모두 같다. F-01 의 시각 변화는 브라우저에서 그려지는 상세 화면에만 있어 직접 확인이 필요하다.
+- 확인: `test.mjs` 70개 통과, `validate.mjs` 오류 0, 경고 469(작업 전과 같음), `build.mjs _site` 인물 139쪽·팀 334쪽·sitemap 476개.
+- 사용자가 할 일: 건의 폼 스팸 방지를 Web3Forms 대시보드에서 켠다(스팸 보호, 전송 제한). 코드는 바꾸지 않는다.
+- 줄 수 변화(origin/main 대비): 전체 +188 / -23. pages.yml 4/4, format.js 15/5, model.js 6/4, views/common.js 7/5, scripts/test.mjs 113/3, scripts/validate.mjs 43/2.
+
+### F-07 액션 SHA 표
+| 액션 | 태그 | 커밋 SHA |
+|---|---|---|
+| actions/checkout | v4.4.0 | 11d5960a326750d5838078e36cf38b85af677262 |
+| actions/setup-node | v4.4.0 | 49933ea5288caeca8642d1e84afbd3f7d6820020 |
+| actions/upload-pages-artifact | v3.0.1 | 56afc609e74202658d3ffba0e8f6dda462b719fa |
+| actions/deploy-pages | v4.0.5 | d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e |
+
+- 확인 방법: `git ls-remote https://github.com/actions/<이름> 'refs/tags/v4' 'refs/tags/v4.*'` 로 메이저 태그와 같은 커밋을 가진 정확한 버전을 찾았다.
+- 제안(추가하지 않음): 버전 올림은 Dependabot 같은 도구로 자동화할 수 있다.
 
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
