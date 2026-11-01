@@ -60,7 +60,7 @@ export function monoHTML(name) {
 
 // 소식 한 줄. withName 이면 인물 이름을 링크로 함께 보여 준다(팀 화면). 지켜볼 팀 줄은 대상과 메모를 보여 준다.
 export function newsRow(e, withName) {
-  var it = e.item, when = relDate(it.date) + (stampLabel(it) ? " " + stampLabel(it) : ""), sp = splitNote(val(it.note));
+  var it = e.item, sp = splitNote(val(it.note)), when = relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "");
   if (e.kind === "watch") {
     return '<li class="dp-row"><p class="dp-meta">' + [when, esc(TAB_NAME.watch), esc(it.team)].filter(Boolean).join(" · ") + '</p><p class="dp-line"><span class="lbl">대상</span>' + esc(it.name) +
       (sp.body ? ". " + esc(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
