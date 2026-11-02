@@ -188,5 +188,5 @@ export var EN = {
   "foot.2": "This is an unofficial fan-made service. It is not affiliated with, sponsored by, or endorsed by Riot Games. VALORANT and VCT are trademarks or registered trademarks of Riot Games, Inc.",
   "foot.3": 'To request a correction or removal, email <a href="mailto:biggest-cannula9b@icloud.com?subject=%5BVCT%20Tracker%5D%20Correction%20request">biggest-cannula9b@icloud.com</a>. We will handle it promptly after checking.',
   "foot.4": 'If this site helped you, you can support it on <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer">Ko-fi</a> or by <a href="https://qr.kakaopay.com/FXLsPVOnG" rel="noopener noreferrer">KakaoPay transfer</a>.',
-  "foot.5": '<a href="privacy/">Privacy policy (Korean)</a> · <a href="terms/">Terms of use (Korean)</a>'
+  "foot.5": '<a href="en/privacy/">Privacy policy</a> · <a href="en/terms/">Terms of use</a>'
 };

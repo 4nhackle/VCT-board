@@ -1,6 +1,6 @@
 import { isNew, esc, withKst } from "./format.js";
 import { REGIONS, regionName, buildTabs, buildIndex, matches, cls } from "./model.js";
-import { t, LANG, ledeHTML } from "./i18n.js";
+import { t, LANG, ledeHTML, setEnTable } from "./i18n.js";
 import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
@@ -278,7 +278,9 @@ function load(f) {
 // 선택 파일은 아직 없을 수 있다(배포 초기에는 정상). 실패하면 조용히 빈 배열로 둔다.
 Promise.all(FILES.map(load).concat(OPTIONAL.map(function (f) {
   return load(f).catch(function () { return []; });
-}))).then(function (all) {
+}).concat([LANG === "en" ? load("i18n-en").catch(function () { return {}; }) : {}]))).then(function (all) {
+  // 본문 번역 표는 영문 화면에서만 받는다. 없거나 읽기 실패하면 빈 표로 두고 원문 + KR 로 보인다.
+  setEnTable(all.pop());
   FILES.concat(OPTIONAL).forEach(function (f, i) { D[f] = all[i]; });
   OPTIONAL.forEach(function (f) { if (!Array.isArray(D[f])) D[f] = []; });
   TABS = buildTabs(D);

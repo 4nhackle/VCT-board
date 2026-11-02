@@ -1,4 +1,4 @@
-import { tIn, LANG } from "./i18n.js";
+import { tIn, LANG, trWhole } from "./i18n.js";
 
 export function esc(s) {
   return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -74,9 +74,10 @@ export function relDate(n, lang = LANG) {
 }
 export function srcHTML(s, lang = LANG) {
   if (!s) return "";
+  var name = lang === "en" ? trWhole(s[0]) : s[0];
   return /^https?:\/\//i.test(s[1])
-    ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + tIn(lang, "src.source") + textHTML(s[0], lang) + "</a>"
-    : " " + tIn(lang, "src.source") + textHTML(s[0], lang);
+    ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + tIn(lang, "src.source") + textHTML(name, lang) + "</a>"
+    : " " + tIn(lang, "src.source") + textHTML(name, lang);
 }
 // 영문 화면에서 한국어 원문을 보여 줄 때: lang="ko" 로 감싸고 KR 표시를 붙인다. 한국어 화면에서는 쓰지 않는다.
 export function krHTML(text) {
