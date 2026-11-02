@@ -802,4 +802,12 @@ t("언어 이동 스크립트(index.html 인라인): 저장값·주소별 이동
   assert.deepEqual(run("THROW", "/VCT-board/p/oxy/"), []);
 });
 
+t("사이트 경로: build.mjs·dev-server.mjs·index.html 인라인 스크립트가 같은 경로를 쓴다", () => {
+  const read = (f) => fs.readFileSync(new URL("../" + f, import.meta.url), "utf8");
+  const site = /const SITE_PATH = "([^"]+)"/.exec(read("scripts/build.mjs"))[1];
+  const prefix = /const PREFIX = "([^"]+)"/.exec(read("scripts/dev-server.mjs"))[1];
+  assert.equal(prefix, site);
+  assert.ok(read("index.html").includes('"' + site + '"'));
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);

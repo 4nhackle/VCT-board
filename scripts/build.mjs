@@ -71,6 +71,8 @@ function teamDesc(id, lang) {
 
 // ── 페이지 틀: index.html 의 메타 태그만 바꾸고, head 맨 앞에 base 를 넣는다. 영문 틀은 toLang 으로 먼저 만든다.
 const TPL = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+// 언어 이동 스크립트(index.html <head>)도 같은 경로를 쓴다. 다르면 이동이 조용히 멈추므로 여기서 멈춘다.
+if (!TPL.includes('"' + SITE_PATH + '"')) throw new Error("index.html 인라인 스크립트에 사이트 경로 " + SITE_PATH + " 가 없습니다");
 function setTag(html, re, tag) {
   if (!re.test(html)) throw new Error("index.html 에 없는 태그: " + re);
   return html.replace(re, tag);
