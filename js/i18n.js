@@ -21,3 +21,8 @@ export function tIn(lang, key, params) {
   return s;
 }
 export function t(key, params) { return tIn(LANG, key, params); }
+
+// 머리말 문장(<p class="lede"> 안쪽). time 은 "2026-11-02 01:21" 같은 글이다. 한국어는 시각 뒤에 "기준입니다", 영문은 "Updated … KST." 로 끝난다.
+export function ledeHTML(lang, time) {
+  return '<span class="intro">' + tIn(lang, "lede.intro") + '</span> <span class="more">' + tIn(lang, "lede.more") + "</span> " + tIn(lang, "lede.time", { time: time });
+}

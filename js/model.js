@@ -1,6 +1,6 @@
 // 순수 함수만: 시트 행 → 화면용 항목, 상태 분류, 필터. DOM과 state를 직접 만지지 않는다.
 import { TODAY, isoOf, stampOf } from "./format.js";
-import { t } from "./i18n.js";
+import { t, LANG } from "./i18n.js";
 
 export var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
 // 지역·등급 이름은 쓰는 시점에 사전을 읽는다(setLang 뒤에도 맞게). 모르는 값은 "" 를 돌려준다.
@@ -236,7 +236,8 @@ export function pillOf(it) {
   if (/계약 완료/.test(s)) {
     var m = s.match(/\((.+)\)/);
     if (!m) return ["signed", t("status.signed"), joinStage(it)];
-    return /잔류/.test(m[1]) ? ["signed", m[1], joinStage(it)] : ["signed", t("pill.joined", { team: m[1] }), joinStage(it), short];
+    // 영문 화면에서는 "잔류" 알약을 사전 글로 쓴다(원문 "X 잔류" 는 한국어라 KR 칸으로 보내지 않는다). 한국어 화면은 원문 그대로.
+    return /잔류/.test(m[1]) ? ["signed", LANG === "en" ? t("pill.stayed") : m[1], joinStage(it)] : ["signed", t("pill.joined", { team: m[1] }), joinStage(it), short];
   }
   // 팀을 떠났어도 새 팀을 찾는 중이면("팀 이탈 · 제한적 FA", "탐색 허가(팀 이탈)") 구직 중으로 본다.
   if (/구직|탐색|\b(FA|LFT)\b/i.test(s)) return ["open", t("status.open")];

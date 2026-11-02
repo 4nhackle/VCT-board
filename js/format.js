@@ -75,6 +75,15 @@ export function relDate(n, lang = LANG) {
 export function srcHTML(s, lang = LANG) {
   if (!s) return "";
   return /^https?:\/\//i.test(s[1])
-    ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + tIn(lang, "src.source") + esc(s[0]) + "</a>"
-    : " " + tIn(lang, "src.source") + esc(s[0]);
+    ? '<a href="' + esc(s[1]) + '" target="_blank" rel="noopener">' + tIn(lang, "src.source") + textHTML(s[0], lang) + "</a>"
+    : " " + tIn(lang, "src.source") + textHTML(s[0], lang);
+}
+// 영문 화면에서 한국어 원문을 보여 줄 때: lang="ko" 로 감싸고 KR 표시를 붙인다. 한국어 화면에서는 쓰지 않는다.
+export function krHTML(text) {
+  return '<span lang="ko" class="kr-src">' + esc(text) + '</span><span class="kr-tag" aria-hidden="true">KR</span>';
+}
+// 데이터 글(비고, 출처 이름, 일정 제목 등). 영문 화면에서 한글이 들었으면 원문 + KR, 아니면 그대로. 한국어 화면은 esc 와 같다.
+export function textHTML(text, lang = LANG) {
+  var s = String(text == null ? "" : text);
+  return lang === "en" && /[가-힣]/.test(s) ? krHTML(s) : esc(s);
 }

@@ -25,8 +25,8 @@ export function recentHTML(items, tab) {
     if (typeof n === "number") {
       var d = new Date(Date.UTC(1899, 11, 30) + n * 864e5);
       var wd = t("weekday." + d.getUTCDay());
-      // 한국어 "10월 25일 (월)", 영문 "Oct 25 (Mon)"
-      var full = LANG === "en" ? dateWord(d, "en") + " (" + wd + ")" : (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 (" + wd + ")";
+      // 한국어 "10월 25일 (월)", 영문 "Mon, Oct 25"
+      var full = LANG === "en" ? wd + ", " + dateWord(d, "en") : (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 (" + wd + ")";
       var w = dayWord(n);
       if (w === fmtDate(n)) head = full; else { head = w; sub = full; }
     }

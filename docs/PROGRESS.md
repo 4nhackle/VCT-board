@@ -317,6 +317,60 @@ node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
   - 브라우저 40 화면(375·1280 × 라이트·다크 × 목록 7개·인물·팀·없는 주소): 렌더된 DOM 은 40/40 같고 콘솔 오류 0.
   - 픽셀 비교는 끝내지 못했다. 같은 기준선을 두 번 찍어도 40 화면 중 12개가 달라서, 이 하네스의 스크린샷은 원래 흔들린다. 지시문의 픽셀 비교를 대신할 방법(고정 시각 캡처 등)이 필요하다.
 
+## 11회차 영문판 2: 상태 용어집, /en/ 주소와 EN/KR 전환 (2026-11-02)
+- 브랜치 feature/i18n-2 (origin/main `7c42d06`, PR #14 병합 뒤). 한국어 출력은 기준선과 같다(아래 확인). 영문은 `/VCT-board/en/` 주소로 열린다.
+- 처리:
+  - `js/i18n/glossary.js` (`termEn(text)`): 데이터 문구를 정해진 짝(`TERMS`)과 규칙(`RULES`)으로 옮긴다. 조각(" · ", " / ", ", ", "/")마다 옮기고, 한글이 남는 조각이 있으면 문구 전체를 `null` 로 돌려준다. 팀 이름·LFT·FA 같은 영문 글은 그대로.
+  - 화면 쓰임: `common.js` `termHTML`(용어집 → 영문, 못 옮기면 원문 + KR), `nameHTML`(사람 이름은 `lang="ko"`만), `textHTML`(긴 글: 영문 화면에서 한글이 있으면 원문 + KR). `format.js` `krHTML`·`textHTML`.
+  - 상태 줄 머리(`row.js`), 직책·국적 메타, 인물 이번 이동 제목 대체 글(`person.js`), 경력 역할, 팀 칸, 비고 본문(`regions.js` 팀 공통 배경 포함), 일정 날짜·제목·출처, 지켜볼 팀 대상·상황, 출처 이름: 영문 화면에서 전부 이 함수들을 거친다.
+  - 경로 줄: `routeHTML` 은 사전 `route.full`·`route.toOnly` 의 틀로 그린다. 화면낭독은 영문 "from A to B", 한국어는 "A에서 B로". 한국어 출력은 예전 문자열과 같다(시험으로 고정).
+  - `pillOf` 의 "X 잔류" 알약은 영문 화면에서 사전 글 "Stayed" 를 쓴다(원문 "Team Liquid 잔류" 는 한국어 글이라 보이지 않게).
+  - 날짜: 최근 소식순 머리는 영문 "Mon, Oct 25". 인원 한 명은 "1 player"(`count.person`).
+  - `js/state.js`: `ROUTE_BASE = BASE + (LANG === "en" ? "en/" : "")`. `personUrl`·`teamUrl`·`listUrl` 이 쓴다. `main.js` 의 `parseRoute`·`isDetailLink` 도 `ROUTE_BASE`.
+  - EN/KR 전환(`index.html` 머리말 오른쪽, 후원 메뉴 앞): `<nav class="lang-switch">`. 현재 언어는 `aria-current` 와 굵기·밑줄로 표시. `main.js` 의 `langLinks()` 가 지금 화면과 같은 자리의 주소로 맞춘다(인물·팀·목록 탭·없는 주소는 목록). 링크는 가로채지 않고 페이지를 실제로 불러온다. 고른 언어는 `localStorage` `vct-lang` 에 저장(실패는 무시).
+  - 저장값 이동: `index.html` `<head>` 맨 앞의 인라인 스크립트. 저장값이 있고 주소 언어와 다르면 `location.replace` 로 같은 자리의 다른 언어로 보낸다. 저장값이 없으면 아무것도 하지 않는다(브라우저 언어 감지 없음). `?stay` 가 있으면 보내지 않는다.
+  - 정적 문구: `index.html` 에 `data-i18n`(글자), `data-i18n-html`(링크가 든 글), `data-i18n-attr`(속성) 을 붙였다. 키는 `ko.js`·`en.js` 에 있고 시험이 ko 값을 index 글자와 맞춘다. `<p class="lede">` 에는 속성을 붙이지 않았다(예약 작업 약속: 시험으로 고정).
+  - `scripts/i18n-html.mjs` `toLang(html, "en")`: `<html lang>`, title·description·og(`og:locale` en_US, `og:locale:alternate` ko_KR), `data-i18n*`, 머리말 문장(`ledeHTML`, 시각은 원문 정규식에서 뽑는다), EN 표시, KR 안내 줄. `alternateTags(alt)`: hreflang 세 줄(ko, en, x-default ko).
+  - `scripts/build.mjs`: `en/index.html`, `en/p/<id>/`, `en/t/<id>/`(제목 "OXY · VCT LFT·FA Tracker", 영문 설명). 한국어 index·p·t 에도 hreflang 세 줄을 빌드 결과에 넣었다. 정책 페이지는 한 번만. `sitemap.xml` 은 한·영 주소 모두 넣고 각 주소에 `xhtml:link` 세 줄.
+  - 런타임 보정: 영문 주소인데 `html lang` 이 `en` 이 아니면(GitHub Pages 의 한국어 `404.html` 이 올 때) `localizeStatic()` 이 같은 사전으로 정적 문구·머리말·KR 안내 줄을 바꾼다. 정상 영문 페이지는 건드리지 않는다.
+  - `scripts/dev-server.mjs`: `/VCT-board/en/…` 은 `toLang` 으로 만든 셸을 보낸다(없는 상세는 404, 목록은 200).
+  - 영문 화면의 정책 라벨은 "(Korean)" 을 붙이고 한국어 페이지로 간다. 정정 요청 mailto 제목은 영문, 주소는 그대로.
+  - 스타일: `.top` 세 칸(글·전환·후원), `.lang-switch`, `.kr-tag`(토큰만 씀).
+- 용어집 커버리지(데이터 현재 값 기준, `data/`):
+
+| 항목 | 값 종류 | 옮겨진 종류 | 행 수 |
+|---|---|---|---|
+| 상태 (players + coaches) | 61 | 61/61 (100%) | 138/138 |
+| 이적 구분 (transfers type) | 4 | 4/4 | 35/35 |
+| 코치 역할 (coaches role) | 6 | 6/6 | 28/28 |
+| 선수 포지션 (players position) | 15 | 15/15 | 110/110 |
+| 인물 역할 (people role) | 21 | 21/21 | 74/74 |
+| 경력 역할 (career role) | 9 | 9/9 | 67/67 |
+| 지켜볼 팀 대상 (watch targets) | 14 | 14/14 | 17/17 |
+
+- 번역되지 않은 것(12회차 5단계 입력). 용어집이 아니라 원문 + KR 로 보인다:
+  - 비고 본문 165/166 (대부분 긴 보도 메모)
+  - 지켜볼 팀 상황 17/17 (전부)
+  - 일정 제목 10/10 (전부)
+  - 팀 칸 "(은퇴 · 전 Sentinels)" 1건
+  - 출처 이름 "VLR 이적 로그" 1건
+- 확인(직접 실행):
+  - `node scripts/test.mjs` 85개 통과. 새 시험 8개: 상태 전부 옮겨짐(데이터 기준), 용어집 짝·괄호·날짜·null, 영문 주소 읽기, index 정적 문구 = ko 사전, 머리말 한 번·기준 시각 형식·main.js 줄(예약 작업 약속), 영문 틀에 한글 없음·ko 틀 그대로, 경로 줄 ko 고정·en 낭독 순서, 영문 행에서 한글은 `lang="ko"` 안에만.
+  - `node scripts/validate.mjs` 오류 0, 경고 470(작업 전 470).
+  - `node scripts/build.mjs _site` 인물 139쪽·팀 334쪽(각각 한·영), sitemap 950개(작업 전 476, 인물·팀 두 배). 한국어 정적 HTML 은 기준선과 비교해 hreflang 세 줄, 전환 버튼, `data-i18n*` 속성, 머리말 `<script>` 만 늘었다.
+  - 브라우저(Playwright, 빌드 결과 8095): 한국어 목록 7개·인물·팀·없는 주소 × 375·1280 × 라이트·다크 40화면, `#view`·머리말·제목이 기준선과 전부 같다(전환 버튼·속성 제외).
+  - 영문 화면 40화면(목록 7·인물·팀·없는 주소 × 375·1280 × 라이트·다크): 보이는 글과 속성에서 한글이 `lang="ko"` 밖에 있는 것 0, 사이트 안 링크는 `/VCT-board/en/` 시작(예외: css·js·data, 약관·개인정보, EN/KR 전환), 콘솔 오류 0(없는 주소 404 문서 제외).
+  - 전환: 목록 `#coaches`, 인물 `p/oxy/`, 팀 `t/cloud9/`, 없는 주소에서 EN·KR 누르면 같은 자리로 실제 이동하고 저장값이 바뀌었다. 저장 en + ko 주소 → en 으로 이동. 저장 en + `?stay` → 그대로. 저장값 없음 → 그대로.
+  - 404 대체: GitHub 가 주는 한국어 `404.html` 을 `/en/p/BAD/` 에 주었을 때 영문 머리말·"This address was not found."·KR 안내 줄이 나오고 한글 0.
+  - 정적 페이지: `_site/en/p/oxy/` 의 `<html lang="en">`, 영문 title·canonical, hreflang 세 줄. 한국어 `p/oxy/` 도 같은 세 줄.
+- 못 한 것·남은 것:
+  - 픽셀 비교는 하지 않았다. 대신 DOM(`#view`, 머리말, 제목)과 이 목록의 시험으로 판정했다. 10회차에 흔들린 스크린샷 비교는 이번에도 쓰지 않았다(고정 시각 캡처는 적용하지 않음).
+  - 영문 건의 폼: 비활성 전송 링크가 `href="#"` 인 채 남았다. 한국어와 같은 DOM 을 지키기 위해 그대로 두었다. 누르면 막혀 있어 이동하지 않는다(`aria-disabled`).
+  - 개발 서버는 상세 주소(`/p/`, `/t/`)에 404 를 돌려준다(예전부터 그랬다). 배포 빌드의 상세 페이지는 200 이다.
+  - 영문 설명 대부분은 정해진 짝과 규칙으로 옮긴다. 새 문구가 들어오면 `glossary.js` 에 짝을 더한다. 옮기지 못하면 자동으로 KR 칸이 된다(누락은 화면에서 바로 보인다).
+  - 12회차: 비고·상황·일정 제목의 영문(`*_en` 필드), 약관·개인정보 영문 요약, 건의 폼 안내 문단.
+- 검증 스크립트는 저장소에 넣지 않았다(작업 폴더의 scratchpad). 필요하면 별도 회차에서 `scripts/` 에 넣는다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.

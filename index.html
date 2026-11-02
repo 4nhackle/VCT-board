@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="2026 시즌이 끝나고 팀을 떠나거나 새 팀을 찾는 발로란트 VCT 선수와 코치를 지역별로 정리했습니다. 출처 링크와 함께 매일 갱신합니다.">
+<!doctype html><html lang="ko"><head><script>(function(){try{var s=localStorage.getItem("vct-lang");if(s!=="en"&&s!=="ko")return;if(/(^|[?&])stay(&|=|$)/.test(location.search))return;var B="/VCT-board/",p=location.pathname;if(p.indexOf(B)!==0)return;var r=p.slice(B.length),isEn=r==="en"||r.indexOf("en/")===0;if(s==="en"&&!isEn)location.replace(B+"en/"+r+location.search+location.hash);else if(s==="ko"&&isEn)location.replace(B+r.slice(3)+location.search+location.hash);}catch(e){}})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="2026 시즌이 끝나고 팀을 떠나거나 새 팀을 찾는 발로란트 VCT 선수와 코치를 지역별로 정리했습니다. 출처 링크와 함께 매일 갱신합니다.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="VCT LFT·FA 현황">
 <meta property="og:title" content="발로란트 VCT 선수 이적 현황">
@@ -19,51 +19,55 @@
 </head><body><div class="page">
   <header class="top">
     <div class="top-text">
-      <h1 class="site" id="site">발로란트 VCT 선수 이적 현황</h1>
+      <h1 class="site" id="site" data-i18n="site.heading">발로란트 VCT 선수 이적 현황</h1>
       <p class="lede"><span class="intro">2026 시즌이 끝나면서 팀을 떠나거나 새 팀을 찾는 선수와 코치를 정리했습니다.</span> <span class="more">LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.</span> 2026-11-02 09:38 기준입니다.</p>
     </div>
+    <nav class="lang-switch" aria-label="Language / 언어" data-i18n-attr="aria-label:lang.label">
+      <a href="./" hreflang="ko" lang="ko" data-lang="ko" aria-current="true">KR</a>
+      <a href="en/" hreflang="en" lang="en" data-lang="en">EN</a>
+    </nav>
     <nav class="support-menu" aria-labelledby="support-label">
-      <span class="support-label" id="support-label">카페인이 필요해요</span>
-      <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer" aria-label="Ko-fi로 후원">Ko-fi</a>
-      <a href="https://qr.kakaopay.com/FXLsPVOnG" rel="noopener noreferrer" aria-label="카카오페이로 송금해 후원">카카오페이 송금</a>
+      <span class="support-label" id="support-label" data-i18n="support.label">카페인이 필요해요</span>
+      <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer" aria-label="Ko-fi로 후원" data-i18n-attr="aria-label:support.kofi.label">Ko-fi</a>
+      <a href="https://qr.kakaopay.com/FXLsPVOnG" rel="noopener noreferrer" aria-label="카카오페이로 송금해 후원" data-i18n-attr="aria-label:support.kakao.label" data-i18n="support.kakao">카카오페이 송금</a>
     </nav>
   </header>
 
-  <nav class="tabs" id="tabs" aria-label="보기 선택"></nav>
+  <nav class="tabs" id="tabs" aria-label="보기 선택" data-i18n-attr="aria-label:tabs.label"></nav>
 
   <div class="filters" id="filters">
     <div class="bar b1">
-      <div class="summary chips" id="summary" role="group" aria-label="상태별 인원"></div>
-      <input class="search" id="q" type="search" placeholder="이름이나 팀 검색" aria-label="검색" autocomplete="off">
+      <div class="summary chips" id="summary" role="group" aria-label="상태별 인원" data-i18n-attr="aria-label:summary.label"></div>
+      <input class="search" id="q" type="search" placeholder="이름이나 팀 검색" aria-label="검색" autocomplete="off" data-i18n-attr="placeholder:search.placeholder;aria-label:search.label">
     </div>
     <div class="bar b2">
-      <div class="regions chips" id="regions" role="group" aria-label="지역"></div>
-      <div class="order chips" id="order" role="group" aria-label="정렬"></div>
+      <div class="regions chips" id="regions" role="group" aria-label="지역" data-i18n-attr="aria-label:regions.label"></div>
+      <div class="order chips" id="order" role="group" aria-label="정렬" data-i18n-attr="aria-label:order.label"></div>
     </div>
   </div>
 
   <main><div id="view"></div><div id="sgview" hidden></div></main>
 
   <div class="dock" id="dock" hidden>
-    <div class="jump" id="jumpbox"><select id="jump" aria-label="구역으로 이동"></select></div>
-    <button type="button" class="totop" data-top="1" aria-label="맨 위로"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg></button>
+    <div class="jump" id="jumpbox"><select id="jump" aria-label="구역으로 이동" data-i18n-attr="aria-label:jump.label"></select></div>
+    <button type="button" class="totop" data-top="1" aria-label="맨 위로" data-i18n-attr="aria-label:totop.label"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg></button>
   </div>
 
-  <section class="notes" aria-label="참고">
+  <section class="notes" aria-label="참고" data-i18n-attr="aria-label:notes.label">
     <ul>
-      <li class="note-lfx">LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.</li>
-      <li>공개 보도와 선수 본인의 게시를 바탕으로 했습니다. 계약이 끝나는 선수 전체 명단은 아닙니다.</li>
-      <li>단일 출처는 한 매체의 보도만 있다는 뜻입니다. 공식 발표 전이라 바뀔 수 있습니다.</li>
-      <li>2부 선수와 아카데미 팀은 제외했습니다.</li>
+      <li class="note-lfx" data-i18n="note.1">LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.</li>
+      <li data-i18n="note.2">공개 보도와 선수 본인의 게시를 바탕으로 했습니다. 계약이 끝나는 선수 전체 명단은 아닙니다.</li>
+      <li data-i18n="note.3">단일 출처는 한 매체의 보도만 있다는 뜻입니다. 공식 발표 전이라 바뀔 수 있습니다.</li>
+      <li data-i18n="note.4">2부 선수와 아카데미 팀은 제외했습니다.</li>
     </ul>
   </section>
 
-  <footer class="site-foot" aria-label="사이트 정보">
-    <p>공개 보도와 <a href="https://www.vlr.gg/" rel="noopener">VLR.gg</a>, <a href="https://liquipedia.net/valorant/" rel="noopener">Liquipedia</a> 등 각 행의 출처를 바탕으로 정리했습니다. Liquipedia의 내용은 <a href="https://creativecommons.org/licenses/by-sa/3.0/" rel="noopener license">CC BY-SA 3.0</a>에 따라 이용합니다.</p>
-    <p>이 사이트는 팬이 만든 비공식 서비스로 Riot Games와 관련이 없으며, Riot Games의 후원이나 승인을 받지 않았습니다. VALORANT와 VCT는 Riot Games, Inc.의 상표 또는 등록상표입니다.</p>
-    <p>잘못된 내용의 정정이나 삭제를 원하시면 <a href="mailto:biggest-cannula9b@icloud.com?subject=%5BVCT%20%ED%98%84%ED%99%A9%5D%20%EC%A0%95%EC%A0%95%C2%B7%EC%82%AD%EC%A0%9C%20%EC%9A%94%EC%B2%AD">biggest-cannula9b@icloud.com</a>으로 알려 주세요. 확인 후 지체 없이 처리합니다.</p>
-    <p class="support">사이트가 도움이 됐다면 <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer">Ko-fi</a> 또는 <a href="https://qr.kakaopay.com/FXLsPVOnG" rel="noopener noreferrer">카카오페이 송금</a>으로 후원할 수 있습니다.</p>
-    <p class="legal"><a href="privacy/">개인정보처리방침</a> · <a href="terms/">이용약관</a></p>
+  <footer class="site-foot" aria-label="사이트 정보" data-i18n-attr="aria-label:footer.label">
+    <p data-i18n-html="foot.1">공개 보도와 <a href="https://www.vlr.gg/" rel="noopener">VLR.gg</a>, <a href="https://liquipedia.net/valorant/" rel="noopener">Liquipedia</a> 등 각 행의 출처를 바탕으로 정리했습니다. Liquipedia의 내용은 <a href="https://creativecommons.org/licenses/by-sa/3.0/" rel="noopener license">CC BY-SA 3.0</a>에 따라 이용합니다.</p>
+    <p data-i18n-html="foot.2">이 사이트는 팬이 만든 비공식 서비스로 Riot Games와 관련이 없으며, Riot Games의 후원이나 승인을 받지 않았습니다. VALORANT와 VCT는 Riot Games, Inc.의 상표 또는 등록상표입니다.</p>
+    <p data-i18n-html="foot.3">잘못된 내용의 정정이나 삭제를 원하시면 <a href="mailto:biggest-cannula9b@icloud.com?subject=%5BVCT%20%ED%98%84%ED%99%A9%5D%20%EC%A0%95%EC%A0%95%C2%B7%EC%82%AD%EC%A0%9C%20%EC%9A%94%EC%B2%AD">biggest-cannula9b@icloud.com</a>으로 알려 주세요. 확인 후 지체 없이 처리합니다.</p>
+    <p class="support" data-i18n-html="foot.4">사이트가 도움이 됐다면 <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer">Ko-fi</a> 또는 <a href="https://qr.kakaopay.com/FXLsPVOnG" rel="noopener noreferrer">카카오페이 송금</a>으로 후원할 수 있습니다.</p>
+    <p class="legal" data-i18n-html="foot.5"><a href="privacy/">개인정보처리방침</a> · <a href="terms/">이용약관</a></p>
   </footer>
 </div>
 

@@ -1,5 +1,6 @@
 // 화면 상태, #탭 주소, 정렬 기억(localStorage "vct-order").
 import { ID_RE } from "./model.js";
+import { LANG } from "./i18n.js";
 
 export var state = { tab: "players", region: "all", status: "all", q: "", order: "team" };
 
@@ -13,9 +14,11 @@ export function saveOrder(order) {
 // 사이트 루트 경로(이 파일 js/state.js 기준). 배포는 "/VCT-board/", 루트로 열면 "/".
 // 상세 주소로 pushState 하면 상대 경로의 기준이 바뀌므로 사이트 안 주소는 항상 BASE 로 시작하는 절대 경로로 만든다.
 export var BASE = new URL("../", import.meta.url).pathname;
-export function personUrl(id) { return BASE + "p/" + id + "/"; }
-export function teamUrl(id) { return BASE + "t/" + id + "/"; }
-export function listUrl(tab) { return BASE + "#" + tab; }
+// 주소의 기준. 영문 화면의 사이트 안 주소는 BASE 뒤에 en/ 이 붙는다(예: /VCT-board/en/p/oxy/). 한국어는 BASE 그대로.
+export var ROUTE_BASE = BASE + (LANG === "en" ? "en/" : "");
+export function personUrl(id) { return ROUTE_BASE + "p/" + id + "/"; }
+export function teamUrl(id) { return ROUTE_BASE + "t/" + id + "/"; }
+export function listUrl(tab) { return ROUTE_BASE + "#" + tab; }
 
 // 주소 → 화면. base + "p/<id>/" 는 인물, base + "t/<id>/" 는 팀, 그 외는 목록(#탭). 끝 슬래시는 없어도 된다.
 // p/·t/ 아래인데 id 가 형식에 맞지 않거나 경로가 더 깊으면 {view: "notfound"}. node 에서 시험할 수 있게 loc·base 를 인자로 받는다.
