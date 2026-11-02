@@ -139,7 +139,7 @@ if (hasPeople) {
   for (const [pid, at] of seenPid) {
     const p = people.find((x) => x.id === pid);
     if (!p) warn("news", "인물 행 없음", `${at}: 인물 "${pid}" 의 people 행이 없습니다`);
-    else if (!String(p.nationality || "").trim() || p.nationality === "-" || !String(p.role || "").trim() || p.role === "-") warn("people", "국적·역할 빈 칸", `people ${pid}: 국적 또는 역할이 빈 칸입니다`);
+    else if (!cleanName(p.nationality) || !cleanName(p.role)) warn("people", "국적·역할 빈 칸", `people ${pid}: 국적 또는 역할이 빈 칸입니다`);
   }
 }
 

@@ -141,7 +141,8 @@ export function teamNameOf(id, list) {
     var e = list[i];
     if (e.kind === "watch") continue;
     var n = e.kind === "t" ? (e.item.tidFrom === id ? e.item.team : e.item.next) : e.item.team;
-    if (n && n !== "-") return n;
+    var c = cleanName(n);
+    if (c) return c;
   }
   return id;
 }
@@ -297,7 +298,7 @@ export function routeOf(it, teams) {
   // 데이터 판정용: 한국어 상태 글의 " 합류" 자리. 번역하지 않는다.
   var j = s.indexOf(" 합류");
   if (j > 0) {
-    var to = s.slice(0, j).split(" · ").pop().trim();
+    var to = cleanName(s.slice(0, j).split(" · ").pop());
     if (to) return out("move", from, fromId, to, toIdOf(to), noteOf(s, to));
   }
   return null;
