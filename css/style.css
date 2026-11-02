@@ -326,7 +326,7 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .top-text { gap: var(--sp-2); }
   /* 600px 이하: 후원 메뉴는 왼쪽, EN/KR 은 오른쪽, 좁으면 줄을 바꾼다. */
   .top-side { flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; width: 100%; }
-  .top-side .lang-switch { order: 2; }
+  .top-side .lang-switch { order: 2; margin-left: auto; }
   .support-menu { flex-wrap: wrap; }
   .lede .intro { display: none; }
   .lede { font-size: var(--fs-1); }
