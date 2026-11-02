@@ -15,7 +15,7 @@ var TERMS = {
   "헤드 코치": "Head Coach", "어시스턴트 코치": "Assistant Coach", "코치": "Coach", "퍼포먼스 코치": "Performance Coach",
   "애널리스트": "Analyst", "선수": "Player", "보조": "secondary", "보조 콜러": "secondary caller", "콜러": "caller",
   "소속 선수": "Team players", "소속 선수 전원": "All team players",
-  "계약 중": "under contract", "계약 만료 임박": "contract expiring soon", "계약 해지": "contract terminated",
+  "계약 중": "under contract", "계약 종료": "contract ended", "계약 만료 임박": "contract expiring soon", "계약 해지": "contract terminated",
   "본인 확인": "self-confirmed", "본인 발표": "self-announced", "비활성 로스터": "inactive roster", "비활성": "inactive",
   "전 지역 오픈": "open in all regions", "전 포지션 가능": "any position", "협상 가능": "Open to talks", "오퍼 수용": "offer accepted",
   "새 팀 미발표": "no new team announced", "로스터 전원": "entire roster", "무제한 FA": "unlimited FA", "미확정": "unconfirmed",

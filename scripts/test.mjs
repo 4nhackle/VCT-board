@@ -14,6 +14,7 @@ import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
+import { noteParts } from "../js/note.js";
 import { tIn, setLang, setEnTable, trEn, trNote, trWhole } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
 import { KO } from "../js/i18n/ko.js";
@@ -773,7 +774,7 @@ t("번역 표 파일: 모든 항목이 검사를 통과하고, 지금 data 에 �
     assert.deepEqual(failed, [], "검사에 걸린 번역");
     const used = new Set(collectTargets(D).map((x) => x.key));
     assert.deepEqual(Object.keys(table).filter((k) => !used.has(k)), [], "쓰이지 않는 낡은 번역");
-    for (const [k, v] of Object.entries(table)) assert.ok(!/[가-힣]/.test(v.replace(/교차 확인:[^.]*\.?/g, "").replace(/\([^)]*(UTC|KST)\)\s*$/, "")), "영문 몸말에 한글: " + k);
+    for (const [k, v] of Object.entries(table)) assert.ok(!/[가-힣]/.test(noteParts(v).body), "영문 몸말에 한글: " + k);
   } finally {
     setEnTable({});
   }
