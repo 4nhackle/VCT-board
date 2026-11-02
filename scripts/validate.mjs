@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { REGIONS, toItem, pillOf, idsOf, ID_RE, slugOf } from "../js/model.js";
-import { stampOf } from "../js/format.js";
+import { stampOf, daysIn } from "../js/format.js";
 import { setEnTable, trEn } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
 import { noteParts } from "../js/note.js";
@@ -44,7 +44,9 @@ for (const [file, rows] of Object.entries(sets)) {
     if (kindOf[file]) {
       const it = toItem(r, kindOf[file], sources);
       if (pillOf(it)[0] === "unknown") warn(file, "상태 읽기", `${at}: 상태 "${it.status}" 을(를) 화면이 읽지 못해 "확인 필요"로 나옵니다`);
-      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각(M/D)이 날짜 칸과 다른 날이라 날짜 옆 시각 표시만 빠집니다(출처 줄에는 나옵니다). 날짜 칸이나 비고 중 하나가 틀렸는지 확인하세요`);
+      const sm = /(\d{1,2})\/(\d{1,2})\s+\d{1,2}:\d{2}\s*(UTC|KST)/.exec(it.note || "");
+      if (sm && +sm[1] >= 1 && +sm[1] <= 12 && +sm[2] > daysIn(+sm[1])) warn(file, "비고 시각", `${at}: 보도 시각 ${sm[1]}/${sm[2]} 는 없는 날짜입니다. 비고의 날짜를 고치세요`);
+      else if (sm && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각(M/D)이 날짜 칸과 다른 날이라 날짜 옆 시각 표시만 빠집니다(출처 줄에는 나옵니다). 날짜 칸이나 비고 중 하나가 틀렸는지 확인하세요`);
     }
     const id = [r.team, r.name, r.targets].join("|").toLowerCase();
     if (seen.has(id)) errors.push(`${at}: ${seen.get(id)}번째 행과 중복입니다`);
@@ -173,6 +175,10 @@ for (const file of ["players", "coaches"]) {
 }
 for (const file of ["transfers.players", "transfers.coaches"]) {
   sets[file].forEach((r, i) => {
+    const at = `${file}[${i}] ${r.name}`;
+    // 도착 팀이 비면 오류(잔류는 도착이 원래 비므로 제외). 출발 팀이 비면 경고(확인 전의 행이 있을 수 있다).
+    if (!/잔류/.test(r.type || "") && !nameOk(r.to)) errors.push(`${at}: 새 팀(to)이 비어 있습니다. 시트 '성사된 이적'의 새 팀 칸을 채우세요`);
+    if (!nameOk(r.from)) warn(file, "이전 팀", `${at}: 이전 팀(from)이 비어 있습니다. 확인되면 시트 '성사된 이적'에 채우세요`);
     if (!r.fromTeam && nameOk(r.from)) teamList.push({ text: String(r.from).trim(), where: `${file} ${i + 1}행` });
     if (!r.toTeam && nameOk(r.to)) teamList.push({ text: String(r.to).trim(), where: `${file} ${i + 1}행` });
   });

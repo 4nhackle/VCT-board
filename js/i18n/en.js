@@ -187,6 +187,6 @@ export var EN = {
   "foot.1": 'Based on public reports and each row\'s sources, including <a href="https://www.vlr.gg/" rel="noopener">VLR.gg</a> and <a href="https://liquipedia.net/valorant/" rel="noopener">Liquipedia</a>. Liquipedia content is used under <a href="https://creativecommons.org/licenses/by-sa/3.0/" rel="noopener license">CC BY-SA 3.0</a>.',
   "foot.2": "This is an unofficial fan-made service. It is not affiliated with, sponsored by, or endorsed by Riot Games. VALORANT and VCT are trademarks or registered trademarks of Riot Games, Inc.",
   "foot.3": 'To request a correction or removal, email <a href="mailto:biggest-cannula9b@icloud.com?subject=%5BVCT%20Tracker%5D%20Correction%20request">biggest-cannula9b@icloud.com</a>. We will handle it promptly after checking.',
-  "foot.4": 'If this site helped you, you can support it on <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer">Ko-fi</a> or by <a href="https://qr.kakaopay.com/FXLsPVOnG" rel="noopener noreferrer">KakaoPay transfer</a>.',
+  "foot.4": 'If this site helped you, you can support it on <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer">Ko-fi</a>.',
   "foot.5": '<a href="en/privacy/">Privacy policy</a> · <a href="en/terms/">Terms of use</a>'
 };

@@ -24,7 +24,7 @@ export function slugOf(s) {
 }
 
 // 객체에서 자기 속성만 읽는다. 데이터 값이 constructor 같은 이름이어도 상속 속성을 돌려주지 않는다.
-export function own(obj, key) {
+function own(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined;
 }
 
@@ -231,7 +231,7 @@ function joinStage(it) {
 export function pillOf(it) {
   // 짧은 문구(p[3])는 팀 이름을 경로 줄이 보여 줄 때 쓴다. 알약에는 단계만 말한다.
   var short = joinStage(it) === "reported" ? t("pill.reported") : t("pill.confirmed");
-  if (it.moved) return /잔류/.test(it.status) ? ["signed", t("pill.stayed"), joinStage(it)] : ["signed", t("pill.joined", { team: it.next }), joinStage(it), short];
+  if (it.moved) return /잔류/.test(it.status) ? ["signed", t("pill.stayed"), joinStage(it)] : ["signed", cleanName(it.next) ? t("pill.joined", { team: cleanName(it.next) }) : t("status.signed"), joinStage(it), short];
   var s = it.status;
   if (/계약 완료/.test(s)) {
     var m = s.match(/\((.+)\)/);
@@ -304,7 +304,7 @@ export function routeOf(it, teams) {
 
 // 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
 // 데이터 판정용 정규식(한국어 상태 글). 번역하지 않는다. 두 번째 칸은 사전 키다.
-export var WATCH_KINDS = [
+var WATCH_KINDS = [
   ["withdraw", "watch.withdraw", /철수|해체/],
   ["dropped", "watch.dropped", /파트너십 탈락/],
   ["expiring", "watch.expiring", /계약\s.*만료/],

@@ -1,8 +1,8 @@
-import { esc, fmtDate, dayWord, stampOf, dateWord } from "../format.js";
+import { esc, fmtDate, dayWord, stampOf, dateLong } from "../format.js";
 import { REGIONS, ownItem } from "../model.js";
 import { state, teamUrl } from "../state.js";
 import { rowHTML } from "../components/row.js";
-import { t, LANG } from "../i18n.js";
+import { t } from "../i18n.js";
 
 // 최근 소식순: 보도 날짜별로 묶어 최신부터.
 export function recentHTML(items, tab) {
@@ -24,9 +24,7 @@ export function recentHTML(items, tab) {
     var head = t("date.unknown"), sub = "";
     if (typeof n === "number") {
       var d = new Date(Date.UTC(1899, 11, 30) + n * 864e5);
-      var wd = t("weekday." + d.getUTCDay());
-      // 한국어 "10월 25일 (월)", 영문 "Mon, Oct 25"
-      var full = LANG === "en" ? wd + ", " + dateWord(d, "en") : (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 (" + wd + ")";
+      var full = dateLong(d);
       var w = dayWord(n);
       if (w === fmtDate(n)) head = full; else { head = w; sub = full; }
     }

@@ -250,6 +250,8 @@ function localizeStatic() {
       el.setAttribute(pair.slice(0, i), t(pair.slice(i + 1)));
     });
   });
+  // 카카오페이는 영문 화면에서 숨긴다(toLang 과 같은 규칙).
+  document.querySelectorAll('a[href*="qr.kakaopay.com"]').forEach(function (el) { el.remove(); });
   var lede = document.querySelector(".lede"), m = lede && /(\d{4}-\d{2}-\d{2} \d{1,2}:\d{2})/.exec(lede.textContent);
   if (m) lede.innerHTML = ledeHTML(LANG, m[1]);
   var notes = document.querySelector(".notes ul");

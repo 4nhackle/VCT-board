@@ -7,7 +7,7 @@ var DICT = { ko: KO, en: EN };
 
 // 언어는 주소로만 정한다. 사이트 루트 아래 en/ 으로 시작하면 en, 아니면 ko. Node 에서는 ko(setLang 으로 바꿀 수 있다).
 var ROOT = new URL("../", import.meta.url).pathname;
-export function langOfPath(p) { return p.indexOf(ROOT + "en/") === 0 ? "en" : "ko"; }
+function langOfPath(p) { return p.indexOf(ROOT + "en/") === 0 ? "en" : "ko"; }
 export var LANG = typeof location !== "undefined" ? langOfPath(location.pathname) : "ko";
 
 export function setLang(lang) { LANG = lang === "en" ? "en" : "ko"; }

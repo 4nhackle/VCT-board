@@ -5,12 +5,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import vm from "node:vm";
+import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { fileURLToPath } from "node:url";
 import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
-import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, clockText } from "../js/format.js";
+import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
 import { tIn, setLang, setEnTable, trEn, trNote, trWhole } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
 import { KO } from "../js/i18n/ko.js";
@@ -743,6 +745,117 @@ t("영문 안내: 약관·개인정보 영문 요약은 한글이 lang=ko 안에
   assert.equal(en["foot.5"].includes("(Korean)"), false, "영문 푸터에 (Korean) 표시가 남았다");
   assert.ok(en["foot.5"].includes('href="en/privacy/"') && en["foot.5"].includes('href="en/terms/"'), "영문 푸터 링크는 영문 요약으로");
   assert.ok(ko["foot.5"].includes('href="privacy/"'), "한국어 푸터는 원문 그대로");
+});
+
+t("이적 빈 도착 팀: validate 오류, 잔류의 빈 도착은 통과, pillOf 는 '새 팀 합류'(앞 공백 없음)", () => {
+  const dir = tmp("blankto");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "transfers.json");
+  const tr = JSON.parse(fs.readFileSync(file, "utf8"));
+  tr.players[0].to = "";
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const bad = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /transfers\.players\[0\] .*새 팀\(to\)이 비어 있습니다/);
+  tr.players[0].type = "잔류(재계약)";
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const stay = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(stay.status, 0, stay.stderr);
+  fs.rmSync(dir, { recursive: true, force: true });
+  assert.equal(pillOf({ moved: true, status: "이적", next: "", team: "X", conf: "C", date: T }).slice(1, 2)[0], "새 팀 합류");
+});
+
+t("parseStamp: 없는 날짜(2/30, 4/31)는 null, 2/29·12/31 은 통과, 13/1 은 null", () => {
+  assert.equal(parseStamp("2/30 12:00 UTC"), null);
+  assert.equal(parseStamp("4/31 12:00 KST"), null);
+  assert.notEqual(parseStamp("2/29 12:00 UTC"), null);
+  assert.notEqual(parseStamp("12/31 23:59 KST"), null);
+  assert.equal(parseStamp("13/1 12:00 UTC"), null);
+});
+
+t("validate: 비고의 없는 날짜(2/30)는 '없는 날짜' 경고", () => {
+  const dir = tmp("baddate");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "players.json");
+  const rows = JSON.parse(fs.readFileSync(file, "utf8"));
+  rows[0].note = "테스트 (Sheep 2/30 12:00 UTC)";
+  fs.writeFileSync(file, JSON.stringify(rows));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.match(r.stderr, /보도 시각 2\/30 는 없는 날짜입니다/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("언어 이동 스크립트(index.html 인라인): 저장값·주소별 이동, ?stay·영문 주소 그대로, 저장소 예외는 아무것도 안 함", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const code = inlineScript(html);
+  const run = (stored, pathname, search = "", hash = "") => {
+    const calls = [];
+    const storage = { getItem: () => { if (stored === "THROW") throw new Error("denied"); return stored; } };
+    vm.runInNewContext(code, { location: { pathname, search, hash, replace: (u) => calls.push(u) }, localStorage: storage });
+    return calls;
+  };
+  assert.deepEqual(run(null, "/VCT-board/"), []);
+  assert.deepEqual(run("en", "/VCT-board/", "", "#coaches"), ["/VCT-board/en/#coaches"]);
+  assert.deepEqual(run("en", "/VCT-board/p/oxy/"), ["/VCT-board/en/p/oxy/"]);
+  assert.deepEqual(run("ko", "/VCT-board/en/t/cloud9/"), ["/VCT-board/t/cloud9/"]);
+  assert.deepEqual(run("en", "/VCT-board/", "?stay"), []);
+  assert.deepEqual(run("en", "/VCT-board/en/"), []);
+  assert.deepEqual(run("THROW", "/VCT-board/p/oxy/"), []);
+});
+
+t("사이트 경로: build.mjs·dev-server.mjs·index.html 인라인 스크립트가 같은 경로를 쓴다", () => {
+  const read = (f) => fs.readFileSync(new URL("../" + f, import.meta.url), "utf8");
+  const site = /const SITE_PATH = "([^"]+)"/.exec(read("scripts/build.mjs"))[1];
+  const prefix = /const PREFIX = "([^"]+)"/.exec(read("scripts/dev-server.mjs"))[1];
+  assert.equal(prefix, site);
+  checkSitePath(read("index.html"), site);
+});
+
+t("사이트 경로 검사: 스크립트 안 경로를 바꾸고 다른 곳에 같은 글자를 두면 실패한다", () => {
+  const ok = '<html><head><script>var B="/VCT-board/";</script></head><body></body></html>';
+  checkSitePath(ok, "/VCT-board/");
+  const moved = '<html><head><script>var B="/other/";</script></head><body>"/VCT-board/"</body></html>';
+  assert.throws(() => checkSitePath(moved, "/VCT-board/"), /사이트 경로 \/VCT-board\/ 가 없습니다/);
+  assert.throws(() => inlineScript("<html><body></body></html>"), /인라인 스크립트가 없습니다/);
+});
+
+t("dateLong: 한국어 'M월 D일 (요일)', 영문 'Mon, Oct 25'", () => {
+  const d = new Date(Date.UTC(2026, 9, 26));
+  assert.equal(dateLong(d, "ko"), "10월 26일 (" + KO["weekday." + d.getUTCDay()] + ")");
+  assert.equal(dateLong(d, "en"), EN["weekday." + d.getUTCDay()] + ", Oct 26");
+});
+
+t("영문 후원: 카카오페이 링크는 영문 머리·푸터·약관·개인정보에서 빠지고 Ko-fi 는 남는다, 한국어는 그대로", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const en = toLang(html, "en");
+  assert.equal(en.includes("qr.kakaopay.com"), false, "영문 틀에 카카오페이 링크");
+  assert.ok(en.includes("ko-fi.com/4nhackle"), "Ko-fi 는 남는다");
+  assert.ok(html.includes("qr.kakaopay.com"), "한국어 틀은 그대로");
+  assert.equal(EN["foot.4"].includes("KakaoPay"), false, "영문 푸터 문단");
+  for (const doc of ["terms", "privacy"]) {
+    const page = fs.readFileSync(new URL("../en/" + doc + "/index.html", import.meta.url), "utf8");
+    assert.equal(page.includes("qr.kakaopay.com"), false, doc + " 카카오페이 링크");
+    assert.ok(page.includes("KakaoPay (Korean domestic transfer, Korean page only)"), doc + " 사실 문장");
+  }
+});
+
+t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
+  const dir = tmp("fromdash");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "transfers.json");
+  const tr = JSON.parse(fs.readFileSync(file, "utf8"));
+  tr.players[0].from = "-";
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, /transfers\.players\[0\] .*이전 팀\(from\)이 비어 있습니다/);
+  assert.doesNotMatch(r.stdout + r.stderr, /오류  transfers/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("pillOf: 도착 팀이 '-' 여도 '새 팀 합류'(routeOf 와 같은 규칙)", () => {
+  assert.equal(pillOf({ moved: true, status: "이적", next: "-", team: "X", conf: "C", date: T })[1], "새 팀 합류");
+  assert.equal(pillOf({ moved: true, status: "이적", next: "Y", team: "X", conf: "C", date: T })[1], "Y 합류");
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
