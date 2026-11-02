@@ -1,7 +1,7 @@
 import { isNew, esc, withKst } from "./format.js";
 import { REGIONS, regionName, buildTabs, buildIndex, matches, cls } from "./model.js";
-import { t } from "./i18n.js";
-import { state, saveOrder, pushTab, go, BASE, parseRoute } from "./state.js";
+import { t, LANG, ledeHTML } from "./i18n.js";
+import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
 import { scheduleHTML } from "./views/schedule.js";
@@ -104,12 +104,29 @@ function renderChrome() {
 
 // 사이트 안의 인물·팀 상세 주소인지. 다른 출처나 출처 링크(외부)는 해당하지 않는다.
 function isDetailLink(a) {
-  return a.origin === location.origin && (a.pathname.indexOf(BASE + "p/") === 0 || a.pathname.indexOf(BASE + "t/") === 0);
+  return a.origin === location.origin && (a.pathname.indexOf(ROUTE_BASE + "p/") === 0 || a.pathname.indexOf(ROUTE_BASE + "t/") === 0);
+}
+
+// EN·KR 링크: 지금 화면과 같은 자리의 다른 언어 주소로 맞춘다. 링크는 페이지를 새로 불러온다(가로채지 않는다).
+// JS 가 없을 때는 index.html 의 기본 주소(목록)가 쓰인다.
+function langLinks() {
+  var nav = document.querySelector(".lang-switch");
+  if (!nav) return;
+  var r = parseRoute(location, ROUTE_BASE);
+  nav.querySelectorAll("a[data-lang]").forEach(function (a) {
+    var lang = a.dataset.lang, base = BASE + (lang === "en" ? "en/" : ""), href = base;
+    if (r.view === "person" || r.view === "team") href = base + (r.view === "person" ? "p/" : "t/") + r.id + "/";
+    else if (r.view === "list" && r.tab) href = base + "#" + r.tab;
+    a.setAttribute("href", href);
+    if (lang === LANG) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+  });
 }
 
 document.addEventListener("click", function (e) {
   var a = e.target.closest("a[href]");
   if (a) {
+    // EN·KR 링크: 고른 언어를 기억한다(저장 실패는 무시). 링크 동작은 그대로 둔다.
+    if (a.dataset.lang) { try { localStorage.setItem("vct-lang", a.dataset.lang); } catch (err) {} return; }
     // "← 목록으로": 목록에서 왔으면 뒤로 가서 목록 상태를 되살리고, 아니면 목록 주소로 간다.
     if (a.dataset.back) {
       e.preventDefault();
@@ -135,7 +152,7 @@ document.addEventListener("click", function (e) {
   else return;
   renderChrome();
   renderView();
-  if (tabChanged) pushTab();
+  if (tabChanged) { pushTab(); langLinks(); }
 });
 
 // 상세로 가기 전에 목록 상태와 스크롤 위치를 지금 기록(목록 항목)에 적어 둔다. 뒤로 오면 savedList() 로 되살린다.
@@ -151,7 +168,7 @@ function savedList() {
 // 주소에 맞춰 목록이나 상세를 그린다. 처음 열 때, go(), 뒤로·앞으로, #탭 변경이 모두 이 길로 온다.
 function renderRoute() {
   if (!TABS.length) return;
-  var r = parseRoute(location, BASE), notes = document.querySelector(".notes");
+  var r = parseRoute(location, ROUTE_BASE), notes = document.querySelector(".notes");
   if (r.view === "list") {
     var h = r.tab || "players", saved = savedList();
     // 목록 안에서 같은 탭이면 다시 그리지 않는다(기존 동작).
@@ -175,6 +192,7 @@ function renderRoute() {
     if (notes) notes.hidden = true;
   }
   VIEW = r.view;
+  langLinks();
   dock();
 }
 // 상세 화면에서는 사이트 제목을 <h1> 이 아닌 작은 줄로 바꾼다. 상세의 <h1> 은 인물·팀 이름 하나뿐이다.
@@ -219,6 +237,30 @@ function showDetail(r) {
   $("view").innerHTML = html;
   document.title = (name || t("title.notfound")) + t("title.suffix");
 }
+
+// 영문 주소인데 한국어 셸이 왔을 때(GitHub Pages 의 404.html 은 한국어 하나뿐이다) 정적 문구를 영문 사전으로 바꾼다.
+// 정상 영문 페이지(build 가 만든 en/)는 html lang 이 이미 en 이라 여기서 아무것도 하지 않는다.
+function localizeStatic() {
+  document.documentElement.lang = "en";
+  document.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(function (el) { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll("[data-i18n-attr]").forEach(function (el) {
+    el.dataset.i18nAttr.split(";").forEach(function (pair) {
+      var i = pair.indexOf(":");
+      el.setAttribute(pair.slice(0, i), t(pair.slice(i + 1)));
+    });
+  });
+  var lede = document.querySelector(".lede"), m = lede && /(\d{4}-\d{2}-\d{2} \d{1,2}:\d{2})/.exec(lede.textContent);
+  if (m) lede.innerHTML = ledeHTML(LANG, m[1]);
+  var notes = document.querySelector(".notes ul");
+  if (notes && !notes.querySelector(".kr-note")) {
+    var li = document.createElement("li");
+    li.className = "kr-note";
+    li.textContent = t("note.kr");
+    notes.appendChild(li);
+  }
+}
+if (LANG === "en" && document.documentElement.lang !== "en") localizeStatic();
 
 // 머리말 시각에 KST 를 붙인다. 텍스트 노드만 고쳐 .intro·.more 의 구조는 그대로 둔다.
 var LEDE = document.querySelector(".lede");

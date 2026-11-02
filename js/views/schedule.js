@@ -1,4 +1,4 @@
-import { esc, fmtDate, TODAY } from "../format.js";
+import { esc, fmtDate, textHTML, TODAY } from "../format.js";
 import { t } from "../i18n.js";
 
 // 일정 칸의 날짜(일련번호나 "11/5–11/8", "2027-01-14 ~ 02-07" 같은 글)에서 시작일과 끝일을 뽑는다.
@@ -41,6 +41,6 @@ function ddHTML(sp) {
 export function scheduleHTML(rows) {
   return '<ul class="list">' + sortSchedule(rows).map(function (r) {
     var sp = spanOf(r.date);
-    return '<li class="row sch' + (sp && sp[1] < TODAY ? " past" : "") + '"><span class="when">' + fmtDate(r.date) + ddHTML(sp) + '</span><p class="detail">' + esc(r.title) + ' <span class="src">(' + esc(r.source) + ")</span></p></li>";
+    return '<li class="row sch' + (sp && sp[1] < TODAY ? " past" : "") + '"><span class="when">' + (typeof r.date === "number" ? fmtDate(r.date) : textHTML(r.date)) + ddHTML(sp) + '</span><p class="detail">' + textHTML(r.title) + ' <span class="src">(' + textHTML(r.source) + ")</span></p></li>";
   }).join("") + "</ul>";
 }

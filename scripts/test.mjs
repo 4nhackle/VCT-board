@@ -17,6 +17,10 @@ import { EN } from "../js/i18n/en.js";
 import { regionName, tierName } from "../js/model.js";
 import { tabName } from "../js/views/common.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
+import { termEn } from "../js/i18n/glossary.js";
+import { toLang } from "./i18n-html.mjs";
+import { routeHTML } from "../js/components/route.js";
+import { rowHTML } from "../js/components/row.js";
 
 const T = 46326; // 2026-10-31 (KST)
 let n = 0;
@@ -565,6 +569,95 @@ t("en 화면 문구: 탭·지역·등급·알약·계약·지켜볼 팀·소식 
     out.push(newsRow({ kind: "player", item: { name: "Ann", team: "Sentinels", pid: "ann", date: 46326 - 1, note: "LFT posted (Sheep 10/24 16:30 UTC)", status: "LFT 게시", src: ["Sheep", null], conf: "R", tid: "sentinels", region: "Americas", sub: "Canada" } }, false));
     const bad = out.join("\n").match(/[가-힣][^<"]{0,20}/g) || [];
     assert.deepEqual(bad, [], "영문 화면에 한글이 남았다");
+  } finally {
+    setLang("ko");
+  }
+});
+
+t("용어집: 현재 data 의 상태 문구가 전부 옮겨지고 영문에 한글이 없다", () => {
+  const read = (f) => JSON.parse(fs.readFileSync(new URL("../data/" + f, import.meta.url), "utf8"));
+  const statuses = [...new Set([...read("players.json"), ...read("coaches.json")].map((r) => r.status))];
+  const miss = statuses.filter((s) => { const e = termEn(s); return e === null || /[가-힣]/.test(e); });
+  assert.deepEqual(miss, [], "옮겨지지 않은 상태 문구");
+});
+
+t("용어집: 정해진 짝, 괄호·날짜·조각 나눔, 못 옮기면 null(반쪽 번역 없음)", () => {
+  assert.equal(termEn("계약 완료(Sentinels)"), "Signed with Sentinels");
+  assert.equal(termEn("방출(로스터 전원)"), "Released (entire roster)");
+  assert.equal(termEn("FA(11/2) · 협상 가능"), "Free agent from Nov 2 · Open to talks");
+  assert.equal(termEn("팀 이탈(본인 발표 · 계약 11/2 만료)"), "Left team (self-announced · contract ends Nov 2)");
+  assert.equal(termEn("계약 완료(Team Liquid 잔류)"), "Re-signed with Team Liquid");
+  assert.equal(termEn("Controller(보조)/Sentinel"), "Controller (secondary)/Sentinel");
+  assert.equal(termEn("Duelist"), "Duelist");
+  assert.equal(termEn("(은퇴 · 전 Sentinels)"), null);
+  assert.equal(termEn("팀명 미정"), null);
+});
+
+t("주소: 영문 주소(en/ 기준)도 인물·팀·목록·없는 주소로 읽는다", () => {
+  const base = "/VCT-board/en/";
+  assert.deepEqual(parseRoute({ pathname: "/VCT-board/en/p/oxy/", hash: "" }, base), { view: "person", id: "oxy" });
+  assert.deepEqual(parseRoute({ pathname: "/VCT-board/en/t/cloud9", hash: "" }, base), { view: "team", id: "cloud9" });
+  assert.deepEqual(parseRoute({ pathname: "/VCT-board/en/", hash: "#coaches" }, base), { view: "list", tab: "coaches" });
+  assert.deepEqual(parseRoute({ pathname: "/VCT-board/en/p/BAD/", hash: "" }, base), { view: "notfound" });
+});
+
+t("정적 문구: index.html 의 data-i18n 글자·HTML·속성이 한국어 사전 값과 같다", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  for (const m of html.matchAll(/<(\w+)[^>]*? data-i18n="([^"]+)"[^>]*>([^<]*)<\/\1>/g)) assert.equal(m[3], KO[m[2]], m[2]);
+  for (const m of html.matchAll(/<(\w+)[^>]*? data-i18n-html="([^"]+)"[^>]*>([\s\S]*?)<\/\1>/g)) assert.equal(m[3], KO[m[2]], m[2]);
+  for (const m of html.matchAll(/<\w+[^>]*? data-i18n-attr="([^"]+)"[^>]*>/g)) {
+    for (const pair of m[1].split(";")) {
+      const i = pair.indexOf(":"), name = pair.slice(0, i), key = pair.slice(i + 1);
+      const v = new RegExp("\\s" + name + '="([^"]*)"').exec(m[0]);
+      assert.equal(v && v[1], KO[key], key);
+    }
+  }
+});
+
+t("예약 작업 약속: 머리말 <p class=\"lede\"> 는 한 번, 기준 시각 형식과 main.js 스크립트 줄이 그대로", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  assert.equal(html.match(/<p class="lede">/g).length, 1);
+  assert.match(html, /<p class="lede">[^]*?\d{4}-\d{2}-\d{2} \d{1,2}:\d{2} 기준입니다\.<\/p>/);
+  assert.ok(html.includes('<script type="module" src="js/main.js"></script>'));
+});
+
+t("영문 틀: 한글이 없고 lang·머리말 시각·KR 안내 줄이 영문, 한국어 틀은 그대로", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const en = toLang(html, "en");
+  assert.equal(/[가-힣]/.test(en), false, "영문 틀에 한글이 남았다");
+  assert.ok(en.includes('<html lang="en">'));
+  assert.match(en, /Updated \d{4}-\d{2}-\d{2} \d{1,2}:\d{2} KST\./);
+  assert.ok(en.includes('<li class="kr-note">Items marked KR are shown in the original Korean.</li>'));
+  assert.equal(toLang(html, "ko"), html);
+});
+
+t("경로 줄: 한국어 출력은 예전과 같고, 영문은 낭독 글 'from A to B' 순서로 읽힌다", () => {
+  const r = { kind: "move", from: "A", fromId: "", to: "B", toId: "", stage: "confirmed" };
+  assert.equal(routeHTML(r), '<span class="route"><span class="r-from">A</span><span class="r-next"><span class="sr">에서</span><span class="r-arrow" aria-hidden="true">→</span> <span class="r-to">B</span><span class="sr">로</span></span></span>');
+  setLang("en");
+  try {
+    const en = routeHTML(r);
+    assert.ok(en.includes('<span class="sr">from </span><span class="r-from">A</span>'));
+    assert.ok(en.includes('<span class="sr">to </span><span class="r-to">B</span>'));
+  } finally {
+    setLang("ko");
+  }
+});
+
+t("영문 행: 한글은 lang=ko 안에만 있다(비고·상태·팀 칸)", () => {
+  setLang("en");
+  try {
+    const tab = { mode: "entry", teamObj: {}, shared: new Map() };
+    const rows = [
+      { region: "Americas", team: "(은퇴 · 전 Sentinels)", name: "TenZ", sub: "-", status: "LFT 게시", date: T - 1, conf: "C", note: "2024 은퇴, 현재 T1 콘텐츠 크리에이터. 복귀 확정 아님", src: ["Inven Global", "https://example.com"], pid: "tenz", tid: "" },
+      { region: "Americas", team: "Cloud9", name: "OXY", sub: "Duelist, United States", status: "계약 완료(Sentinels)", date: T - 1, conf: "R", note: "C9 3년 만에 이탈, SEN 합류 보도.", src: ["Sheep Esports", null], pid: "oxy", tid: "cloud9" },
+      { region: "Americas", team: "FURIA", name: "eeiu", sub: "-", status: "팀 이탈(PRX 공식 발표) · 새 팀 미발표", date: T - 1, conf: "R", note: "", src: null, pid: "eeiu", tid: "furia" }
+    ];
+    for (const it of rows) {
+      const html = rowHTML(it, tab, {});
+      const outside = html.replace(/<span lang="ko"[^>]*>[^<]*<\/span>/g, "").replace(/<[^>]+>/g, "");
+      assert.equal(/[가-힣]/.test(outside), false, "lang=ko 밖의 한글: " + outside);
+    }
   } finally {
     setLang("ko");
   }

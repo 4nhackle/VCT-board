@@ -5,12 +5,13 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { toLang } from "./i18n-html.mjs";
 
 const PREFIX = "/VCT-board/";
 const port = Number(process.argv[2] || 8080);
 const root = path.resolve(process.argv[3] || fileURLToPath(new URL("..", import.meta.url)));
 // 서비스하는 것: 루트 index.html·404.html·sitemap.xml·og.png 와 css/, js/, data/, p/, t/ 아래. 그 밖은 404.
-const SERVED = /^(|index\.html|404\.html|sitemap\.xml|og\.png|(css|js|data|p|t)(\/.*)?)$/;
+const SERVED = /^(|index\.html|404\.html|sitemap\.xml|og\.png|(css|js|data|p|t|en)(\/.*)?)$/;
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".png": "image/png", ".svg": "image/svg+xml", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon" };
 
 function send(res, code, body, type, extra) {
@@ -32,6 +33,14 @@ http.createServer((req, res) => {
   if (!SERVED.test(rel)) return send(res, 404, "not found");
   let st = null;
   try { st = fs.statSync(file); } catch (e) {}
+  // 영문 주소: 저장소에는 en/ 폴더가 없으니 한국어 틀을 영문으로 바꿔 보낸다(배포의 en/ 과 같은 모양). 만든 파일이 있으면 그것을 쓴다.
+  const built = st && (st.isFile() || (st.isDirectory() && fs.existsSync(path.join(file, "index.html"))));
+  if (/^\/VCT-board\/en(\/|$)/.test(p) && !built) {
+    if (p === "/VCT-board/en") return send(res, 301, "", null, { Location: PREFIX + "en/" + url.search + url.hash });
+    const shell = toLang(fs.readFileSync(path.join(root, "index.html"), "utf8"), "en").replace(/<head>/i, '<head><base href="/VCT-board/">');
+    // 없는 상세 주소(en/p/…, en/t/…)는 404 로 보내고 화면은 "not found" 문구를 그린다.
+    return send(res, /^\/VCT-board\/en\/[pt]\//.test(p) ? 404 : 200, shell, TYPES[".html"]);
+  }
   if (st && st.isDirectory()) {
     if (!p.endsWith("/")) return send(res, 301, "", null, { Location: p + "/" + url.search });
     const idx = path.join(file, "index.html");
