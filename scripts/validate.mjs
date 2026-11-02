@@ -167,6 +167,14 @@ if (hasPeople) {
   for (const p of people) for (const nm of [p.name, ...(Array.isArray(p.aliases) ? p.aliases : [])]) if (nameOk(nm)) nameList.push({ text: String(nm).trim(), where: `people ${p.id}` });
 }
 clashes(nameList, "인물 이름", "같은 사람이면 표기를 맞추고, 다른 사람이면 인물ID를 따로 지정하세요");
+// 이적 행의 출발·도착 팀이 비었으면 막는다. 잔류는 도착 팀이 원래 비므로 도착만 뺀다.
+for (const file of ["transfers.players", "transfers.coaches"]) {
+  sets[file].forEach((r, i) => {
+    const at = `${file}[${i}] ${r.name}`;
+    if (!nameOk(r.from)) errors.push(`${at}: 출발 팀(from)이 비어 있습니다. 시트 '성사된 이적'의 출발 팀 칸을 채우세요`);
+    if (!/잔류/.test(r.type || "") && !nameOk(r.to)) errors.push(`${at}: 새 팀(to)이 비어 있습니다. 시트 '성사된 이적'의 새 팀 칸을 채우세요`);
+  });
+}
 const teamList = [];
 for (const file of ["players", "coaches"]) {
   sets[file].forEach((r, i) => { if (!r.teamId && nameOk(r.team)) teamList.push({ text: String(r.team).trim(), where: `${file} ${i + 1}행` }); });

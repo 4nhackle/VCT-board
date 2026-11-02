@@ -745,4 +745,22 @@ t("영문 안내: 약관·개인정보 영문 요약은 한글이 lang=ko 안에
   assert.ok(ko["foot.5"].includes('href="privacy/"'), "한국어 푸터는 원문 그대로");
 });
 
+t("이적 빈 도착 팀: validate 오류, 잔류의 빈 도착은 통과, pillOf 는 '새 팀 합류'(앞 공백 없음)", () => {
+  const dir = tmp("blankto");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "transfers.json");
+  const tr = JSON.parse(fs.readFileSync(file, "utf8"));
+  tr.players[0].to = "";
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const bad = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /transfers\.players\[0\] .*새 팀\(to\)이 비어 있습니다/);
+  tr.players[0].type = "잔류(재계약)";
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const stay = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(stay.status, 0, stay.stderr);
+  fs.rmSync(dir, { recursive: true, force: true });
+  assert.equal(pillOf({ moved: true, status: "이적", next: "", team: "X", conf: "C", date: T }).slice(1, 2)[0], "새 팀 합류");
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);
