@@ -345,6 +345,8 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .bar.b1 { flex-direction: column-reverse; }
   .bar.b2 { flex-direction: row; justify-content: flex-start; }
   .bar.b2 .chips { flex: none; overflow: visible; margin: 0; padding: 0; -webkit-mask-image: none; mask-image: none; }
+  .th { overflow-wrap: anywhere; }
+  .th .n { margin-left: auto; }
   .search { flex: none; font-size: 16px; }
   .sg select, .sg textarea, .sg input { font-size: 16px; }
   /* 한 열: DOM 순서(이름, 상태, 본문, 출처 줄) 그대로 쌓는다 */
