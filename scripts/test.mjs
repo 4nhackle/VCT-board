@@ -11,7 +11,8 @@ import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, clockText } from "../js/format.js";
-import { tIn, setLang } from "../js/i18n.js";
+import { tIn, setLang, setEnTable, trEn, trNote, trWhole } from "../js/i18n.js";
+import { collectTargets } from "./i18n-targets.mjs";
 import { KO } from "../js/i18n/ko.js";
 import { EN } from "../js/i18n/en.js";
 import { regionName, tierName } from "../js/model.js";
@@ -660,6 +661,72 @@ t("영문 행: 한글은 lang=ko 안에만 있다(비고·상태·팀 칸)", () 
     }
   } finally {
     setLang("ko");
+  }
+});
+
+t("번역 검사(trEn): 통과, 한글 남음, 보도 시각 바뀜, 교차 확인 바뀜, 숫자 빠짐, 표에 없음", () => {
+  const src = "C9 3년 만에 이탈, SEN 합류 보도. 계약은 C9 2028까지. 공식 발표 전 (Sheep 10/24 16:30 UTC)";
+  const ok = "Left C9 after 3 years; reported to join SEN. Contract with C9 runs through 2028. Not yet official. (Sheep 10/24 16:30 UTC)";
+  const cross = "KRÜ 공식 X 결별 발표. 교차 확인: VLR 이적 로그, Sheep (KRU X 10/28 16:45 UTC)";
+  const crossOk = "KRÜ official X departure announcement. 교차 확인: VLR 이적 로그, Sheep (KRU X 10/28 16:45 UTC)";
+  setEnTable({ [src]: ok, "교차 확인 목록": "x", [cross]: crossOk, "X 합류 보도": "Joined X 합류" });
+  assert.equal(trEn(src), ok, "통과하는 번역");
+  assert.equal(trEn(cross), crossOk, "교차 확인 구절은 한글이어도 몸말 검사에서 뺀다");
+  assert.equal(trEn("X 합류 보도"), null, "몸말에 한글이 남으면 null");
+  setEnTable({ [src]: ok.replace("16:30", "17:30") });
+  assert.equal(trEn(src), null, "보도 시각이 바뀌면 null");
+  setEnTable({ [cross]: crossOk.replace("VLR 이적 로그, Sheep", "VLR, Sheep") });
+  assert.equal(trEn(cross), null, "교차 확인 목록이 바뀌면 null");
+  setEnTable({ [src]: ok.replace("2028", "2029") });
+  assert.equal(trEn(src), null, "숫자 묶음이 빠지면 null");
+  setEnTable({});
+  assert.equal(trEn(src), null, "표에 없으면 null");
+});
+
+t("번역 표: 한국어 화면은 표를 쓰지 않는다, 영문 화면은 비고를 조각마다 바꾼다", () => {
+  const seg = "C9 비파트너 탈락 후 허가";
+  setEnTable({ [seg]: "Free to explore after C9 non-partner elimination." });
+  try {
+    setLang("ko");
+    assert.equal(trNote(seg), seg);
+    assert.equal(trWhole(seg), seg);
+    setLang("en");
+    assert.equal(trNote(seg + " / " + seg), "Free to explore after C9 non-partner elimination. / Free to explore after C9 non-partner elimination.");
+    assert.equal(trNote("번역 없음 / " + seg), "번역 없음 / Free to explore after C9 non-partner elimination.");
+  } finally {
+    setLang("ko");
+    setEnTable({});
+  }
+});
+
+t("번역 표 파일: 모든 항목이 검사를 통과하고, 지금 data 에 쓰이는 키만 있다", () => {
+  const read = (f) => JSON.parse(fs.readFileSync(new URL("../data/" + f + ".json", import.meta.url), "utf8"));
+  const table = read("i18n-en");
+  const D = { players: read("players"), coaches: read("coaches"), transfers: read("transfers"), watch: read("watch"), schedule: read("schedule"), sources: read("sources") };
+  setEnTable(table);
+  try {
+    const failed = Object.keys(table).filter((k) => trEn(k) === null);
+    assert.deepEqual(failed, [], "검사에 걸린 번역");
+    const used = new Set(collectTargets(D).map((x) => x.key));
+    assert.deepEqual(Object.keys(table).filter((k) => !used.has(k)), [], "쓰이지 않는 낡은 번역");
+    for (const [k, v] of Object.entries(table)) assert.ok(!/[가-힣]/.test(v.replace(/교차 확인:[^.]*\.?/g, "").replace(/\([^)]*(UTC|KST)\)\s*$/, "")), "영문 몸말에 한글: " + k);
+  } finally {
+    setEnTable({});
+  }
+});
+
+t("영문 행: 번역된 비고는 한글 없이 나온다(lang=ko 밖의 한글 0)", () => {
+  const key = "C9 3년 만에 이탈, SEN 합류 보도. 계약은 C9 2028까지. 공식 발표 전 (Sheep 10/24 16:30 UTC)";
+  setEnTable(JSON.parse(fs.readFileSync(new URL("../data/i18n-en.json", import.meta.url), "utf8")));
+  setLang("en");
+  try {
+    const html = rowHTML({ region: "Americas", team: "Cloud9", name: "OXY", sub: "Duelist", status: "계약 완료(Sentinels)", date: T - 1, conf: "R", note: key, src: ["Sheep Esports", null], pid: "oxy", tid: "cloud9" }, { mode: "entry", teamObj: {}, shared: new Map() }, {});
+    assert.ok(html.includes("Left C9 after 3 years"), "번역 문장이 나와야 한다");
+    const outside = html.replace(/<span lang="ko"[^>]*>[^<]*<\/span>/g, "").replace(/<[^>]+>/g, "");
+    assert.equal(/[가-힣]/.test(outside), false, "lang=ko 밖의 한글: " + outside);
+  } finally {
+    setLang("ko");
+    setEnTable({});
   }
 });
 
