@@ -650,6 +650,16 @@ Liquipedia | 8 | 6 | 14
 - PR 제목: 머리말: EN/KR 오른쪽 정렬, 후원 메뉴 간격 (병합하지 않음)
 - 병합 시각: 예약 작업 실행 시각(08:50·09:35, 11/16까지 14:50·15:35·20:50·21:35 KST) 앞뒤 30분을 피한다.
 
+## 18회차 영문 링크 미리보기 이미지 (og-en.png)
+- 브랜치 feature/og-en (origin/main `63fc6b4` 기준). 이 PR 은 병합하지 않는다.
+- 원인: 영문 페이지의 og 태그는 영문인데 `og:image` 가 한국어 `og.png` 를 가리켜, 영문 링크 공유 시 한국어 그림이 나왔다.
+- 변경: `og-en.png`(1200×630, 44KB) 새로 만듦. `toLang(en)` 이 `og:image` 를 `og-en.png` 로 바꾼다. 빌드가 `og-en.png` 를 출력 루트에 복사한다. 한국어 페이지는 그대로 `og.png`.
+- 그림: `og.png` 와 같은 배치·색(#F6F8F5 바탕, 진한 초록 글자, 알약 주황·초록·회색). 글자는 제목 `VALORANT VCT / Player Moves`, 설명 `Players and coaches looking for a new team, and confirmed moves, by region.`, 알약 `Looking for team` / `Joined new team` / `Left team`.
+- 제작: 임시 HTML 을 Playwright(chromium)로 1200×630 캡처. 글꼴은 Segoe UI 굵게(Windows 기본). 저장소에 글꼴을 넣지 않았다.
+- 차이: 사전 `meta.ogDesc` 는 "…Updated daily with source links." 까지 긴 문장이다. 그림 안 설명은 지시문 표의 짧은 문장을 썼다.
+- 시험: 116 통과. 영문 `og:image` 는 `og-en.png`, 한국어 `og.png`, `og-en.png` 1200×630 PNG·44KB 이하(시험 확인). validate 오류 0.
+- 배포 뒤: 카카오·X·Slack 은 이미지를 캐시한다. 새 이미지가 안 보이면 각 서비스의 링크 미리보기 도구로 `https://4nhackle.github.io/VCT-board/en/` 를 다시 읽힌다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
