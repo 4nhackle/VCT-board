@@ -7,8 +7,9 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
+import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
-import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
+import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
@@ -18,6 +19,8 @@ import { collectTargets } from "./i18n-targets.mjs";
 import { KO } from "../js/i18n/ko.js";
 import { EN } from "../js/i18n/en.js";
 import { regionName, tierName } from "../js/model.js";
+import { birthText } from "../js/views/person.js";
+import { gapsOf } from "./gaps.mjs";
 import { tabName } from "../js/views/common.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 import { termEn } from "../js/i18n/glossary.js";
@@ -36,6 +39,62 @@ t("ageOf: 생일 전날·당일·다음날, 연도만, 형식 오류", () => {
   assert.deepEqual(ageOf("2001", T), { age: 25, approx: true });
   assert.equal(ageOf("", T), null);
   assert.equal(ageOf("2001-1-5", T), null);
+});
+
+t("buildTabs: 목록 행의 포지션·국적·역할을 인물 정보로 채운다(행 값 우선, '-' 는 빈 칸)", () => {
+  const D = {
+    sources: {}, schedule: [], teams: [], watch: [], transfers: { players: [], coaches: [] },
+    people: [{ id: "a-one", name: "A One", role: "Duelist", nationality: "South Korea" }, { id: "b-two", name: "B Two", role: "Head Coach", nationality: "Japan" }],
+    players: [{ name: "A One", team: "T", position: "-", nationality: "" }, { name: "A One", team: "T", position: "Initiator", nationality: "Japan" }, { name: "Z Nobody", team: "T", position: "", nationality: "" }],
+    coaches: [{ name: "B Two", team: "T", role: "" }]
+  };
+  const tabs = buildTabs(D);
+  const players = tabs.find((x) => x.id === "players").groups[0].items;
+  const coaches = tabs.find((x) => x.id === "coaches").groups[0].items;
+  assert.equal(players[0].sub, "Duelist, South Korea");
+  assert.equal(players[1].sub, "Initiator, Japan"); // 행 값이 있으면 인물 정보로 덮지 않는다
+  assert.equal(players[2].sub, ""); // 인물 정보가 없으면 빈 칸
+  assert.equal(coaches[0].sub, "Head Coach");
+  assert.equal(D.players[0].position, "-", "원본 행은 바뀌지 않는다");
+});
+
+t("birthText: 날짜·연도만·미성년 경계(만 18세 생일 어제·당일·내일), 빈 값, 영문 표기", () => {
+  setLang("ko");
+  assert.equal(birthText("2002-05-21", T), "2002-05-21 (24세)");
+  assert.equal(birthText("2002", T), "2002년 (약 24세)");
+  assert.equal(birthText("2008-10-31", T), "2008-10-31 (18세)"); // 만 18세 생일 당일: 날짜 공개
+  assert.equal(birthText("2008-10-30", T), "2008-10-30 (18세)"); // 어제가 생일: 날짜 공개
+  assert.equal(birthText("2008-11-01", T), "2008년 (17세)"); // 내일이 생일: 미성년, 연도만
+  assert.equal(birthText("2009", T), "2009년 (약 17세)");
+  assert.equal(birthText("", T), "");
+  assert.equal(birthText(undefined, T), "");
+  setLang("en");
+  assert.equal(birthText("2002-05-21", T), "May 21, 2002 (age 24)");
+  assert.equal(birthText("2002", T), "2002 (about 24)");
+  assert.equal(birthText("2008-11-01", T), "2008 (age 17)");
+  setLang("ko");
+});
+
+t("gapsOf: 빈 칸·'-'·빈 경력·계약 숫자 아님은 빈 항목, 값이 있으면 없다", () => {
+  assert.deepEqual(gapsOf({ name: "x", birth: "-", role: "-", nationality: "", realName: "-", career: [], links: { vlr: "-" }, contractUntil: "2026" }),
+    ["birth", "role", "nationality", "realName", "career", "vlr", "liquipedia", "contract"]);
+  assert.deepEqual(gapsOf({ birth: "2001", role: "Duelist", nationality: "Japan", realName: "A", career: [{ team: "t", from: "2024-01", to: null }], links: { vlr: "https://v", liquipedia: "https://l" }, contractUntil: 46326 }), []);
+});
+
+t("gaps.mjs: --json 은 빈 항목 많은 순 배열, 표는 항목 여덟 줄", () => {
+  const GAPS = fileURLToPath(new URL("./gaps.mjs", import.meta.url));
+  const j = spawnSync(process.execPath, [GAPS, "--json"], { encoding: "utf8" });
+  assert.equal(j.status, 0, j.stderr);
+  const rows = JSON.parse(j.stdout);
+  assert.ok(Array.isArray(rows) && rows.length > 0);
+  for (const r of rows) assert.deepEqual(Object.keys(r), ["id", "name", "kind", "team", "missing", "vlr", "liquipedia"]);
+  for (let i = 1; i < rows.length; i++) assert.ok(rows[i - 1].missing.length >= rows[i].missing.length, "정렬 순서");
+  const table = spawnSync(process.execPath, [GAPS], { encoding: "utf8" });
+  assert.equal(table.status, 0, table.stderr);
+  assert.equal(table.stdout.trim().split("\n").length, 10); // 요약 줄 + 머리 줄 + 항목 여덟 줄
+  const v = spawnSync(process.execPath, [fileURLToPath(new URL("./validate.mjs", import.meta.url))], { encoding: "utf8" });
+  assert.equal(v.status, 0, v.stderr);
+  assert.match(v.stdout, /정보 빈 칸: 생년월일 \d+, 포지션 \d+, 국적 \d+, 계약 \d+/);
 });
 
 t("contractState: 어제·오늘·내일·미공개", () => {
@@ -132,10 +191,12 @@ t("teamMoves: 이름이 constructor·toString 인 인물도 들어온·나간 �
 
 const VALIDATE = fileURLToPath(new URL("./validate.mjs", import.meta.url));
 const FIX = fileURLToPath(new URL("./fixtures", import.meta.url));
+// 견본 데이터(fixtures/styleguide)는 폴더라서 빼고, 시험 데이터 파일만 복사한다.
+const fixFiles = () => fs.readdirSync(FIX).filter((f) => fs.statSync(path.join(FIX, f)).isFile());
 const tmp = (name) => fs.mkdtempSync(path.join(os.tmpdir(), "vct-test-" + name + "-"));
 t("validate: career 의 to 가 from 보다 앞서면 오류 종료 1(이전 검토 요청 3)", () => {
   const dir = tmp("career");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const people = JSON.parse(fs.readFileSync(path.join(dir, "people.json"), "utf8"));
   people[0].career[0] = { team: "fx-alpha", from: "2026-10", to: "2025-01" };
   fs.writeFileSync(path.join(dir, "people.json"), JSON.stringify(people));
@@ -146,7 +207,7 @@ t("validate: career 의 to 가 from 보다 앞서면 오류 종료 1(이전 검�
 });
 t("validate: 정상 경력(시작과 끝이 같은 달 포함)은 통과", () => {
   const dir = tmp("ok");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const people = JSON.parse(fs.readFileSync(path.join(dir, "people.json"), "utf8"));
   people[0].career[0] = { team: "fx-alpha", from: "2026-10", to: "2026-10" };
   fs.writeFileSync(path.join(dir, "people.json"), JSON.stringify(people));
@@ -523,8 +584,9 @@ t("tIn: 키가 없으면 키 자체, 언어 사전에 없으면 ko 값, {이름}
 
 t("ko 출력 고정: 인원·나이·D-day·상대 날짜·날짜·시각 (지금 그대로)", () => {
   assert.equal(tIn("ko", "count.people", { n: 3 }), "3명");
-  assert.equal(tIn("ko", "age.approx", { n: 24 }), "약 24세");
-  assert.equal(tIn("ko", "age.exact", { n: 24 }), "24세");
+  assert.equal(tIn("ko", "birth.year", { y: "2002", n: 24 }), "2002년 (약 24세)");
+  assert.equal(tIn("ko", "birth.full", { d: "2002-05-21", n: 24 }), "2002-05-21 (24세)");
+  assert.equal(tIn("ko", "birth.minor", { y: "2009", n: 17 }), "2009년 (17세)");
   assert.equal(tIn("ko", "contract.dday", { n: 3 }), "D-3");
   assert.equal(tIn("ko", "date.ago", { n: 2 }), "2일 전");
   assert.equal(fmtDate(serialOf(2026, 10, 25), "ko"), "10/25");
@@ -749,7 +811,7 @@ t("영문 안내: 약관·개인정보 영문 요약은 한글이 lang=ko 안에
 
 t("이적 빈 도착 팀: validate 오류, 잔류의 빈 도착은 통과, pillOf 는 '새 팀 합류'(앞 공백 없음)", () => {
   const dir = tmp("blankto");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "transfers.json");
   const tr = JSON.parse(fs.readFileSync(file, "utf8"));
   tr.players[0].to = "";
@@ -775,7 +837,7 @@ t("parseStamp: 없는 날짜(2/30, 4/31)는 null, 2/29·12/31 은 통과, 13/1 �
 
 t("validate: 비고의 없는 날짜(2/30)는 '없는 날짜' 경고", () => {
   const dir = tmp("baddate");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "players.json");
   const rows = JSON.parse(fs.readFileSync(file, "utf8"));
   rows[0].note = "테스트 (Sheep 2/30 12:00 UTC)";
@@ -841,7 +903,7 @@ t("영문 후원: 카카오페이 링크는 영문 머리·푸터·약관·개�
 
 t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
   const dir = tmp("fromdash");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "transfers.json");
   const tr = JSON.parse(fs.readFileSync(file, "utf8"));
   tr.players[0].from = "-";
@@ -870,7 +932,7 @@ t("pillOf: 도착 팀이 공백(' ')이면 '새 팀 합류'", () => {
 
 t("이적 빈 도착 팀(코치 쪽): validate 오류", () => {
   const dir = tmp("blankto-coach");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "transfers.json");
   const tr = JSON.parse(fs.readFileSync(file, "utf8"));
   tr.coaches = [{ ...tr.players[0], name: "코치테스트", to: "" }];
@@ -890,7 +952,7 @@ t("빈 칸 일괄: 국적 ' ' 인 행의 메타에 ' · ' 가 남지 않고, 이
 
 t("validate: 인물 국적 ' ' 은 빈 칸 경고", () => {
   const dir = tmp("nat-blank");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "people.json");
   const rows = JSON.parse(fs.readFileSync(file, "utf8"));
   rows[0].nationality = " ";
@@ -903,7 +965,7 @@ t("validate: 인물 국적 ' ' 은 빈 칸 경고", () => {
 
 t("validate: 날짜 칸과 맞지 않는 비고 시각은 '날짜 칸과 맞지 않거나 그 해에 없는 날짜' 경고", () => {
   const dir = tmp("stamp-mismatch");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "players.json");
   const rows = JSON.parse(fs.readFileSync(file, "utf8"));
   rows[0].note = "테스트 (Sheep 10/24 16:30 UTC)";
@@ -912,6 +974,37 @@ t("validate: 날짜 칸과 맞지 않는 비고 시각은 '날짜 칸과 맞지 
   const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
   assert.match(r.stderr, /보도 시각 10\/24 가 날짜 칸과 맞지 않거나 그 해에 없는 날짜입니다/);
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("css-check: css/style.css 가 네 가지 점검(중복·날것의 값·대비·터치)을 통과한다", () => {
+  const f = checkCss(fs.readFileSync(fileURLToPath(new URL("../css/style.css", import.meta.url)), "utf8"));
+  assert.deepEqual(f, []);
+});
+
+t("css-check: 나쁜 예는 걸린다(중복 선택자, 날것의 색·px, 기본값 토큰, 낮은 대비, 작은 터치)", () => {
+  const bad = (css) => checkCss(css).join("\n");
+  assert.match(bad(".a{color:#fff} .a{margin:0}"), /중복 선택자: "\.a"/);
+  assert.match(bad(".b{color:#fff}"), /날것의 색/);
+  assert.match(bad(".b{gap:6px}"), /날것의 px/);
+  assert.match(bad(".b{padding:var(--sp-2)}"), /기본값 토큰/);
+  assert.match(bad(":root{--neutral-900:#FFFFFF;--neutral-50:#F7F6F2;--color-ink:var(--neutral-900);--color-bg:var(--neutral-50);--surface:var(--neutral-50);--color-mute:var(--neutral-50);--color-line-strong:var(--neutral-50);--color-accent:var(--neutral-50);--color-on-accent:var(--neutral-50);--status-open-bg:var(--neutral-50);--status-open-fg:var(--neutral-50)} @media (max-width: 600px){:root{--tap:30px}}"), /대비 부족|터치 크기/);
+  // 테두리 두께 1~3px 과 컴포넌트 토큰 선언은 허용한다
+  assert.deepEqual(checkCss(".c{border:2px solid var(--color-line); --gap-x: 6px; text-underline-offset: var(--link-underline-offset)} :root{--link-underline-offset:3px}").filter((x) => !/대비|터치/.test(x)), []);
+});
+
+t("견본 데이터: scripts/fixtures/styleguide/extra.json 은 시험 데이터의 모양을 따른다", () => {
+  const x = JSON.parse(fs.readFileSync(fileURLToPath(new URL("./fixtures/styleguide/extra.json", import.meta.url)), "utf8"));
+  for (const k of ["players", "coaches", "transfers", "watch"]) assert.ok(Array.isArray(x[k]) && x[k].length > 0, k);
+  assert.ok(x.players.some((p) => p.team === ""), "빈 팀 칸");
+  assert.ok(x.players.some((p) => /[가-힣]/.test(p.team)), "한글 팀 칸");
+});
+
+t("build: 배포 출력에 dev/ 가 없다", () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "vct-dev-out-"));
+  const r = spawnSync(process.execPath, [fileURLToPath(new URL("./build.mjs", import.meta.url)), out], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(fs.existsSync(path.join(out, "dev")), false);
+  fs.rmSync(out, { recursive: true, force: true });
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);

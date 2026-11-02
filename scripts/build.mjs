@@ -97,6 +97,8 @@ const urlOf = (rel) => SITE_ORIGIN + SITE_PATH + rel;
 try { prepareOut(OUT, ROOT, { allowSite: true }); } catch (e) { console.error(e.message); process.exit(2); }
 for (const d of ["css", "js", "data"]) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
 fs.copyFileSync(path.join(ROOT, "og.png"), path.join(OUT, "og.png"));
+// 구글 서치 콘솔 소유권 확인 파일(루트에 그대로 둔다)
+for (const f of fs.readdirSync(ROOT)) if (/^google[0-9a-f]+\.html$/.test(f)) fs.copyFileSync(path.join(ROOT, f), path.join(OUT, f));
 
 // 목록: 한국어는 index.html 에 짝 주소 세 줄만 더하고, 영문은 toLang 으로 만든 en/index.html 이다.
 const indexAlt = { ko: urlOf(""), en: urlOf("en/") };
