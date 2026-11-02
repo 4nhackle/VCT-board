@@ -167,7 +167,7 @@ export var KO = {
   "lede.time": "{time} 기준입니다.",
   "tabs.label": "보기 선택",
   "lang.label": "Language / 언어",
-  "support.label": "카페인이 필요해요",
+  "support.label": "개발자 커피 사주기",
   "support.kofi.label": "Ko-fi로 후원",
   "support.kakao.label": "카카오페이로 송금해 후원",
   "support.kakao": "카카오페이 송금",
