@@ -371,6 +371,71 @@ node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
   - 12회차: 비고·상황·일정 제목의 영문(`*_en` 필드), 약관·개인정보 영문 요약, 건의 폼 안내 문단.
 - 검증 스크립트는 저장소에 넣지 않았다(작업 폴더의 scratchpad). 필요하면 별도 회차에서 `scripts/` 에 넣는다.
 
+## 12회차 영문판 3: 본문 번역 표, 머리말·지역 머리 정리, 영문 안내 페이지 (2026-11-02)
+- 브랜치 feature/i18n-3 (origin/main `f9be42f` 기준). 커밋은 A-1~A-5, B-1, B-2·B-3, C-2 로 나눴다. C-1 은 바꿀 것이 없었다.
+- 배포 전 상태(09:50 실측): 영문 목록 탭 KR 표시 253개, 본문 대부분이 한국어 원문.
+
+### A. 본문 번역 표 (5단계)
+- `data/i18n-en.json`: 원문 글자가 키, 영문이 값, 키 정렬. 대상은 비고(조각마다), 지켜볼 팀 상황(몸말), 일정 제목·날짜(글)·출처, 출처 이름, 용어집이 못 옮기는 팀 칸. 상태·구분·역할·대상은 용어집이 맡는다.
+- 번역 규칙: 사실만 짧게. 끝의 출처 시각 괄호와 "교차 확인:" 구절은 글자 그대로 붙인다("교차 확인:"도 번역하지 않는다). 날짜 숫자 표기는 그대로.
+- 건너뜀 9건: 원문 데이터가 중간에 끊긴 문장 8건(예: "...'성사된 이적", "Joblif")과 교차 확인만 있는 문장 1건. 확신이 없어 KR 로 남겼다.
+- 검사(`js/i18n.js` `trEn`): 같은 출처 시각, 같은 교차 확인 목록, 몸말에 한글 없음, 원문 숫자 묶음이 모두 영문에 있음. 하나라도 어긋나면 원문 + KR.
+- 화면: 영문 화면에서만 `data/i18n-en.json` 을 받는다(실패하면 빈 표). 비고는 `noteText`(조각마다), 상황은 몸말, 일정·출처·팀 칸은 `trWhole`.
+- 검증: `scripts/validate.mjs` 경고(형식, 영문 한글, 검사 실패, 번역 누락 요약 + 처음 10건, 낡은 번역). `scripts/i18n-report.mjs` 현황표.
+- 현황표(i18n-report): 원문 214, 번역 205, 누락 9(건너뜀 9건과 같다).
+- 표본 20건(고정 간격 추출, 긴 글은 줄임):
+
+| # | 원문 | 영문 |
+|---|---|---|
+| 1 | 1부→비1부 이적(기준 변경으로 백필). 2026 Fnatic 소속 … | Tier 1 to non-Tier 1 transfer (backfilled after a criteria change). 2026 Fnatic member … |
+| 2 | 2025년 합류 | Joined in 2025. |
+| 3 | 2년 연속 계약 만료 | Contract expired 2 years in a row. |
+| 4 | Barça 2027 합류 보도(Sheep), 공식 발표 전 (갱신 10/31 23:58 UTC, 보도 시각 미확인) | Reported 2027 join with Barça (Sheep); not yet official (updated 10/31 23:58 UTC, report time unconfirmed). |
+| 5 | Champions 직전 GSR에 밀림. 계약은 2027까지. Barça 이적설(Sheep) — 이미 LFT가 아닐 수 있음 | Lost to GSR before Champions. Contract through 2027. Barça transfer rumor (Sheep); may already no longer be LFT. |
+| 6 | EG는 11/2 운영 종료. 이미 타팀과 대화 가능 | EG ceased operations on 11/2. Already able to talk with other teams. |
+| 7 | FURIA는 10/30 공식 발표로 발로란트 믹스 철수(전 선수·코치 11/2 FA, LFT 탭 반영). M80·FlyQuest 존속 여부 미정 | FURIA officially announced its Valorant mix exit on 10/30 (all players and coaches FA on 11/2; reflected on LFT tab). M80 and FlyQuest future undecided. |
+| 8 | GIANTX는 비파트너로 탈락. 제목만 확인 | GIANTX eliminated as non-partner. Title only verified. |
+| 9 | Global 철수로 방출 후 PRX 복귀(2025 PRX 출신) 보도. 교차 확인: Sheep, VLR. 공식 발표 전 (Sheep 10/29 09:46 UTC) | Released after Global's withdrawal; reported return to PRX (former PRX player from 2025). Not yet official. 교차 확인: Sheep, VLR. (Sheep 10/29 09:46 UTC) |
+| 10 | Liquipedia 이적 로그 10/26 단독 등재(퍼포먼스 코치, 비활성 처리). 팀·본인 발표 미확인 | Liquipedia transfer log lists him alone on 10/26 (performance coach, marked inactive). Team and player announcement not confirmed. |
+| 11 | NAVI 방출 후 Heretics 합류 보도, 공식 발표 전 (갱신 10/31 23:58 UTC, 보도 시각 미확인) | Released by NAVI; reported to join Heretics, not yet official (updated 10/31 23:58 UTC, report time unconfirmed). |
+| 12 | Sentinels 공식 X 방출 발표(VLR·Strafe 원문 확인). 2026.3 G2에서 합류, 8개월 만에 이탈. 교차 확인: VLR, Strafe, Liquipedia 이적 로그(10/30) (Sentinels X 10/31 00:15 UTC) | Sentinels official X released him (VLR and Strafe source checked). Joined from G2 in 2026.3; left after 8 months. 교차 확인: VLR, Strafe, Liquipedia 이적 로그(10/30) (Sentinels X 10/31 00:15 UTC) |
+| 13 | VLR 이적 로그 10/19 이탈(M80 존속 불투명). ShwN이 GoodGoodGame_ 보도를 인용 … | VLR transfer log: left 10/19 (M80 future unclear). ShwN, quoting GoodGoodGame_: VCT CN Bilibili Gaming join imminent … |
+| 14 | VLR 이적 로그 10/22 이탈 등재(Sheep 10/21 보도). 진로 미정 | Listed as left in the VLR transfer log on 10/22 (Sheep report 10/21). Next team undecided. |
+| 15 | XLG 3시즌 만에 | Left XLG after 3 seasons. |
+| 16 | 계약 2026 만료(Sheep 보도). STYRON은 LFT 시트에 반영 | Contract expired in 2026 (Sheep report). STYRON reflected on the LFT sheet. |
+| 17 | 본인 X 게시로 FA 선언. 2025.12 ZETA 복귀 | Player's own X post announces FA. Rejoined ZETA in 2025.12. |
+| 18 | 본인 X 발표(VLR 10/27 원문 확인): DRG와 VCT CN 2027 재계약 협의 중이나 제한적 F/A로 타 옵션 탐색 허가 … | Player's own X statement (VLR 10/27, source checked): in talks with DRG and VCT CN for a 2027 re-sign … |
+| 19 | 본인 공식 발표를 VALO2ASIA가 전함(X 원문 확인). Paper Rex 6년 후 2026년 Weibo Gaming 단기 소속 … | Official announcement by the player, relayed by VALO2ASIA (checked on X). Six years after Paper Rex … |
+| 20 | 탐색 허가 후 잔류. 공식 발표 전 (Sheep 10/23 17:35 UTC) | Free to explore, then stayed. Not yet official. (Sheep 10/23 17:35 UTC) |
+
+### B. 화면 정리
+- B-1: 영문 지역 머리의 "Americas Americas" 중복 제거. 영문 이름과 원문이 같으면 `.en` 칸을 만들지 않는다. 한국어 머리는 그대로.
+- B-2: 머리말 배치(두 언어 공통). 601px 이상: 왼쪽 제목·문장, 오른쪽 칸 위 EN/KR, 아래 후원 메뉴(둘 다 오른쪽 정렬). 600px 이하: 제목·문장, 그 아래 후원 메뉴(왼쪽)·EN/KR(오른쪽), 좁으면 줄을 바꾼다. 마크업은 `<div class="top-side">` 한 겹.
+  - 측정 48건(375·600·601·768·1280·1920 × 라이트·다크 × 100·200%. 200%는 레이아웃 폭을 절반으로 흉내): 링크 4개 모두 보임, 겹침 없음, 601px 이상 오른쪽 끝 = 본문 오른쪽 끝, 600px 이하 후원 메뉴 왼쪽 끝 = 제목 왼쪽 끝. 모두 맞다.
+  - 예외: 200%(187px)에서 탭·칩 줄이 5–6px 가로로 넘친다. 같은 줄이 main 에서도 그대로 넘치므로 이번 작업 전부터 있던 것이다(탭·칩 스크롤 줄 안).
+  - 375px 에서 후원 메뉴가 한 줄을 다 차지하면 EN/KR 은 다음 줄 오른쪽에 놓인다(`margin-left: auto`).
+- B-3: css 의 `.lang-switch`·`.kr-tag` 규칙이 두 번 있던 것을 한 번으로 합쳤다. 남은 중복 선택자는 `:root`(라이트·다크 테마 블록, 의도)뿐이다.
+
+### C. 영문 안내 페이지 (6단계)
+- C-1 건의 폼: 안내 문단·라벨·버튼·메일 머리가 모두 사전 문구다(영문 화면 #suggest 한글 0). 바꾼 것 없음.
+- C-2 약관·개인정보 영문 요약: `en/terms/index.html`, `en/privacy/index.html`(정적 파일). 맨 위에 "This is a summary. The Korean original prevails." 와 원문 링크. 한국어 라벨은 `lang="ko"` 안에 둔다. 한국어 원문의 항목 순서를 따르고, 원문에 없는 약속은 넣지 않았다.
+  - 빌드가 두 언어 파일을 모두 쓰고, 두 페이지에 hreflang 세 줄을 넣고, sitemap 에 한·영 주소를 넣는다. 영문 푸터는 영문 요약으로 연결하고 "(Korean)" 표시를 지웠다.
+- 후원(영문 화면의 카카오페이): 이번에는 그대로 두었다. **사용자 결정**. 선택지: (1) 그대로, (2) 영문 화면에서만 숨기고 Ko-fi 만 남김, (3) 영문 화면 안내에 "국내 송금"임을 밝힘.
+
+### 확인 (직접 실행)
+- `node scripts/test.mjs` 90개 통과. 12회차 새 시험 5개: trEn 검사 종류, 번역 표가 한국어 화면에서 쓰이지 않음과 조각 번역, 표 파일 검사(검사 통과·쓰이지 않는 키·영문 한글), 영문 행의 번역 한글 0, 약관·개인정보 영문 요약.
+- `node scripts/validate.mjs` 오류 0, 경고 481(11회차 471 + 번역 누락 요약 10건: 건너뜀 9건과 요약 1줄).
+- `node scripts/build.mjs _site` 인물 139쪽, 팀 334쪽(각각 한·영), sitemap 952개(11회차 950 + 약관·개인정보 영문 2개).
+- 영문 KR 표시 수(목록 탭 합계, 기준 = main): 253 → 45. #players 131 → 25, #coaches 33 → 4, #korea 19 → 0, #watch 19 → 2, #transfers 40 → 14, #schedule 11 → 0, 인물 2 → 0, 팀 4 → 0.
+  - 남은 KR 45개는 번역이 없는 9건과, 교차 확인 이름·출처 이름처럼 시각 괄호와 함께 원문 그대로 두기로 한 글이 주다.
+- 영문 화면 한글 0: 목록 7탭·인물·팀·없는 주소 × 375·1280 × 라이트·다크 40화면에서 `lang="ko"` 밖의 한글 0, 사이트 안 링크는 `/VCT-board/en/` 시작(예외 제외 0). 콘솔 오류 0(없는 주소의 404 문서 제외).
+- 한국어 화면 불변: 목록 7탭·인물·팀 × 375·1280 × 라이트·다크(같은 조건 16화면): `#view` 16/16 같음. 머리말은 B-2 의 래퍼 `<div class="top-side">` 한 겹만 다르다(의도). 한국어 화면은 `i18n-en.json` 을 요청하지 않는다. 영문 화면은 요청한다.
+- 스크린샷(사람이 보는 자료, 작업 폴더): 머리말 전후(375·1280), 영문 목록 375·1280 다크, 영문 인물, 전환 버튼 확대.
+
+### 남은 일
+- 부록(예약 작업 변경 블록)은 Claude Code 가 적용하지 않는다. 이 PR 병합 뒤에 사용자가 예약 작업 지시문에 넣는다.
+- 교차 확인 이름과 출처 이름의 한글(예: "VLR 기사 인용 선수 본인 X", "VLR 이적 로그")은 원문 그대로 KR 로 보인다. 번역하려면 목록 일치 검사를 바꿔야 해서 두었다.
+- 건너뜀 9건은 원문을 먼저 고쳐야 번역할 수 있다(데이터 자체가 잘림).
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
