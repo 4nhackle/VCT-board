@@ -45,7 +45,7 @@ export function toLang(html, lang) {
 }
 
 // 짝 주소 세 줄. 한국어·영문 페이지 모두 같은 세 줄을 갖는다. x-default 는 한국어 주소.
-export function alternateTags(alt) {
+function alternateTags(alt) {
   return `<link rel="alternate" hreflang="ko" href="${esc(alt.ko)}">\n` +
     `<link rel="alternate" hreflang="en" href="${esc(alt.en)}">\n` +
     `<link rel="alternate" hreflang="x-default" href="${esc(alt.ko)}">\n`;

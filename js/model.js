@@ -24,7 +24,7 @@ export function slugOf(s) {
 }
 
 // 객체에서 자기 속성만 읽는다. 데이터 값이 constructor 같은 이름이어도 상속 속성을 돌려주지 않는다.
-export function own(obj, key) {
+function own(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : undefined;
 }
 
@@ -304,7 +304,7 @@ export function routeOf(it, teams) {
 
 // 지켜볼 팀 상황 글의 종류. 위에서부터 처음 맞는 하나. 맞는 것이 없으면 종류 없음.
 // 데이터 판정용 정규식(한국어 상태 글). 번역하지 않는다. 두 번째 칸은 사전 키다.
-export var WATCH_KINDS = [
+var WATCH_KINDS = [
   ["withdraw", "watch.withdraw", /철수|해체/],
   ["dropped", "watch.dropped", /파트너십 탈락/],
   ["expiring", "watch.expiring", /계약\s.*만료/],

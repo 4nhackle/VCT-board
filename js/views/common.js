@@ -29,7 +29,7 @@ export function nameHTML(text) {
 }
 
 // 인물 이름 링크. pid 가 없으면 링크 없이 html 만 둔다. html 은 이미 이스케이프된 글이다.
-export function nameLink(pid, html) {
+function nameLink(pid, html) {
   return pid ? '<a href="' + esc(personUrl(pid)) + '">' + html + "</a>" : html;
 }
 

@@ -3,7 +3,7 @@ import { t, trWhole } from "../i18n.js";
 
 // 일정 칸의 날짜(일련번호나 "11/5–11/8", "2027-01-14 ~ 02-07" 같은 글)에서 시작일과 끝일을 뽑는다.
 // 연도가 없으면 기준일(today, 기본 TODAY)에 가장 가까운 해로 본다. 시험할 때 기준일을 넣는다.
-export function spanOf(v, today) {
+function spanOf(v, today) {
   var t = today == null ? TODAY : today;
   if (typeof v === "number") return [v, v];
   var re = /(?:(\d{4})-)?(\d{1,2})[\/-](\d{1,2})/g, m, y = null, out = [];
