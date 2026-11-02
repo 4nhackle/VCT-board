@@ -5,6 +5,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
@@ -781,6 +782,24 @@ t("validate: 비고의 없는 날짜(2/30)는 '없는 날짜' 경고", () => {
   const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
   assert.match(r.stderr, /보도 시각 2\/30 는 없는 날짜입니다/);
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("언어 이동 스크립트(index.html 인라인): 저장값·주소별 이동, ?stay·영문 주소 그대로, 저장소 예외는 아무것도 안 함", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const code = /<head><script>([\s\S]*?)<\/script>/.exec(html)[1];
+  const run = (stored, pathname, search = "", hash = "") => {
+    const calls = [];
+    const storage = { getItem: () => { if (stored === "THROW") throw new Error("denied"); return stored; } };
+    vm.runInNewContext(code, { location: { pathname, search, hash, replace: (u) => calls.push(u) }, localStorage: storage });
+    return calls;
+  };
+  assert.deepEqual(run(null, "/VCT-board/"), []);
+  assert.deepEqual(run("en", "/VCT-board/", "", "#coaches"), ["/VCT-board/en/#coaches"]);
+  assert.deepEqual(run("en", "/VCT-board/p/oxy/"), ["/VCT-board/en/p/oxy/"]);
+  assert.deepEqual(run("ko", "/VCT-board/en/t/cloud9/"), ["/VCT-board/t/cloud9/"]);
+  assert.deepEqual(run("en", "/VCT-board/", "?stay"), []);
+  assert.deepEqual(run("en", "/VCT-board/en/"), []);
+  assert.deepEqual(run("THROW", "/VCT-board/p/oxy/"), []);
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
