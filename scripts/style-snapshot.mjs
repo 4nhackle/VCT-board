@@ -17,9 +17,9 @@ const BEFORE = cmpAt >= 0 ? args[cmpAt + 1] : null;
 if (!OUT) { console.error("사용법: node scripts/style-snapshot.mjs out.json [--compare before.json]"); process.exit(2); }
 
 // 요소와 속성. 요소마다 앞에서 몇 개만 잰다(목록은 길다).
-const SELECTORS = [".rh h2", ".th", ".name", ".row", ".chip", ".pill", ".tab", ".search", ".lang-switch a", ".support-menu a", ".dock", ".dp-head", ".dp-info dd", ".kr-tag"];
+const SELECTORS = [".rh h2", ".th", ".name", ".row", ".chip", ".pill", ".tab", ".search", ".top-side", ".lang-switch", ".lang-switch a", ".support-menu a", ".dock", ".dp-head", ".dp-info dd", ".kr-tag"];
 const PER_SELECTOR = 6;
-const PROPS = ["font-size", "font-weight", "line-height", "color", "background-color", "border-top-width", "border-top-color", "border-bottom-width", "border-bottom-color", "border-left-width", "border-left-color", "padding-top", "padding-right", "padding-bottom", "padding-left", "margin-top", "margin-bottom", "gap", "border-radius", "min-height"];
+const PROPS = ["font-size", "font-weight", "line-height", "color", "background-color", "border-top-width", "border-top-color", "border-bottom-width", "border-bottom-color", "border-left-width", "border-left-color", "padding-top", "padding-right", "padding-bottom", "padding-left", "margin-top", "margin-bottom", "gap", "border-radius", "min-height", "align-self"];
 
 // 화면: 목록 탭, 인물, 팀, 없는 주소. 목록 탭 id 는 main.js 의 data-tab 값이다.
 const TABS = ["players", "coaches", "korea", "transfers", "watch", "schedule", "suggest"];
