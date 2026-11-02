@@ -22,6 +22,9 @@ export function toLang(html, lang) {
   h = setMeta(h, "property", "og:title", T("meta.ogTitle"));
   h = setMeta(h, "property", "og:description", T("meta.ogDesc"));
   h = h.replace('<meta property="og:locale" content="ko_KR">', '<meta property="og:locale" content="en_US">\n<meta property="og:locale:alternate" content="ko_KR">');
+  // 공유 이미지: 영문 페이지는 og-en.png 를 가리킨다(og.png 는 한국어 글자라 영문 링크 미리보기에 맞지 않는다).
+  h = h.replace(/(<meta property="og:image" content="[^"]*\/)og\.png">/, '$1og-en.png">');
+  if (!h.includes('og-en.png">')) throw new Error("index.html 에 og:image(og.png) 가 없습니다");
   // 글자: data-i18n 은 텍스트를, data-i18n-html 은 안의 HTML 을 사전 값으로 바꾼다. 속성 이름은 그대로 둔다.
   h = h.replace(/<(\w+)([^>]*?) data-i18n="([^"]+)"([^>]*)>([^<]*)<\/\1>/g, (m, tag, a, key, b) => `<${tag}${a} data-i18n="${key}"${b}>${esc(T(key))}</${tag}>`);
   h = h.replace(/<(\w+)([^>]*?) data-i18n-html="([^"]+)"([^>]*)>([\s\S]*?)<\/\1>/g, (m, tag, a, key, b) => `<${tag}${a} data-i18n-html="${key}"${b}>${T(key)}</${tag}>`);

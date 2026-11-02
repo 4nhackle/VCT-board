@@ -1008,4 +1008,29 @@ t("build: 배포 출력에 dev/ 가 없다", () => {
   fs.rmSync(out, { recursive: true, force: true });
 });
 
+t("영문 공유 이미지: toLang 은 og:image 를 og-en.png 로, 한국어 틀은 og.png 로 둔다", () => {
+  const ko = fs.readFileSync(fileURLToPath(new URL("../index.html", import.meta.url)), "utf8");
+  assert.match(ko, /<meta property="og:image" content="https:\/\/4nhackle\.github\.io\/VCT-board\/og\.png">/);
+  assert.match(toLang(ko, "en"), /<meta property="og:image" content="https:\/\/4nhackle\.github\.io\/VCT-board\/og-en\.png">/);
+  assert.doesNotMatch(toLang(ko, "en"), /og\.png">/);
+});
+
+t("영문 공유 이미지: 빌드 출력에 og-en.png 가 있고 1200x630 PNG, 100KB 이하다", () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "vct-og-"));
+  const r = spawnSync(process.execPath, [fileURLToPath(new URL("./build.mjs", import.meta.url)), out], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  const png = fs.readFileSync(path.join(out, "og-en.png"));
+  assert.equal(png.subarray(1, 4).toString("ascii"), "PNG");
+  assert.equal(png.readUInt32BE(16), 1200, "가로");
+  assert.equal(png.readUInt32BE(20), 630, "세로");
+  assert.ok(png.length <= 100 * 1024, "용량 " + png.length);
+  const en = fs.readFileSync(path.join(out, "en", "index.html"), "utf8");
+  assert.match(en, /og:image" content="[^"]*\/og-en\.png"/);
+  const ko2 = fs.readFileSync(path.join(out, "p", "absol", "index.html"), "utf8");
+  assert.match(ko2, /og:image" content="[^"]*\/og\.png"/);
+  const enP = fs.readFileSync(path.join(out, "en", "p", "absol", "index.html"), "utf8");
+  assert.match(enP, /og:image" content="[^"]*\/og-en\.png"/);
+  fs.rmSync(out, { recursive: true, force: true });
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);
