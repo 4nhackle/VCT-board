@@ -3,6 +3,8 @@
    토큰: 글자(--fs-*), 간격(--sp-*), 모서리(--r-*), 터치(--tap), 색. 아래 규칙은 이 변수만 쓴다. 자세한 이유는 docs/design-brief.md. */
 :root {
   --fs-1: 13px; --fs-2: 14px; --fs-3: 15px; --fs-4: 17px; --fs-5: 22px; --fs-6: 28px;
+  /* 머리 위계: 지역 > 팀 > 선수 이름(--fs-4). 모바일에서는 600px 블록이 두 값을 낮춘다. */
+  --fs-region: var(--fs-5); --fs-team: 19px;
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
   --r-1: 4px; --r-2: 8px; --r-pill: 999px;
   --tap: 36px;
@@ -127,15 +129,17 @@ p.site { font-size: var(--fs-2); font-weight: 700; color: var(--mute); letter-sp
 /* ── 목록 머리: 지역(또는 날짜)은 탭 아래에 붙고, 팀 머리는 인원 수와 함께 항상 같은 모양 */
 .rh { position: sticky; top: var(--tabs-h); z-index: 4; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sp-2); margin: var(--sp-5) 0 0; padding: var(--sp-2) 0; background: var(--bg); border-bottom: 2px solid var(--ink); scroll-margin-top: var(--tabs-h); }
 #view > .rh:first-child, .hint + .rh, .kind + .rh { margin-top: var(--sp-2); }
-.rh h2 { margin: 0; font-size: var(--fs-4); font-weight: 800; }
+.rh h2 { margin: 0; font-size: var(--fs-region); font-weight: 800; }
 .rh .en, .rh .n { color: var(--mute); font-size: var(--fs-1); }
 .rh .n { margin-left: auto; font-variant-numeric: tabular-nums; }
 .kind { margin: var(--sp-6) 0 0; font-size: var(--fs-2); font-weight: 700; letter-spacing: .04em; color: var(--mute); }
 .hint { margin: 0; color: var(--mute); font-size: var(--fs-2); }
-.th { display: flex; align-items: baseline; gap: var(--sp-2); margin: 0; padding: var(--sp-4) 0 var(--sp-1); font-size: var(--fs-2); font-weight: 700; color: var(--mute); letter-spacing: .02em; }
+/* 팀 머리: 지역 머리 아래 첫 팀은 선을 두지 않고, 그 뒤 팀마다 구분선을 긋는다. */
+.th { display: flex; align-items: baseline; gap: var(--sp-2); margin: 0; padding: var(--sp-5) 0 var(--sp-2); border-top: 1px solid var(--line-strong); font-size: var(--fs-team); font-weight: 800; color: var(--ink); letter-spacing: .02em; }
+.rh + .th { padding-top: var(--sp-2); border-top: 0; }
 .th a { color: var(--ink); text-decoration: none; }
-.th a:hover { text-decoration: underline; }
-.th .n { font-weight: 400; font-size: var(--fs-1); font-variant-numeric: tabular-nums; }
+.th a:hover, .th a:focus-visible { text-decoration: underline; }
+.th .n { font-weight: 400; font-size: var(--fs-1); color: var(--mute); font-variant-numeric: tabular-nums; }
 /* 팀 공통 배경: 팀 머리 아래 한 번. 왼쪽 선으로 묶고 본문은 --fs-2 로 줄인다. */
 .tnote { max-width: 72ch; margin: 0 0 var(--sp-2); padding-left: var(--sp-3); border-left: 2px solid var(--line); color: var(--mute); font-size: var(--fs-2); }
 .tnote .detail { margin: 0; font-size: var(--fs-2); line-height: 1.6; }
@@ -317,7 +321,7 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 
 /* ── 모바일 */
 @media (max-width: 600px) {
-  :root { --tap: 44px; }
+  :root { --tap: 44px; --fs-region: 20px; --fs-team: 18px; }
   body { padding-block: var(--sp-3) var(--sp-7); }
   .page { gap: var(--sp-3); }
   .page > *, .filters > *, .bar > * { min-width: 0; }
