@@ -166,7 +166,7 @@ export var EN = {
   "lede.time": "Updated {time} KST.",
   "tabs.label": "Views",
   "lang.label": "Language",
-  "support.label": "Caffeine fund",
+  "support.label": "Buy the developer a coffee",
   "support.kofi.label": "Support on Ko-fi",
   "support.kakao.label": "Support by KakaoPay transfer",
   "support.kakao": "KakaoPay",
