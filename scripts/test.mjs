@@ -816,4 +816,18 @@ t("dateLong: 한국어 'M월 D일 (요일)', 영문 'Mon, Oct 25'", () => {
   assert.equal(dateLong(d, "en"), EN["weekday." + d.getUTCDay()] + ", Oct 26");
 });
 
+t("영문 후원: 카카오페이 링크는 영문 머리·푸터·약관·개인정보에서 빠지고 Ko-fi 는 남는다, 한국어는 그대로", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  const en = toLang(html, "en");
+  assert.equal(en.includes("qr.kakaopay.com"), false, "영문 틀에 카카오페이 링크");
+  assert.ok(en.includes("ko-fi.com/4nhackle"), "Ko-fi 는 남는다");
+  assert.ok(html.includes("qr.kakaopay.com"), "한국어 틀은 그대로");
+  assert.equal(EN["foot.4"].includes("KakaoPay"), false, "영문 푸터 문단");
+  for (const doc of ["terms", "privacy"]) {
+    const page = fs.readFileSync(new URL("../en/" + doc + "/index.html", import.meta.url), "utf8");
+    assert.equal(page.includes("qr.kakaopay.com"), false, doc + " 카카오페이 링크");
+    assert.ok(page.includes("KakaoPay (Korean domestic transfer, Korean page only)"), doc + " 사실 문장");
+  }
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);

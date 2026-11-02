@@ -39,6 +39,8 @@ export function toLang(html, lang) {
   // EN/KR 표시: 현재 언어(EN)에 aria-current 를 붙인다.
   h = h.replace('<a href="./" hreflang="ko" lang="ko" data-lang="ko" aria-current="true">', '<a href="./" hreflang="ko" lang="ko" data-lang="ko">');
   h = h.replace('<a href="en/" hreflang="en" lang="en" data-lang="en">', '<a href="en/" hreflang="en" lang="en" data-lang="en" aria-current="true">');
+  // 카카오페이는 국내 계좌 송금이라 영문 화면에서 숨긴다(Ko-fi 만 남긴다).
+  h = h.replace(/\s*<a href="https:\/\/qr\.kakaopay\.com\/[^"]*"[^>]*>[^<]*<\/a>/, "");
   // KR 안내 한 줄(영문 화면에서만).
   h = h.replace(/(<section class="notes"[\s\S]*?)(<\/ul>)/, `$1<li class="kr-note">${esc(T("note.kr"))}</li>$2`);
   return h;
