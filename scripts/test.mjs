@@ -730,4 +730,19 @@ t("영문 행: 번역된 비고는 한글 없이 나온다(lang=ko 밖의 한글
   }
 });
 
+t("영문 안내: 약관·개인정보 영문 요약은 한글이 lang=ko 안에만 있고 한국어 원문으로 가는 링크가 있다", () => {
+  for (const [doc, orig] of [["terms", "../../terms/"], ["privacy", "../../privacy/"]]) {
+    const html = fs.readFileSync(new URL("../en/" + doc + "/index.html", import.meta.url), "utf8");
+    assert.ok(html.includes('<html lang="en">'), doc + " lang");
+    assert.ok(html.includes('href="' + orig + '"'), doc + " 원문 링크");
+    assert.ok(html.includes("This is a summary. The Korean original prevails."), doc + " 요약 문장");
+    const outside = html.replace(/<span lang="ko">[^<]*<\/span>/g, "").replace(/<[^>]+>/g, "");
+    assert.equal(/[가-힣]/.test(outside), false, doc + " lang=ko 밖의 한글");
+  }
+  const ko = KO, en = EN;
+  assert.equal(en["foot.5"].includes("(Korean)"), false, "영문 푸터에 (Korean) 표시가 남았다");
+  assert.ok(en["foot.5"].includes('href="en/privacy/"') && en["foot.5"].includes('href="en/terms/"'), "영문 푸터 링크는 영문 요약으로");
+  assert.ok(ko["foot.5"].includes('href="privacy/"'), "한국어 푸터는 원문 그대로");
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);

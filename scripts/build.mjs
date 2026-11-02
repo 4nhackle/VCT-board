@@ -93,9 +93,8 @@ const urlOf = (rel) => SITE_ORIGIN + SITE_PATH + rel;
 
 // ── 출력 폴더: 사이트 파일 복사
 try { prepareOut(OUT, ROOT, { allowSite: true }); } catch (e) { console.error(e.message); process.exit(2); }
-for (const d of ["css", "js", "data", "privacy", "terms"]) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
+for (const d of ["css", "js", "data"]) fs.cpSync(path.join(ROOT, d), path.join(OUT, d), { recursive: true });
 fs.copyFileSync(path.join(ROOT, "og.png"), path.join(OUT, "og.png"));
-// 방침·약관 페이지는 한국어뿐이라 짝 주소가 없다(sitemap 에 한 번만 넣는다).
 
 // 목록: 한국어는 index.html 에 짝 주소 세 줄만 더하고, 영문은 toLang 으로 만든 en/index.html 이다.
 const indexAlt = { ko: urlOf(""), en: urlOf("en/") };
@@ -107,7 +106,17 @@ enIndex = setTag(enIndex, /<meta property="og:url" content="[^"]*">/, '<meta pro
 fs.writeFileSync(path.join(OUT, "en", "index.html"), addAlternates(withBase(enIndex), indexAlt));
 
 // ── 인물·팀 페이지: 한국어와 영문을 함께 만든다.
-const entries = [{ loc: indexAlt.ko, alt: indexAlt }, { loc: indexAlt.en, alt: indexAlt }, { loc: urlOf("privacy/") }, { loc: urlOf("terms/") }];
+const entries = [{ loc: indexAlt.ko, alt: indexAlt }, { loc: indexAlt.en, alt: indexAlt }];
+// 약관·개인정보: 한국어 원문과 영문 요약(저장소의 en/ 정적 파일)을 짝으로 낸다.
+for (const doc of ["privacy", "terms"]) {
+  const alt = { ko: urlOf(doc + "/"), en: urlOf("en/" + doc + "/") };
+  for (const lang of ["ko", "en"]) {
+    const src = lang === "ko" ? path.join(ROOT, doc, "index.html") : path.join(ROOT, "en", doc, "index.html");
+    fs.mkdirSync(path.join(OUT, lang === "ko" ? doc : path.join("en", doc)), { recursive: true });
+    fs.writeFileSync(path.join(OUT, lang === "ko" ? doc : path.join("en", doc), "index.html"), addAlternates(fs.readFileSync(src, "utf8"), alt));
+    entries.push({ loc: alt[lang], alt });
+  }
+}
 // rel: {ko, en} 두 주소. name: 이름(언어 공통). descOf(lang): 그 언어의 설명문.
 function writePair(rel, name, descOf) {
   const alt = { ko: urlOf(rel.ko), en: urlOf(rel.en) };
