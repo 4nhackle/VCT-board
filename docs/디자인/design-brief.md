@@ -14,17 +14,48 @@
   - 상세 화면의 모노그램: 이름 첫 두 글자를 CSS로 그린 것.
 - 본문에는 읽히는 문장만 남긴다. 출처·시각·교차 확인 같은 원자료는 그 아래 작은 "출처 줄"로 내린다.
 
-## 토큰(`css/style.css` 의 `:root`)
-| 구분 | 값 |
+## 토큰(`css/style.css`, 3층)
+토큰은 세 층이다. 규칙은 2층과 3층만 쓴다. 1층(`:root`와 다크 블록)의 기본값을 규칙이 직접 쓰면 `scripts/css-check.mjs` 가 실패한다.
+
+**1층 기본값** (`:root`, 다크는 `prefers-color-scheme` 블록과 `data-theme="dark"` 블록이 같은 값을 다시 쓴다)
+| 이름 | 라이트 | 다크 | 용도 |
+|---|---|---|---|
+| `--fs-1`…`--fs-6` | 13·14·15·17·22·28px | 같음 | 글자 크기 단계 |
+| `--fs-team`, `--fs-region`, `--fs-site`, `--fs-hero` | 19, 22(모바일 18, 20), 19, 24 | 같음 | 팀 머리, 지역 머리, 모바일 제목, 모바일 상세 이름 |
+| `--sp-1`…`--sp-7` | 4·8·12·16·24·32·48px | 같음 | 간격 단계 |
+| `--r-1`, `--r-2`, `--r-pill` | 4, 8, 999px | 같음 | 모서리 |
+| `--tap` | 36px(모바일 44px) | 같음 | 터치 높이 |
+| `--neutral-0/50/200/600/900`, `--neutral-float`, `--neutral-mono(-fg)` | 흰색·#F7F6F2·#DEDAD1·#575D66·#16181D… | 1A1E1C·111413·2E3531·A3ABA6·E9ECEA… | 바탕과 글자 원색 |
+| `--green-*`, `--amber-*`, `--slate-*`, `--red-*` | 초록·호박·회색 파랑·붉은색 원색 | 밝은 색으로 바뀐 원색 | 강조와 상태 원색 |
+| `--shadow-float-prim` | `0 2px 8px rgba(22,24,29,.14)` | none | 떠 있는 막대 그림자 |
+
+**2층 의미** (`:root`에서 한 번만 정의한다. 값은 1층을 가리키므로 다크 모드는 1층만 바뀐다)
+| 이름 | 용도 |
 |---|---|
-| 글자 | `--fs-1` 13 · `--fs-2` 14 · `--fs-3` 15(본문) · `--fs-4` 17(이름) · `--fs-5` 22(사이트 제목) · `--fs-6` 28(상세 이름). 모바일 최소 13px |
-| 머리 위계(15회차 U-1) | `--fs-region`(= `--fs-5` 22, 모바일 20) 지역 머리 > `--fs-team`(19, 모바일 18) 팀 머리 > `--fs-4` 17 선수 이름. 지역·팀 머리는 800, 팀 머리 글자는 `--ink` |
-| 간격 | 4px 기반 `--sp-1..7` = 4·8·12·16·24·32·48 |
-| 모서리 | `--r-1` 4(배지·카드) · `--r-2` 8(모노그램) · `--r-pill`(필터 칩·상태 알약) |
-| 터치 | `--tap` 데스크톱 36px, 모바일 44px. 탭·칩·버튼·입력란이 모두 이 높이 |
-| 고정 요소 | `--tab-h` 탭 높이 44 · `--tabs-h` 구역 머리가 붙는 위치(= `--tab-h`) · `--dock-h` 막대 높이(= `--tap`) · `--dock-bottom`·`--dock-right` 막대 위치(16px, safe-area 포함) · `--float` 떠 있는 면 · `--line-strong` 컨트롤 테두리(= `--mute`) · `--shadow-float` 그림자(라이트만) |
-| 색 | `--bg` `--surface` `--ink` `--mute` `--line` `--accent`, 상태마다 `-bg`·`-fg`·`-rail`, 경고용 `--warn-*`. 라이트·다크 두 벌. 본문·보조 글자 대비는 둘 다 4.5:1 이상 |
-| 글꼴 | 웹폰트 없음. `Pretendard` → `Apple SD Gothic Neo` → `Malgun Gothic` → `Noto Sans KR` → `system-ui`. 날짜·시각은 `ui-monospace` + `tabular-nums` |
+| `--text-meta`(13), `--text-small`(14), `--text-body`(15), `--text-name`(17) | 메타·칩·본문·이름 글자 |
+| `--text-region`, `--text-team`, `--text-title`(22), `--text-display`(28), `--text-site`, `--text-hero` | 지역 머리, 팀 머리, 사이트 제목, 상세 이름, 모바일 제목·상세 이름 |
+| `--space-xs`(4) · `--space-s`(8) · `--space-m`(12) · `--space-l`(16) · `--space-xl`(24) · `--space-2xl`(32) · `--space-3xl`(48) | 간격. 역할 이름 대신 단계 이름을 쓴다(한 단계 값이 여러 역할에 쓰여서) |
+| `--radius-s` · `--radius-m` · `--radius-pill` | 모서리 |
+| `--control-h` | 터치 높이(= `--tap`) |
+| `--color-bg`, `--surface`, `--surface-float`, `--color-ink`, `--color-mute`, `--color-line`, `--color-line-strong`, `--color-accent`, `--color-on-accent`, `--color-mono-bg`, `--color-mono-fg` | 바탕, 면, 글자, 선, 강조 |
+| `--status-{open,signed,left,warn}-{bg,fg,rail}` | 상태 칸(구직 중 호박, 합류 초록, 이탈 회색, 경고 붉은색) |
+| `--shadow-float`, `--link-underline-offset`(3px) | 떠 있는 면 그림자, 밑줄 위치 |
+| `--tab-h`, `--tabs-h`, `--dock-h`, `--dock-bottom`, `--dock-right`, `--wrap`, `--font`, `--mono` | 고정 요소와 레이아웃(16진 색 아님) |
+
+**3층 컴포넌트**: 규칙 맨 위에 `--이름: 값`으로 선언한다(예: `.pill { --pill-gap: 5px; }`, `.row { --rail-w: 3px; }`). 날것의 px 는 여기서만 쓴다. 테두리·윤곽선 두께(1~3px)는 예외다.
+
+**예외**: `0`, 테두리·윤곽선 두께 1~3px, `100%`, `auto`, `none`, `inherit`, `currentColor`, `transparent`.
+
+**글꼴**: 웹폰트 없음. `Pretendard` → `Apple SD Gothic Neo` → `Malgun Gothic` → `Noto Sans KR` → `system-ui`. 날짜·시각은 `ui-monospace` + `tabular-nums`.
+
+**새 스타일을 넣을 때**
+1. 2층 의미 토큰이 있으면 쓴다.
+2. 없으면 2층에 의미 토큰을 먼저 만든다. 값은 1층 값을 가리킨다.
+3. 규칙에 특정 크기가 꼭 필요하면 3층 컴포넌트 토큰으로 그 규칙 맨 위에 선언한다.
+4. 견본 페이지(`dev/styleguide.html`)에 예를 추가한다.
+5. `node scripts/css-check.mjs` 를 통과시킨다. 중복 선택자를 만들지 않는다.
+
+**외부 디자인 시스템을 쓰지 않는 이유**: 이 사이트는 의존성이 없는 순수 JS와 정적 빌드다. 300KB 예산을 두고 있고, 시험과 빌드가 Node 만으로 돈다. Astryx 같은 React·StyleX 체계는 이 구조에 맞지 않고, 한글 타이포그래피 제어도 직접 해야 한다. 그래서 토큰 층과 견본, 자동 점검만 들였다.
 
 ## 핵심 컴포넌트 규칙
 - **필터:** 두 줄이다.

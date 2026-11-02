@@ -7,6 +7,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
+import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
 import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
@@ -132,10 +133,12 @@ t("teamMoves: 이름이 constructor·toString 인 인물도 들어온·나간 �
 
 const VALIDATE = fileURLToPath(new URL("./validate.mjs", import.meta.url));
 const FIX = fileURLToPath(new URL("./fixtures", import.meta.url));
+// 견본 데이터(fixtures/styleguide)는 폴더라서 빼고, 시험 데이터 파일만 복사한다.
+const fixFiles = () => fs.readdirSync(FIX).filter((f) => fs.statSync(path.join(FIX, f)).isFile());
 const tmp = (name) => fs.mkdtempSync(path.join(os.tmpdir(), "vct-test-" + name + "-"));
 t("validate: career 의 to 가 from 보다 앞서면 오류 종료 1(이전 검토 요청 3)", () => {
   const dir = tmp("career");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const people = JSON.parse(fs.readFileSync(path.join(dir, "people.json"), "utf8"));
   people[0].career[0] = { team: "fx-alpha", from: "2026-10", to: "2025-01" };
   fs.writeFileSync(path.join(dir, "people.json"), JSON.stringify(people));
@@ -146,7 +149,7 @@ t("validate: career 의 to 가 from 보다 앞서면 오류 종료 1(이전 검�
 });
 t("validate: 정상 경력(시작과 끝이 같은 달 포함)은 통과", () => {
   const dir = tmp("ok");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const people = JSON.parse(fs.readFileSync(path.join(dir, "people.json"), "utf8"));
   people[0].career[0] = { team: "fx-alpha", from: "2026-10", to: "2026-10" };
   fs.writeFileSync(path.join(dir, "people.json"), JSON.stringify(people));
@@ -749,7 +752,7 @@ t("영문 안내: 약관·개인정보 영문 요약은 한글이 lang=ko 안에
 
 t("이적 빈 도착 팀: validate 오류, 잔류의 빈 도착은 통과, pillOf 는 '새 팀 합류'(앞 공백 없음)", () => {
   const dir = tmp("blankto");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "transfers.json");
   const tr = JSON.parse(fs.readFileSync(file, "utf8"));
   tr.players[0].to = "";
@@ -775,7 +778,7 @@ t("parseStamp: 없는 날짜(2/30, 4/31)는 null, 2/29·12/31 은 통과, 13/1 �
 
 t("validate: 비고의 없는 날짜(2/30)는 '없는 날짜' 경고", () => {
   const dir = tmp("baddate");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "players.json");
   const rows = JSON.parse(fs.readFileSync(file, "utf8"));
   rows[0].note = "테스트 (Sheep 2/30 12:00 UTC)";
@@ -841,7 +844,7 @@ t("영문 후원: 카카오페이 링크는 영문 머리·푸터·약관·개�
 
 t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
   const dir = tmp("fromdash");
-  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
   const file = path.join(dir, "transfers.json");
   const tr = JSON.parse(fs.readFileSync(file, "utf8"));
   tr.players[0].from = "-";
@@ -856,6 +859,37 @@ t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
 t("pillOf: 도착 팀이 '-' 여도 '새 팀 합류'(routeOf 와 같은 규칙)", () => {
   assert.equal(pillOf({ moved: true, status: "이적", next: "-", team: "X", conf: "C", date: T })[1], "새 팀 합류");
   assert.equal(pillOf({ moved: true, status: "이적", next: "Y", team: "X", conf: "C", date: T })[1], "Y 합류");
+});
+
+t("css-check: css/style.css 가 네 가지 점검(중복·날것의 값·대비·터치)을 통과한다", () => {
+  const f = checkCss(fs.readFileSync(fileURLToPath(new URL("../css/style.css", import.meta.url)), "utf8"));
+  assert.deepEqual(f, []);
+});
+
+t("css-check: 나쁜 예는 걸린다(중복 선택자, 날것의 색·px, 기본값 토큰, 낮은 대비, 작은 터치)", () => {
+  const bad = (css) => checkCss(css).join("\n");
+  assert.match(bad(".a{color:#fff} .a{margin:0}"), /중복 선택자: "\.a"/);
+  assert.match(bad(".b{color:#fff}"), /날것의 색/);
+  assert.match(bad(".b{gap:6px}"), /날것의 px/);
+  assert.match(bad(".b{padding:var(--sp-2)}"), /기본값 토큰/);
+  assert.match(bad(":root{--neutral-900:#FFFFFF;--neutral-50:#F7F6F2;--color-ink:var(--neutral-900);--color-bg:var(--neutral-50);--surface:var(--neutral-50);--color-mute:var(--neutral-50);--color-line-strong:var(--neutral-50);--color-accent:var(--neutral-50);--color-on-accent:var(--neutral-50);--status-open-bg:var(--neutral-50);--status-open-fg:var(--neutral-50)} @media (max-width: 600px){:root{--tap:30px}}"), /대비 부족|터치 크기/);
+  // 테두리 두께 1~3px 과 컴포넌트 토큰 선언은 허용한다
+  assert.deepEqual(checkCss(".c{border:2px solid var(--color-line); --gap-x: 6px; text-underline-offset: var(--link-underline-offset)} :root{--link-underline-offset:3px}").filter((x) => !/대비|터치/.test(x)), []);
+});
+
+t("견본 데이터: scripts/fixtures/styleguide/extra.json 은 시험 데이터의 모양을 따른다", () => {
+  const x = JSON.parse(fs.readFileSync(fileURLToPath(new URL("./fixtures/styleguide/extra.json", import.meta.url)), "utf8"));
+  for (const k of ["players", "coaches", "transfers", "watch"]) assert.ok(Array.isArray(x[k]) && x[k].length > 0, k);
+  assert.ok(x.players.some((p) => p.team === ""), "빈 팀 칸");
+  assert.ok(x.players.some((p) => /[가-힣]/.test(p.team)), "한글 팀 칸");
+});
+
+t("build: 배포 출력에 dev/ 가 없다", () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "vct-dev-out-"));
+  const r = spawnSync(process.execPath, [fileURLToPath(new URL("./build.mjs", import.meta.url)), out], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.equal(fs.existsSync(path.join(out, "dev")), false);
+  fs.rmSync(out, { recursive: true, force: true });
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
