@@ -8,6 +8,7 @@ import { stampOf, daysIn } from "../js/format.js";
 import { setEnTable, trEn } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
 import { noteParts } from "../js/note.js";
+import { gapsOf } from "./gaps.mjs";
 
 const dir = process.argv[2] ? path.resolve(process.argv[2]) : fileURLToPath(new URL("../data/", import.meta.url));
 const has = (f) => fs.existsSync(path.join(dir, f + ".json"));
@@ -228,4 +229,9 @@ errors.forEach((e) => console.error("오류  " + e));
 const count = Object.values(sets).reduce((n, r) => n + r.length, 0);
 const extra = hasPeople || hasTeams ? `, 인물 ${people.length}명, 팀 ${teams.length}개` : "";
 console.log(`출처 ${Object.keys(sources).length}개, 행 ${count}개${extra} 점검: 오류 ${errors.length}, 경고 ${warns.length}`);
+// 정보 빈 칸은 현황만 알린다(경고로 세지 않는다). 규칙은 gaps.mjs 와 같다.
+if (hasPeople) {
+  const gap = (key) => people.filter((p) => gapsOf(p).includes(key)).length;
+  console.log(`정보 빈 칸: 생년월일 ${gap("birth")}, 포지션 ${gap("role")}, 국적 ${gap("nationality")}, 계약 ${gap("contract")}`);
+}
 process.exit(errors.length ? 1 : 0);

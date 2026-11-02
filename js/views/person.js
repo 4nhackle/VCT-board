@@ -1,6 +1,6 @@
 import { esc, srcHTML, fmtDate, isoOf, textHTML } from "../format.js";
 import { regionName, tierName, pillOf, routeOf, ageOf, contractState, careerOf, newestFirst } from "../model.js";
-import { t } from "../i18n.js";
+import { t, LANG } from "../i18n.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
 import { routeHTML } from "../components/route.js";
@@ -21,11 +21,16 @@ export function backHTML() {
   return '<a class="back" href="' + esc(listUrl("players")) + '" data-back="1">' + t("nav.back") + "</a>";
 }
 
-// 나이 표시: 생일을 알면 "N세", 연도만 알면 "약 N세".
-function ageText(birth) {
-  var a = ageOf(birth);
+// 생년월일 칸. 날짜를 알면 날짜와 나이, 연도만 알면 "연도 (약 N세)". 만 18세 미만은 날짜를 숨기고 연도만 보인다.
+// 값이 없거나 잘못되면 "" 이다(칸이 "미공개"로 바뀐다). today 는 시험용(기본 TODAY).
+export function birthText(birth, today) {
+  var a = ageOf(birth, today), s = String(birth), y = s.slice(0, 4);
   if (!a) return "";
-  return a.approx ? t("age.approx", { n: a.age }) : t("age.exact", { n: a.age });
+  if (a.approx) return t("birth.year", { y: y, n: a.age });
+  if (a.age < 18) return t("birth.minor", { y: y, n: a.age });
+  var d = s;
+  if (LANG === "en") d = new Intl.DateTimeFormat("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(+y, +s.slice(5, 7) - 1, +s.slice(8, 10))));
+  return t("birth.full", { d: d, n: a.age });
 }
 
 // 외부 링크(VLR·Liquipedia). 주소가 http(s) 인 것만 낸다. Liquipedia 에는 CC BY-SA 출처 표기를 붙인다.
@@ -111,7 +116,7 @@ function careerHTML(p, teams) {
   return '<section class="dp-sec"><h2>' + t("h.career") + '</h2><ol class="dp-career">' + items.join("") + "</ol></section>";
 }
 
-// 정보 칸: 소속 팀, 역할, 국적, 나이(생년), 계약 만료, 이적 완료. 사람마다 같은 여섯 칸.
+// 정보 칸: 소속 팀, 역할, 국적, 생년월일, 계약 만료, 이적 완료. 사람마다 같은 여섯 칸.
 function personInfo(list, p, teams, nat, role) {
   var top = list[0], cur = careerOf(p).filter(function (c) { return c.current; })[0], team = "", until, done = "";
   if (cur) team = '<a href="' + esc(teamUrl(cur.team)) + '">' + textHTML(teams[cur.team] ? teams[cur.team].name : cur.team) + "</a>";
@@ -122,12 +127,12 @@ function personInfo(list, p, teams, nat, role) {
   } else {
     until = top && typeof top.row.contractUntil === "number" ? top.row.contractUntil : p ? p.contractUntil : undefined;
   }
-  var a = p && p.birth ? ageText(p.birth) : "";
+  var a = p && p.birth ? birthText(p.birth) : "";
   return [
     [t("info.team"), team],
     [t("info.role"), termHTML(role)],
     [t("info.nationality"), textHTML(nat)],
-    [t("info.age"), a ? esc(a + " (" + String(p.birth).slice(0, 4) + ")") : ""],
+    [t("info.birth"), a ? esc(a) : ""],
     [t("info.contract"), typeof until === "number" ? esc(contractText(until)) : ""],
     [t("info.done"), esc(done)]
   ];

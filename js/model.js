@@ -37,8 +37,22 @@ export function toItem(r, kind, S) {
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
 export function buildTabs(D) {
+  var PEOPLE = Object.create(null);
+  (D.people || []).forEach(function (p) { PEOPLE[p.id] = p; });
+  // 목록 행의 포지션(코치는 역할)·국적이 비었으면 인물 정보로 채운다. 행에 값이 있으면 행 값을 쓴다.
+  function fillRow(r, kind, p) {
+    var f = Object.assign({}, r);
+    if (kind === "coach") f.role = cleanName(r.role) || cleanName(p.role);
+    if (kind === "player") { f.position = cleanName(r.position) || cleanName(p.role); f.nationality = cleanName(r.nationality) || cleanName(p.nationality); }
+    return f;
+  }
   // 화면 항목에도 인물·팀 ID 를 붙여, 목록 행을 상세 링크로 만들 수 있게 한다.
-  function items(rows, kind) { return rows.map(function (r) { return Object.assign(toItem(r, kind, D.sources), idsOf(r, kind)); }); }
+  function items(rows, kind) {
+    return rows.map(function (r) {
+      var ids = idsOf(r, kind), p = own(PEOPLE, ids.pid);
+      return Object.assign(toItem(p && kind !== "t" && kind !== "watch" ? fillRow(r, kind, p) : r, kind, D.sources), ids);
+    });
+  }
   var P = items(D.players, "player"), CO = items(D.coaches, "coach"), W = items(D.watch, "watch");
   // 지켜볼 팀의 팀 링크는 teams 에 있는 ID 만 건다.
   var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
@@ -253,7 +267,7 @@ export function cls(it) { return pillOf(it)[0]; }
 export function pillText(p) { return p[1] + (p[2] === "reported" ? t("pill.reportedMark") : ""); }
 
 // 빈 칸과 "-" 는 이름이 없다.
-function cleanName(v) { return v && v !== "-" ? String(v) : ""; }
+export function cleanName(v) { return v && v !== "-" ? String(v) : ""; }
 // 팀 ID: 시트에 있으면 그것, 없으면 이름에서 만든다. 이름이 없으면 ID 도 없다.
 function toIdOf(name, id) { return id || (name ? slugOf(name) : ""); }
 // 상태 글에서 경로 말고 남은 꾸밈말. 계약 완료(…), 이전 팀 이탈(…), "X 합류" 를 뗀다.
