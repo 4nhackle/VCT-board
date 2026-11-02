@@ -13,7 +13,7 @@
   {"region":"Pacific","team":"Nongshim RedForce","targets":"선수 전원(Dambi 제외 별도 표기)","situation":"계약 11/2 만료. SilKanoN 감독만 2027 계약. 팀은 오픈 예선 참가 예정 / Persia(전 REJECT) 어시스턴트 코치 합류 보도(10/29, 코치 탭 반영)","src":"s6","teamIds":["nongshim-redforce"]},
   {"region":"Pacific","team":"Paper Rex","targets":"Jinggg (d4v41은 LFT 시트에 반영)","situation":"Jinggg·d4v41: 10/31 PRX 공식 결별 발표(LFT 시트 반영, 새 팀 미발표). f0rsakeN·something 잔류 보도, invy 2027 계약 / PatMen 합류 보도(10/29, LFT·성사된 이적 탭 반영). VLR 10/29 기사 로스터: invy·Jinggg·f0rsakeN·something·PatMen (Jinggg 제외 확정)","src":"s97","teamIds":["paper-rex"]},
   {"region":"Pacific","team":"RRQ","targets":"Kushy, monyet","situation":"계약 만료 예정","src":"s71","teamIds":["rex-regum-qeon"]},
-  {"region":"Pacific","team":"T1","targets":"stax, BuZz","situation":"계약 11/2 만료 (진로 미발표)","src":"s45","teamIds":["t1"]},
+  {"region":"Pacific","team":"T1","targets":"stax, BuZz","situation":"T1 11/1 공식 결별 발표: Meteor·Munchkin·DH·KDG(헤드 코치)·CheongGak(VLR). stax·BuZz 계약 11/2 만료, 진로 미발표 — 계약 11/2 만료 (진로 미발표) (확인 11/2)","src":"s45","teamIds":["t1"]},
   {"region":"Pacific","team":"Team Secret","targets":"STYRON, naTz, Sylvan","situation":"계약 2026 만료(Sheep 보도). STYRON은 LFT 시트에 반영","src":"s71","teamIds":["team-secret"]},
   {"region":"China","team":"FunPlus Phoenix, Nova, Titan, Wolves, DRG","targets":"소속 선수","situation":"파트너십 탈락 후 China Threshold 결과: DRG(10/25)·NOVA(11/1, Unsettled Resentment 3-0)가 2027 게스트 자리 확보 — 두 팀 선수 잔류 가능. FPX(77even 영입)·Titan·Wolves는 탈락(Wolves alexRr·Deryeon FA 10/29, 존속 불투명). FPX·Titan 선수 FA 전환 여부는 미확인 (TalkEsport 11/1 13:49 UTC)","src":"s229","teamIds":["funplus-phoenix","nova-esports","titan-esports-club","wolves-esports","dragon-ranger-gaming"]}
 ]
