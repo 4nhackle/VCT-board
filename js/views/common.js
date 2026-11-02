@@ -1,7 +1,7 @@
 import { esc, relDate, srcHTML, stampLabel, parseStamp, dateWord, clockText, textHTML, krHTML } from "../format.js";
 import { t, LANG, trWhole, trNote } from "../i18n.js";
 import { termEn } from "../i18n/glossary.js";
-import { pillOf, routeOf, watchMeta } from "../model.js";
+import { pillOf, routeOf, watchMeta, cleanName } from "../model.js";
 import { STAMP_RE, CROSS_RE } from "../note.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
@@ -13,7 +13,7 @@ var TAB_KEY = { player: "tab.players", coach: "tab.coaches", t: "tab.transfers",
 export function tabName(kind) { return TAB_KEY[kind] ? t(TAB_KEY[kind]) : ""; }
 
 // 빈 칸과 "-" 는 보여 주지 않는다.
-export function val(v) { return v && v !== "-" ? v : ""; }
+export function val(v) { return cleanName(v) ? v : ""; }
 
 // 데이터 문구(상태·구분·역할·대상). 영문 화면에서 용어집으로 옮겨지면 영문, 못 옮기면 원문 + KR. 한국어 화면은 esc 와 같다.
 export function termHTML(text) {

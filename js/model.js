@@ -253,7 +253,8 @@ export function cls(it) { return pillOf(it)[0]; }
 export function pillText(p) { return p[1] + (p[2] === "reported" ? t("pill.reportedMark") : ""); }
 
 // 빈 칸과 "-" 는 이름이 없다.
-function cleanName(v) { return v && v !== "-" ? String(v) : ""; }
+// 빈 칸 판단은 이 함수 한 곳에서 한다. 앞뒤 공백을 떼고, 빈 글이나 "-" 이면 "" 를 돌려준다. val·validate 도 이것을 쓴다.
+export function cleanName(v) { var s = v == null ? "" : String(v).trim(); return s === "-" ? "" : s; }
 // 팀 ID: 시트에 있으면 그것, 없으면 이름에서 만든다. 이름이 없으면 ID 도 없다.
 function toIdOf(name, id) { return id || (name ? slugOf(name) : ""); }
 // 상태 글에서 경로 말고 남은 꾸밈말. 계약 완료(…), 이전 팀 이탈(…), "X 합류" 를 뗀다.

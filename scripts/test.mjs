@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
+import { cleanName, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
@@ -856,6 +856,29 @@ t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
 t("pillOf: 도착 팀이 '-' 여도 '새 팀 합류'(routeOf 와 같은 규칙)", () => {
   assert.equal(pillOf({ moved: true, status: "이적", next: "-", team: "X", conf: "C", date: T })[1], "새 팀 합류");
   assert.equal(pillOf({ moved: true, status: "이적", next: "Y", team: "X", conf: "C", date: T })[1], "Y 합류");
+});
+
+t("cleanName: 공백·'-' 는 빈 값, 이름은 앞뒤 공백만 뗀다", () => {
+  for (const v of [" ", "-", " - ", "", null, undefined]) assert.equal(cleanName(v), "", JSON.stringify(v));
+  assert.equal(cleanName("Sentinels"), "Sentinels");
+  assert.equal(cleanName("  Sentinels "), "Sentinels");
+});
+
+t("pillOf: 도착 팀이 공백(' ')이면 '새 팀 합류'", () => {
+  assert.equal(pillOf({ moved: true, status: "이적", next: " ", team: "X", conf: "C", date: T })[1], "새 팀 합류");
+});
+
+t("이적 빈 도착 팀(코치 쪽): validate 오류", () => {
+  const dir = tmp("blankto-coach");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "transfers.json");
+  const tr = JSON.parse(fs.readFileSync(file, "utf8"));
+  tr.coaches = [{ ...tr.players[0], name: "코치테스트", to: "" }];
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /transfers\.coaches\[0\] .*새 팀\(to\)이 비어 있습니다/);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
