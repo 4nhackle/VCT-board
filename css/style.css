@@ -337,15 +337,15 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .lede { font-size: var(--fs-1); }
   .note-lfx { display: list-item; }
   /* 가로로 넘치는 줄은 한 줄 스크롤. 오른쪽 끝이 흐려지면 더 있다는 뜻 */
-  .tabs, .chips, .bar.b2 { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin-inline: calc(-1 * var(--sp-4)); padding-inline: var(--sp-4) var(--sp-6); -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
-  .chips::-webkit-scrollbar, .bar.b2::-webkit-scrollbar { display: none; }
+  .tabs, .chips { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin-inline: calc(-1 * var(--sp-4)); padding-inline: var(--sp-4) var(--sp-6); -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+  .chips::-webkit-scrollbar { display: none; }
   .tabs { gap: 0 var(--sp-4); }
   .tab { font-size: var(--fs-3); }
   .chip { flex: none; }
   .bar { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: var(--sp-2); }
   .bar.b1 { flex-direction: column-reverse; }
-  .bar.b2 { flex-direction: row; justify-content: flex-start; }
-  .bar.b2 .chips { flex: none; overflow: visible; margin: 0; padding: 0; -webkit-mask-image: none; mask-image: none; }
+  /* 지역 칩은 첫 줄에서 한 줄 스크롤(.chips), 정렬 칩은 다음 줄에서 넘치면 줄을 바꾼다 */
+  .bar.b2 .order { flex: none; flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; -webkit-mask-image: none; mask-image: none; }
   .th { overflow-wrap: anywhere; }
   .th .n { margin-left: auto; }
   .search { flex: none; font-size: 16px; }
