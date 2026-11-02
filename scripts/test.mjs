@@ -830,4 +830,18 @@ t("영문 후원: 카카오페이 링크는 영문 머리·푸터·약관·개�
   }
 });
 
+t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
+  const dir = tmp("fromdash");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "transfers.json");
+  const tr = JSON.parse(fs.readFileSync(file, "utf8"));
+  tr.players[0].from = "-";
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, /transfers\.players\[0\] .*이전 팀\(from\)이 비어 있습니다/);
+  assert.doesNotMatch(r.stdout + r.stderr, /오류  transfers/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);
