@@ -11,7 +11,7 @@ const PREFIX = "/VCT-board/";
 const port = Number(process.argv[2] || 8080);
 const root = path.resolve(process.argv[3] || fileURLToPath(new URL("..", import.meta.url)));
 // 서비스하는 것: 루트 index.html·404.html·sitemap.xml·og.png 와 css/, js/, data/, p/, t/ 아래. 그 밖은 404.
-const SERVED = /^(|index\.html|404\.html|sitemap\.xml|og\.png|(css|js|data|p|t|en|privacy|terms)(\/.*)?)$/;
+const SERVED = /^(|index\.html|404\.html|sitemap\.xml|og\.png|(css|js|data|p|t|en|privacy|terms|dev)(\/.*)?)$/;
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".png": "image/png", ".svg": "image/svg+xml", ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon" };
 
 function send(res, code, body, type, extra) {
@@ -25,11 +25,13 @@ http.createServer((req, res) => {
   try { p = decodeURIComponent(url.pathname); } catch (e) { return send(res, 400, "bad path"); }
   if (p === "/" || p === "/VCT-board") return send(res, 302, "", null, { Location: PREFIX + url.search + url.hash });
   if (!p.startsWith(PREFIX)) return send(res, 404, "not found");
-  const file = path.join(root, p.slice(PREFIX.length));
+  const sub = p.slice(PREFIX.length);
+  // 견본 화면(dev/styleguide.html)의 데이터: dev/fixtures/ 는 scripts/fixtures/ 를 가리킨다.
+  const file = sub.startsWith("dev/fixtures/") ? path.join(root, "scripts", "fixtures", sub.slice("dev/fixtures/".length)) : path.join(root, sub);
   // 폴더 밖으로 나가는 경로(../)는 막는다.
   if (file !== root && !file.startsWith(root + path.sep)) return send(res, 403, "forbidden");
-  // 배포 사이트에 올라가는 것만 서비스한다(.git, scripts, docs 등은 404).
-  const rel = path.relative(root, file).split(path.sep).join("/");
+  // 배포 사이트에 올라가는 것만 서비스한다(.git, scripts, docs 등은 404). dev/ 는 개발 전용이라 여기서만 열린다.
+  const rel = sub;
   if (!SERVED.test(rel)) return send(res, 404, "not found");
   let st = null;
   try { st = fs.statSync(file); } catch (e) {}

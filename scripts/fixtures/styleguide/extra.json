@@ -1,0 +1,18 @@
+{
+  "players": [
+    { "region": "Americas", "team": "Team With An Extremely Long Name Used To Check Wrapping In Team Headings Of The List", "name": "Averyveryverylongnameforlayouttestingpurposes", "position": "Duelist", "nationality": "Brazil", "status": "LFT 게시", "date": 46327, "conf": "C", "note": "긴 팀명과 긴 이름이 줄을 바꾸는지 보는 견본. 본문은 두 줄 이상이 되도록 길게 쓴다. 출처 줄이 본문 아래 따로 놓인다.", "src": "s1" },
+    { "region": "Korea", "team": "농구 팀 테스트", "name": "견본 선수", "position": "-", "nationality": "", "status": "BLG 합류 임박(보도)", "date": 46326, "conf": "R", "note": "보도 시각 10/31 09:00 UTC", "src": "s2" },
+    { "region": "EMEA", "team": "", "name": "빈 팀 칸", "position": "", "nationality": "-", "status": "방출", "date": 46320, "conf": "C", "note": "", "src": "s3" },
+    { "region": "Pacific", "team": "Paper Rex", "name": "계약 완료 견본", "position": "Initiator", "nationality": "South Korea", "status": "계약 완료(Paper Rex)", "date": 46300, "conf": "C", "note": "", "src": "s4" }
+  ],
+  "coaches": [
+    { "region": "Korea", "team": "견본 코치 팀", "name": "코치 견본", "role": "", "status": "이탈 · 제한적 FA", "date": 46318, "conf": "C", "note": "역할 칸 비움. 목록 칸은 인물 정보로 채운다.", "src": "s5" }
+  ],
+  "transfers": [
+    { "region": "EMEA", "name": "이동 견본", "from": "Team With An Extremely Long Name Used To Check Wrapping In Team Headings", "to": "Sentinels", "type": "이적", "date": 46322, "conf": "C", "note": "공식 발표", "src": "s6", "signedDate": 46322 },
+    { "region": "EMEA", "name": "잔류 견본", "from": "Fnatic", "to": "잔류", "type": "재계약", "date": 46310, "conf": "C", "note": "", "src": "s6" }
+  ],
+  "watch": [
+    { "region": "Pacific", "team": "긴 지켜볼 팀 이름 / 농구 팀 테스트 / 빈 칸", "targets": "소속 선수", "situation": "[확정] 보도 시각 10/31 UTC 와 날짜 칸이 다른 날인 긴 상황 글이다. 교차 확인: A, B.", "src": "s12" }
+  ]
+}
