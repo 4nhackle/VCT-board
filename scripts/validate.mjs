@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { REGIONS, toItem, pillOf, idsOf, ID_RE, slugOf } from "../js/model.js";
-import { stampOf } from "../js/format.js";
+import { stampOf, daysIn } from "../js/format.js";
 import { setEnTable, trEn } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
 import { noteParts } from "../js/note.js";
@@ -44,7 +44,9 @@ for (const [file, rows] of Object.entries(sets)) {
     if (kindOf[file]) {
       const it = toItem(r, kindOf[file], sources);
       if (pillOf(it)[0] === "unknown") warn(file, "상태 읽기", `${at}: 상태 "${it.status}" 을(를) 화면이 읽지 못해 "확인 필요"로 나옵니다`);
-      if (/\d{1,2}\/\d{1,2}\s+\d{1,2}:\d{2}\s*(UTC|KST)/.test(it.note || "") && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각(M/D)이 날짜 칸과 다른 날이라 날짜 옆 시각 표시만 빠집니다(출처 줄에는 나옵니다). 날짜 칸이나 비고 중 하나가 틀렸는지 확인하세요`);
+      const sm = /(\d{1,2})\/(\d{1,2})\s+\d{1,2}:\d{2}\s*(UTC|KST)/.exec(it.note || "");
+      if (sm && +sm[1] >= 1 && +sm[1] <= 12 && +sm[2] > daysIn(+sm[1])) warn(file, "비고 시각", `${at}: 보도 시각 ${sm[1]}/${sm[2]} 는 없는 날짜입니다. 비고의 날짜를 고치세요`);
+      else if (sm && stampOf(it) === null) warn(file, "비고 시각", `${at}: 비고의 보도 시각(M/D)이 날짜 칸과 다른 날이라 날짜 옆 시각 표시만 빠집니다(출처 줄에는 나옵니다). 날짜 칸이나 비고 중 하나가 틀렸는지 확인하세요`);
     }
     const id = [r.team, r.name, r.targets].join("|").toLowerCase();
     if (seen.has(id)) errors.push(`${at}: ${seen.get(id)}번째 행과 중복입니다`);

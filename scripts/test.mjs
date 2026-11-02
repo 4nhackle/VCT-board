@@ -763,4 +763,24 @@ t("이적 빈 도착 팀: validate 오류, 잔류의 빈 도착은 통과, pillO
   assert.equal(pillOf({ moved: true, status: "이적", next: "", team: "X", conf: "C", date: T }).slice(1, 2)[0], "새 팀 합류");
 });
 
+t("parseStamp: 없는 날짜(2/30, 4/31)는 null, 2/29·12/31 은 통과, 13/1 은 null", () => {
+  assert.equal(parseStamp("2/30 12:00 UTC"), null);
+  assert.equal(parseStamp("4/31 12:00 KST"), null);
+  assert.notEqual(parseStamp("2/29 12:00 UTC"), null);
+  assert.notEqual(parseStamp("12/31 23:59 KST"), null);
+  assert.equal(parseStamp("13/1 12:00 UTC"), null);
+});
+
+t("validate: 비고의 없는 날짜(2/30)는 '없는 날짜' 경고", () => {
+  const dir = tmp("baddate");
+  for (const f of fs.readdirSync(FIX)) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "players.json");
+  const rows = JSON.parse(fs.readFileSync(file, "utf8"));
+  rows[0].note = "테스트 (Sheep 2/30 12:00 UTC)";
+  fs.writeFileSync(file, JSON.stringify(rows));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.match(r.stderr, /보도 시각 2\/30 는 없는 날짜입니다/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);

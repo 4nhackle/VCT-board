@@ -28,13 +28,15 @@ export function isoOf(n) { return new Date(Date.UTC(1899, 11, 30) + n * 864e5).t
 export function withKst(text) {
   return String(text).replace(/(\d{4}-\d{2}-\d{2} \d{1,2}:\d{2})(?!\s*KST)(\s*기준)/, "$1 KST$2");
 }
-// 보도 시각 글 "M/D HH:mm UTC|KST" 를 읽는다. 월 1~12, 시 0~23, 분 0~59 가 아니면 null.
+// 월별 날 수. 연도를 모르므로 2월은 윤년 기준 29일이다(splitNote 의 2024 기준과 같다).
+export function daysIn(mon) { return [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mon - 1]; }
+// 보도 시각 글 "M/D HH:mm UTC|KST" 를 읽는다. 월 1~12, 일(그 달의 날 수 안), 시 0~23, 분 0~59 가 아니면 null.
 // min 은 그 날 0시부터의 한국 시간 분이다(UTC 표기는 +9시간). 하루를 넘으면 1440 이상이다. 날짜 칸과의 대조는 하지 않는다.
 export function parseStamp(text) {
   var m = /(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})\s*(UTC|KST)/.exec(String(text == null ? "" : text));
   if (!m) return null;
   var p = { mon: +m[1], day: +m[2], hh: +m[3], mm: +m[4], tz: m[5] };
-  if (p.mon < 1 || p.mon > 12 || p.hh > 23 || p.mm > 59) return null;
+  if (p.mon < 1 || p.mon > 12 || p.day < 1 || p.day > daysIn(p.mon) || p.hh > 23 || p.mm > 59) return null;
   p.min = p.hh * 60 + p.mm + (p.tz === "UTC" ? 540 : 0);
   return p;
 }
