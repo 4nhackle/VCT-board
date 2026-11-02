@@ -853,4 +853,9 @@ t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
+t("pillOf: 도착 팀이 '-' 여도 '새 팀 합류'(routeOf 와 같은 규칙)", () => {
+  assert.equal(pillOf({ moved: true, status: "이적", next: "-", team: "X", conf: "C", date: T })[1], "새 팀 합류");
+  assert.equal(pillOf({ moved: true, status: "이적", next: "Y", team: "X", conf: "C", date: T })[1], "Y 합류");
+});
+
 console.log(`\n단위 시험 ${n}개 통과`);

@@ -231,7 +231,7 @@ function joinStage(it) {
 export function pillOf(it) {
   // 짧은 문구(p[3])는 팀 이름을 경로 줄이 보여 줄 때 쓴다. 알약에는 단계만 말한다.
   var short = joinStage(it) === "reported" ? t("pill.reported") : t("pill.confirmed");
-  if (it.moved) return /잔류/.test(it.status) ? ["signed", t("pill.stayed"), joinStage(it)] : ["signed", it.next ? t("pill.joined", { team: it.next }) : t("status.signed"), joinStage(it), short];
+  if (it.moved) return /잔류/.test(it.status) ? ["signed", t("pill.stayed"), joinStage(it)] : ["signed", cleanName(it.next) ? t("pill.joined", { team: cleanName(it.next) }) : t("status.signed"), joinStage(it), short];
   var s = it.status;
   if (/계약 완료/.test(s)) {
     var m = s.match(/\((.+)\)/);
