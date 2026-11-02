@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import vm from "node:vm";
+import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { fileURLToPath } from "node:url";
 import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
@@ -786,7 +787,7 @@ t("validate: 비고의 없는 날짜(2/30)는 '없는 날짜' 경고", () => {
 
 t("언어 이동 스크립트(index.html 인라인): 저장값·주소별 이동, ?stay·영문 주소 그대로, 저장소 예외는 아무것도 안 함", () => {
   const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
-  const code = /<head><script>([\s\S]*?)<\/script>/.exec(html)[1];
+  const code = inlineScript(html);
   const run = (stored, pathname, search = "", hash = "") => {
     const calls = [];
     const storage = { getItem: () => { if (stored === "THROW") throw new Error("denied"); return stored; } };
@@ -807,7 +808,15 @@ t("사이트 경로: build.mjs·dev-server.mjs·index.html 인라인 스크립�
   const site = /const SITE_PATH = "([^"]+)"/.exec(read("scripts/build.mjs"))[1];
   const prefix = /const PREFIX = "([^"]+)"/.exec(read("scripts/dev-server.mjs"))[1];
   assert.equal(prefix, site);
-  assert.ok(read("index.html").includes('"' + site + '"'));
+  checkSitePath(read("index.html"), site);
+});
+
+t("사이트 경로 검사: 스크립트 안 경로를 바꾸고 다른 곳에 같은 글자를 두면 실패한다", () => {
+  const ok = '<html><head><script>var B="/VCT-board/";</script></head><body></body></html>';
+  checkSitePath(ok, "/VCT-board/");
+  const moved = '<html><head><script>var B="/other/";</script></head><body>"/VCT-board/"</body></html>';
+  assert.throws(() => checkSitePath(moved, "/VCT-board/"), /사이트 경로 \/VCT-board\/ 가 없습니다/);
+  assert.throws(() => inlineScript("<html><body></body></html>"), /인라인 스크립트가 없습니다/);
 });
 
 t("dateLong: 한국어 'M월 D일 (요일)', 영문 'Mon, Oct 25'", () => {
