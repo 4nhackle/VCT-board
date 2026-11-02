@@ -5,6 +5,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { REGIONS, toItem, pillOf, idsOf, ID_RE, slugOf } from "../js/model.js";
 import { stampOf } from "../js/format.js";
+import { setEnTable, trEn } from "../js/i18n.js";
+import { collectTargets } from "./i18n-targets.mjs";
+import { noteParts } from "../js/note.js";
 
 const dir = process.argv[2] ? path.resolve(process.argv[2]) : fileURLToPath(new URL("../data/", import.meta.url));
 const has = (f) => fs.existsSync(path.join(dir, f + ".json"));
@@ -178,6 +181,32 @@ sets.watch.forEach((r, i) => {
   if (!r.teamIds) for (const t of String(r.team || "").split(" / ")) if (nameOk(t)) teamList.push({ text: t.trim(), where: `watch ${i + 1}행` });
 });
 clashes(teamList, "팀 이름", "같은 팀이면 표기를 맞추고, 다른 팀이면 팀ID를 따로 지정하세요");
+
+// ── 영문 본문 번역 표(data/i18n-en.json, 있을 때만). 배포를 막지 않도록 경고만 낸다.
+if (fs.existsSync(path.join(dir, "i18n-en.json"))) {
+  let tr = null;
+  try { tr = JSON.parse(fs.readFileSync(path.join(dir, "i18n-en.json"), "utf8")); } catch (e) { warn("i18n-en.json", "형식", "data/i18n-en.json 이 JSON 형식이 아닙니다: " + e.message); }
+  if (tr && typeof tr === "object" && !Array.isArray(tr)) {
+    setEnTable(tr);
+    const D = { players: sets.players, coaches: sets.coaches, transfers, watch: sets.watch, sources, schedule: has("schedule") ? read("schedule") : [] };
+    const targets = collectTargets(D);
+    const keys = new Set(targets.map((x) => x.key));
+    const hangul = Object.keys(tr).filter((k) => /[가-힣]/.test(noteParts(String(tr[k])).body));
+    if (hangul.length) warn("i18n-en.json", "영문에 한글", `영문 번역에 한글이 남은 항목 ${hangul.length}건. 예약 작업이 다음 실행에서 다시 채웁니다`);
+    const failed = Object.keys(tr).filter((k) => trEn(k) === null);
+    if (failed.length) {
+      warn("i18n-en.json", "검사 실패", `번역 검사에 걸린 항목 ${failed.length}건(보도 시각·교차 확인·숫자 불일치). 화면은 원문 + KR 로 보입니다`);
+      failed.slice(0, 10).forEach((k) => warn("i18n-en.json", "검사 실패", `검사 실패: "${k.slice(0, 40)}"`));
+    }
+    const missing = [...new Map(targets.filter((x) => !Object.prototype.hasOwnProperty.call(tr, x.key)).map((x) => [x.key, x])).values()];
+    if (missing.length) {
+      warn("i18n-en.json", "번역 누락", `번역 누락 ${missing.length}건. 예약 작업이 다음 실행에서 채웁니다`);
+      missing.slice(0, 10).forEach((x) => warn(x.file, "번역 누락", `번역 누락 (${x.file} ${x.field}): "${x.text.slice(0, 40)}"`));
+    }
+    const stale = Object.keys(tr).filter((k) => !keys.has(k));
+    if (stale.length) warn("i18n-en.json", "낡은 번역", `지금 data 어디에도 쓰이지 않는 번역 ${stale.length}건. 예약 작업이 지웁니다`);
+  }
+}
 
 if (warns.length <= 10) {
   warns.forEach((w) => console.warn("경고  " + w.text));
