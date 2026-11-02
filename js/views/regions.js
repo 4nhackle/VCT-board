@@ -17,7 +17,7 @@ export function regionsHTML(items, tab) {
   REGIONS.concat("기타").forEach(function (reg) {
     var inReg = items.filter(function (it) { return (REGIONS.indexOf(it.region) < 0 ? "기타" : it.region) === reg; });
     if (!inReg.length) return;
-    out += '<div class="rh"><h2>' + esc(reg === "기타" ? t("region.other") : regionName(reg) || reg) + '</h2><span class="en">' + (regionName(reg) ? reg : "") + '</span><span class="n">' + t("count.cases", { n: inReg.length }) + "</span></div>";
+    out += '<div class="rh"><h2>' + esc(reg === "기타" ? t("region.other") : regionName(reg) || reg) + '</h2><span class="en">' + (regionName(reg) && regionName(reg) !== reg ? reg : "") + '</span><span class="n">' + t("count.cases", { n: inReg.length }) + "</span></div>";
     if (tab.mode !== "entry") {
       out += '<ul class="list">' + inReg.map(function (it) { return rowHTML(it, tab); }).join("") + "</ul>";
       return;
