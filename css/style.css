@@ -94,7 +94,7 @@ time { font-variant-numeric: tabular-nums; }
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-s) var(--space-l); }
 .top-text { display: flex; flex-direction: column; gap: var(--space-xs); min-width: 0; }
 /* 오른쪽 칸: EN/KR 전환 위, 후원 메뉴 아래. 두 칸 모두 오른쪽 정렬이다. */
-.top-side { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-s); }
+.top-side { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-m); }
 .site { margin: 0; font-size: var(--text-title); font-weight: 800; line-height: 1.3; letter-spacing: -0.02em; }
 p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute); letter-spacing: 0; }
 .lede { margin: 0; color: var(--color-mute); font-size: var(--text-small); }
@@ -106,7 +106,7 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 .support-menu a:hover { border-color: var(--color-mute); text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
 /* EN/KR 전환: 현재 언어는 굵기와 밑줄로도 보인다(색만으로 구분하지 않는다). */
 /* 전환 버튼은 내용 폭을 지킨다: 부모 flex 가 늘이거나 줄이지 못하게 한다. */
-.lang-switch { display: inline-flex; flex: 0 0 auto; width: auto; max-width: max-content; align-self: center; align-items: center; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); overflow: hidden; font-size: var(--text-small); }
+.lang-switch { display: inline-flex; flex: 0 0 auto; width: auto; max-width: max-content; align-items: center; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); overflow: hidden; font-size: var(--text-small); }
 .lang-switch a { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: var(--control-h); padding: 0 var(--space-m); color: var(--color-mute); text-decoration: none; }
 .lang-switch a:hover { color: var(--color-ink); text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
 .lang-switch a[aria-current="true"] { color: var(--color-ink); font-weight: 700; text-decoration: underline; text-underline-offset: var(--link-underline-offset); background: var(--surface); }
@@ -339,8 +339,8 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .top { grid-template-columns: minmax(0, 1fr); gap: var(--space-s); }
   .top-text { gap: var(--space-s); }
   /* 600px 이하: 후원 메뉴는 왼쪽, EN/KR 은 오른쪽, 좁으면 줄을 바꾼다. */
-  .top-side { flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; width: 100%; }
-  .top-side .lang-switch { order: 2; margin-left: auto; }
+  .top-side { flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-s); width: 100%; }
+  .top-side .lang-switch { order: 2; margin-left: auto; align-self: center; }
   .support-menu { flex-wrap: wrap; }
   .lede .intro { display: none; }
   .lede { font-size: var(--text-meta); }
