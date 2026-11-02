@@ -16,6 +16,11 @@ export function dateWord(d, lang = LANG) {
   return (d.getUTCMonth() + 1) + "/" + d.getUTCDate();
 }
 // 시각 글: 한국어 "오전 1:30", 영문 "1:30 AM". h 는 0~23, mm 는 0~59.
+// 최근 소식 머리의 긴 날짜: 한국어 "10월 25일 (월)", 영문 "Mon, Oct 25". d 는 UTC 기준 날짜 객체다.
+export function dateLong(d, lang = LANG) {
+  var wd = tIn(lang, "weekday." + d.getUTCDay());
+  return lang === "en" ? wd + ", " + dateWord(d, "en") : (d.getUTCMonth() + 1) + "월 " + d.getUTCDate() + "일 (" + wd + ")";
+}
 export function clockText(h, mm, lang = LANG) {
   var h12 = h % 12 || 12, mmS = (mm < 10 ? "0" : "") + mm, ampm = tIn(lang, h < 12 ? "time.am" : "time.pm");
   return lang === "en" ? h12 + ":" + mmS + " " + ampm : ampm + " " + h12 + ":" + mmS;

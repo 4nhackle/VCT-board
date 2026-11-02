@@ -11,7 +11,7 @@ import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, t
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
-import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, clockText } from "../js/format.js";
+import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
 import { tIn, setLang, setEnTable, trEn, trNote, trWhole } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
 import { KO } from "../js/i18n/ko.js";
@@ -808,6 +808,12 @@ t("사이트 경로: build.mjs·dev-server.mjs·index.html 인라인 스크립�
   const prefix = /const PREFIX = "([^"]+)"/.exec(read("scripts/dev-server.mjs"))[1];
   assert.equal(prefix, site);
   assert.ok(read("index.html").includes('"' + site + '"'));
+});
+
+t("dateLong: 한국어 'M월 D일 (요일)', 영문 'Mon, Oct 25'", () => {
+  const d = new Date(Date.UTC(2026, 9, 26));
+  assert.equal(dateLong(d, "ko"), "10월 26일 (" + KO["weekday." + d.getUTCDay()] + ")");
+  assert.equal(dateLong(d, "en"), EN["weekday." + d.getUTCDay()] + ", Oct 26");
 });
 
 console.log(`\n단위 시험 ${n}개 통과`);
