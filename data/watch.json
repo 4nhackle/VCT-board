@@ -15,5 +15,5 @@
   {"region":"Pacific","team":"RRQ","targets":"Kushy, monyet","situation":"계약 만료 예정","src":"s71","teamIds":["rex-regum-qeon"]},
   {"region":"Pacific","team":"T1","targets":"stax, BuZz","situation":"계약 11/2 만료 (진로 미발표)","src":"s45","teamIds":["t1"]},
   {"region":"Pacific","team":"Team Secret","targets":"STYRON, naTz, Sylvan","situation":"계약 2026 만료(Sheep 보도). STYRON은 LFT 시트에 반영","src":"s71","teamIds":["team-secret"]},
-  {"region":"China","team":"FunPlus Phoenix, Nova, Titan, Wolves, DRG","targets":"소속 선수","situation":"파트너십 탈락. FPX는 77even 영입, China Threshold 진행 중. Wolves는 Threshold 11-12위로 마감(alexRr·Deryeon FA, 10/29), 존속 불투명","src":"s72","teamIds":["funplus-phoenix","nova-esports","titan-esports-club","wolves-esports","dragon-ranger-gaming"]}
+  {"region":"China","team":"FunPlus Phoenix, Nova, Titan, Wolves, DRG","targets":"소속 선수","situation":"파트너십 탈락 후 China Threshold 결과: DRG(10/25)·NOVA(11/1, Unsettled Resentment 3-0)가 2027 게스트 자리 확보 — 두 팀 선수 잔류 가능. FPX(77even 영입)·Titan·Wolves는 탈락(Wolves alexRr·Deryeon FA 10/29, 존속 불투명). FPX·Titan 선수 FA 전환 여부는 미확인 (TalkEsport 11/1 13:49 UTC)","src":"s229","teamIds":["funplus-phoenix","nova-esports","titan-esports-club","wolves-esports","dragon-ranger-gaming"]}
 ]
