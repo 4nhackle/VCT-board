@@ -9,7 +9,7 @@ import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
-import { ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, buildTabs, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst } from "../js/model.js";
+import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
@@ -918,6 +918,62 @@ t("이적 이전 팀(from) '-': 경고만 내고 오류 0", () => {
 t("pillOf: 도착 팀이 '-' 여도 '새 팀 합류'(routeOf 와 같은 규칙)", () => {
   assert.equal(pillOf({ moved: true, status: "이적", next: "-", team: "X", conf: "C", date: T })[1], "새 팀 합류");
   assert.equal(pillOf({ moved: true, status: "이적", next: "Y", team: "X", conf: "C", date: T })[1], "Y 합류");
+});
+
+t("cleanName: 공백·'-' 는 빈 값, 이름은 앞뒤 공백만 뗀다", () => {
+  for (const v of [" ", "-", " - ", "", null, undefined]) assert.equal(cleanName(v), "", JSON.stringify(v));
+  assert.equal(cleanName("Sentinels"), "Sentinels");
+  assert.equal(cleanName("  Sentinels "), "Sentinels");
+});
+
+t("pillOf: 도착 팀이 공백(' ')이면 '새 팀 합류'", () => {
+  assert.equal(pillOf({ moved: true, status: "이적", next: " ", team: "X", conf: "C", date: T })[1], "새 팀 합류");
+});
+
+t("이적 빈 도착 팀(코치 쪽): validate 오류", () => {
+  const dir = tmp("blankto-coach");
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "transfers.json");
+  const tr = JSON.parse(fs.readFileSync(file, "utf8"));
+  tr.coaches = [{ ...tr.players[0], name: "코치테스트", to: "" }];
+  fs.writeFileSync(file, JSON.stringify(tr));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /transfers\.coaches\[0\] .*새 팀\(to\)이 비어 있습니다/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("빈 칸 일괄: 국적 ' ' 인 행의 메타에 ' · ' 가 남지 않고, 이름 ' ' 인 팀의 제목은 팀 id", () => {
+  const html = rowHTML({ region: "Americas", team: "Cloud9", name: "X", sub: "Duelist,  ", status: "구직 중", date: T, conf: "C", note: "", src: null, pid: "x", tid: "cloud9" }, { mode: "entry", teamObj: {}, shared: new Map() }, {});
+  assert.ok(html.includes('<span class="meta">Duelist</span>'), "메타: " + html.slice(html.indexOf('class="meta"'), html.indexOf('class="meta"') + 60));
+  assert.equal(teamNameOf("fx-id", [{ kind: "player", item: { team: " " } }]), "fx-id");
+  assert.equal(teamNameOf("fx-id", [{ kind: "player", item: { team: "Cloud9" } }]), "Cloud9");
+});
+
+t("validate: 인물 국적 ' ' 은 빈 칸 경고", () => {
+  const dir = tmp("nat-blank");
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "people.json");
+  const rows = JSON.parse(fs.readFileSync(file, "utf8"));
+  rows[0].nationality = " ";
+  fs.writeFileSync(file, JSON.stringify(rows));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, /국적 또는 역할이 빈 칸/);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("validate: 날짜 칸과 맞지 않는 비고 시각은 '날짜 칸과 맞지 않거나 그 해에 없는 날짜' 경고", () => {
+  const dir = tmp("stamp-mismatch");
+  for (const f of fixFiles()) fs.copyFileSync(path.join(FIX, f), path.join(dir, f));
+  const file = path.join(dir, "players.json");
+  const rows = JSON.parse(fs.readFileSync(file, "utf8"));
+  rows[0].note = "테스트 (Sheep 10/24 16:30 UTC)";
+  rows[0].date = 46300;
+  fs.writeFileSync(file, JSON.stringify(rows));
+  const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
+  assert.match(r.stderr, /보도 시각 10\/24 가 날짜 칸과 맞지 않거나 그 해에 없는 날짜입니다/);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
 
 t("css-check: css/style.css 가 네 가지 점검(중복·날것의 값·대비·터치)을 통과한다", () => {

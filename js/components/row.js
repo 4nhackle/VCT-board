@@ -1,5 +1,5 @@
 import { esc, isNew, relDate, stampLabel, textHTML } from "../format.js";
-import { regionName, pillOf, routeOf, slugOf, watchMeta } from "../model.js";
+import { regionName, pillOf, routeOf, slugOf, watchMeta, cleanName } from "../model.js";
 import { t, trWhole } from "../i18n.js";
 import { splitNote, srcsHTML, termHTML, nameHTML, noteText } from "../views/common.js";
 import { personUrl, teamUrl } from "../state.js";
@@ -32,7 +32,7 @@ export function rowHTML(it, tab, opt) {
   if (tab.mode === "watch") return watchHTML(it, tab);
   var p = pillOf(it), sp = splitNote(noteText(it.note)), lead = "";
   // 시트에서 빈 칸을 "-"로 적은 값은 보여주지 않는다. 직책·국적은 용어집으로 옮긴다.
-  var meta = (it.sub || "").split(", ").filter(function (x) { return x && x !== "-"; }).map(function (x) { return termHTML(x); }).join(" · ");
+  var meta = (it.sub || "").split(", ").filter(cleanName).map(function (x) { return termHTML(x); }).join(" · ");
   // 데이터 판정용 글자(상태 글 앞머리). 판정은 원문으로 하고, 화면 글자는 용어집 또는 원문 + KR 로 보인다.
   if (!it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status)) lead = termHTML(it.status) + ". ";
   opt = opt || {};
