@@ -1,7 +1,8 @@
 import { esc, relDate, srcHTML, stampLabel, parseStamp, dateWord, clockText, textHTML, krHTML } from "../format.js";
-import { t, LANG } from "../i18n.js";
+import { t, LANG, trWhole, trNote } from "../i18n.js";
 import { termEn } from "../i18n/glossary.js";
-import { pillOf, routeOf } from "../model.js";
+import { pillOf, routeOf, watchMeta } from "../model.js";
+import { STAMP_RE, CROSS_RE } from "../note.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
 import { personUrl } from "../state.js";
@@ -36,8 +37,15 @@ export function nameLink(pid, html) {
 // - 끝의 "(출처이름 M/D HH:mm UTC|KST)" → src {name, when}. when 은 한국 시간 "M/D 오전 h:mm".
 // - "교차 확인: A, B" 구절(다음 마침표 또는 끝까지) → cross [A, B].
 // 규칙에 맞지 않는 부분은 body 에 원문 그대로 남는다.
-var STAMP_RE = /\s*\(([^()]+?)\s+(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})\s*(UTC|KST)\)\s*$/;
-var CROSS_RE = /\s*교차 확인:\s*(.+?)(?:\.(?=\s|$)|$)/;
+// 영문 화면에서만 본문 번역을 쓴다(없거나 검사에 걸리면 원문). whole 이면 조각 나눔 없이 글 하나를, 아니면 비고를 번역한다.
+// 상황 글은 [확정]·(확인 M/D) 를 떼고 몸말만 번역표에서 찾는다(watchMeta 와 같은 규칙).
+export function noteText(text, whole) {
+  if (!whole) return trNote(text);
+  var r = trWhole(text);
+  if (r !== text) return r;
+  var body = watchMeta(text).body;
+  return body !== text ? trWhole(body) : r;
+}
 export function splitNote(text) {
   var body = String(text == null ? "" : text).trim(), src = null, cross = null, m = STAMP_RE.exec(body);
   // 괄호 모양은 여기서 본다. 숫자 해석과 범위 확인은 format.js parseStamp 가 한다(stampOf 와 같은 규칙).
@@ -78,13 +86,13 @@ export function monoHTML(name) {
 
 // 소식 한 줄. withName 이면 인물 이름을 링크로 함께 보여 준다(팀 화면). 지켜볼 팀 줄은 대상과 메모를 보여 준다.
 export function newsRow(e, withName) {
-  var it = e.item, sp = splitNote(val(it.note)), when = relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "");
+  var it = e.item, sp = splitNote(noteText(val(it.note), e.kind === "watch")), when = relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "");
   if (e.kind === "watch") {
-    return '<li class="dp-row"><p class="dp-meta">' + [when, esc(tabName("watch")), textHTML(it.team)].filter(Boolean).join(" · ") + '</p><p class="dp-line"><span class="lbl">' + t("row.target") + "</span>" + termHTML(it.name) +
+    return '<li class="dp-row"><p class="dp-meta">' + [when, esc(tabName("watch")), textHTML(trWhole(it.team))].filter(Boolean).join(" · ") + '</p><p class="dp-line"><span class="lbl">' + t("row.target") + "</span>" + termHTML(it.name) +
       (sp.body ? ". " + textHTML(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
   }
   // 소식 머리의 경로: 이동이면 "출발 → 도착"(잔류는 "X 잔류"), 아니면 소속 팀. 글자만 쓴다(링크는 줄 안의 이름 링크와 겹치지 않게 뺌).
-  var r = routeOf(it), route = r && r.kind === "stay" ? textHTML(r.to) + " " + t("pill.stayed") : r ? [r.from, r.to].filter(Boolean).map(function (x) { return textHTML(x); }).join(" → ") : textHTML(val(it.team));
+  var r = routeOf(it), route = r && r.kind === "stay" ? textHTML(r.to) + " " + t("pill.stayed") : r ? [r.from, r.to].filter(Boolean).map(function (x) { return textHTML(x); }).join(" → ") : textHTML(trWhole(val(it.team)));
   return '<li class="dp-row"><p class="dp-meta">' + [when, esc(tabName(e.kind)), route].filter(Boolean).join(" · ") + "</p>" +
     '<p class="dp-line">' + pill(pillOf(it)) + badge(it) + (withName ? " " + nameLink(it.pid, nameHTML(it.name)) : "") + (sp.body ? " " + textHTML(sp.body) : "") + "</p>" + srcsHTML(sp, it.src) + "</li>";
 }
