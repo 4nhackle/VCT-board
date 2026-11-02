@@ -26,6 +26,8 @@ http.createServer((req, res) => {
   if (p === "/" || p === "/VCT-board") return send(res, 302, "", null, { Location: PREFIX + url.search + url.hash });
   if (!p.startsWith(PREFIX)) return send(res, 404, "not found");
   const sub = p.slice(PREFIX.length);
+  // %2F 로 숨긴 ../ 도 막는다(디코딩 뒤에 생긴 상위 폴더 참조).
+  if (sub.split("/").includes("..")) return send(res, 403, "forbidden");
   // 견본 화면(dev/styleguide.html)의 데이터: dev/fixtures/ 는 scripts/fixtures/ 를 가리킨다.
   const file = sub.startsWith("dev/fixtures/") ? path.join(root, "scripts", "fixtures", sub.slice("dev/fixtures/".length)) : path.join(root, sub);
   // 폴더 밖으로 나가는 경로(../)는 막는다.
