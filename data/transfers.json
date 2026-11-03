@@ -1,6 +1,6 @@
 {
   "players": [
-    {"region":"Americas","name":"OXY","from":"Cloud9","to":"Sentinels","type":"이적","date":46320,"conf":"R","note":"C9 비파트너 탈락 후 이탈 보도. Duelist. 공식 발표 전 (Sheep 10/24 16:30 UTC)","src":"s4","personId":"oxy","fromTeam":"cloud9","toTeam":"sentinels"},
+    {"region":"Americas","name":"OXY","from":"Cloud9","to":"Sentinels","type":"이적","date":46329,"conf":"C","note":"[확정] Sentinels 공식 영입 확인(VLR 뉴스·이적 로그 11/2, Dot Esports 보도). C9 비파트너 탈락 후 이적. Duelist. 기존 Sheep 10/24 16:30 UTC 단일 보도 → 공식 확정 (Dot Esports 11/3 08:49 UTC)","src":"s249","personId":"oxy","fromTeam":"cloud9","toTeam":"sentinels","signedDate":46328},
     {"region":"Americas","name":"GLYPH","from":"ENVY","to":"Cloud9","type":"이적","date":46328,"conf":"R","note":"VLR 이적 로그 11/2 ENVY→Cloud9 합류 등재. 팀 공식 발표 미확인","src":"s14","personId":"glyph","fromTeam":"envy","toTeam":"cloud9","signedDate":46328},
     {"region":"Americas","name":"eeiu","from":"FURIA","to":"NRG","type":"이적","date":46326,"conf":"R","note":"FURIA 2026 소속(Stage 2 전 이탈) → NRG 구두 합의 보도. 공식 발표 전 (Sheep 10/30 21:57 UTC)","src":"s85","personId":"eeiu","fromTeam":"furia","toTeam":"nrg"},
     {"region":"Americas","name":"jawgemo","from":"G2 Esports","to":"Team Vitality","type":"이적(Americas→EMEA)","date":46329,"conf":"R","note":"Team Vitality 합류 구두 합의 보도(Derke 후임), 공식 발표 전. Champions 2026 준우승 팀으로 이동 (Sheep 11/2 23:56 UTC)","src":"s245","personId":"jawgemo","fromTeam":"g2-esports","toTeam":"team-vitality"},
