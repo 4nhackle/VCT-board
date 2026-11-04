@@ -158,5 +158,14 @@
   {"id":"ash","name":"Ash","kind":"player","realName":"Ha Hyun-cheol","nationality":"South Korea","links":{"vlr":"https://www.vlr.gg/player/25017/ha-hyun-cheol"},"src":"s247"},
   {"id":"flickless","name":"Flickless","kind":"player","realName":"Karel Maeckelbergh","nationality":"Belgium","career":[{"team":"giantx","from":"2025-05","to":"2026-10"},{"team":"ucam-esports-club","from":"2026-11","to":null}],"src":"s246"},
   {"id":"filu","name":"Filu","kind":"player","realName":"Dawid Czarnecki","nationality":"Poland","career":[{"team":"ucam-esports-club","from":"2026-11","to":null}],"src":"s246"},
-  {"id":"rebecca","name":"Rebecca","kind":"coach","realName":"Rebecca Wong","role":"퍼포먼스 코치","src":"s14"}
+  {"id":"rebecca","name":"Rebecca","kind":"coach","realName":"Rebecca Wong","role":"퍼포먼스 코치","src":"s14"},
+  {"id":"acme","name":"AcMe","kind":"player","realName":"Cha Il-hwan (차일환)","nationality":"South Korea","links":{"vlr":"https://www.vlr.gg/player/4666/cha-il-hwan"},"src":"s262"},
+  {"id":"babybay","name":"babybay","kind":"player","realName":"Andrej Francisty","nationality":"United States","links":{"vlr":"https://www.vlr.gg/player/2170/andrej-francisty"},"src":"s259"},
+  {"id":"berserx","name":"BerserX","kind":"player","nationality":"Indonesia","src":"s248"},
+  {"id":"brawk","name":"brawk","kind":"player","realName":"Brock Somerhalder","role":"Initiator","nationality":"United States","career":[{"team":"sentinels","from":"2026-11","to":null},{"team":"nrg","from":"2025-02","to":"2026-11"},{"team":"shopify-rebellion-black","from":"2025-01","to":"2025-02"}],"links":{"vlr":"https://www.vlr.gg/player/2172/brock-somerhalder"},"src":"s260"},
+  {"id":"crashies","name":"crashies","kind":"player","realName":"Austin Roberts","role":"Initiator/Sentinel","nationality":"United States","src":"s251"},
+  {"id":"desmo","name":"Desmo","kind":"coach","realName":"Casper Rasmussen","role":"어시스턴트 코치","nationality":"Denmark","career":[{"team":"fnatic","from":"2025-12","to":"2026-11"},{"team":"apeks","from":"2023-12","to":"2024-10"}],"links":{"vlr":"https://www.vlr.gg/player/195/casper-rasmussen"},"src":"s263"},
+  {"id":"peri","name":"peri","kind":"coach","role":"코치","src":"s256"},
+  {"id":"sociablee","name":"sociablEE","kind":"player","realName":"Volkan Yonal","nationality":"Turkey","career":[{"team":"eternal-fire","from":"2026-11","to":null},{"team":"fut-esports","from":"2026-04","to":"2026-11"},{"team":"natus-vincere","from":"2025-12","to":"2026-04"},{"team":"bbl-esports","from":"2024-10","to":"2025-12"}],"links":{"vlr":"https://www.vlr.gg/player/5568/volkan-yonal"},"src":"s261"},
+  {"id":"szed","name":"Szed","kind":"coach","realName":"Philipp Schickor","role":"퍼포먼스 코치","nationality":"Germany","career":[{"team":"fnatic","from":"2025-03","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/53027/philipp-schickor"},"src":"s264"}
 ]
