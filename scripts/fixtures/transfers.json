@@ -1,0 +1,7 @@
+{
+  "players": [
+    {"region":"Americas","name":"FX ONE","from":"Alpha Test","to":"Beta Test","type":"이적","date":46324,"conf":"R","note":"가상 보도. 공식 발표 전","src":"fx1","personId":"fx-one","fromTeam":"fx-alpha","toTeam":"fx-beta","contractUntil":46327},
+    {"region":"EMEA","name":"FX THREE","from":"Beta Test","to":"Epsilon Test","type":"이적","date":46323,"conf":"C","note":"가상 보도. 공식 발표 완료","src":"fx1","personId":"fx-three","fromTeam":"fx-beta","toTeam":"fx-epsilon","signedDate":46325}
+  ],
+  "coaches": []
+}

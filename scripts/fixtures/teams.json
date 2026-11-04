@@ -1,0 +1,6 @@
+[
+  {"id":"fx-alpha","name":"Alpha Test","short":"ALP","region":"Americas","country":"Testland","tier":"partner","active":true,"note":""},
+  {"id":"fx-beta","name":"Beta Test","short":"BET","region":"EMEA","country":"Freedonia","tier":"ascended","active":true,"note":""},
+  {"id":"fx-delta","name":"Delta Test","short":"DLT","region":"Pacific","country":"Atlantis","tier":"challengers","active":false,"note":"가상 운영 종료"},
+  {"id":"fx-epsilon","name":"Epsilon Test","short":"EPS","region":"China","country":"Ruritania","tier":"academy","active":true,"note":""}
+]
