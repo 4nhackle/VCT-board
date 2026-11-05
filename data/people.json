@@ -179,5 +179,8 @@
   {"id":"bai","name":"Bai","kind":"player","realName":"Zhang Zeyang (张泽洋)","nationality":"China","career":[{"team":"all-gamers","from":"2025-03","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/52101/bai"},"src":"s278"},
   {"id":"after","name":"AfteR","kind":"coach","realName":"Lo Wen-Hsin (罗文信)","role":"헤드 코치","nationality":"Taiwan","career":[{"team":"titan-esports-club","from":"2024-10","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/8643/after"},"src":"s279"},
   {"id":"3water","name":"3water","kind":"coach","realName":"Liu Miao (刘淼)","role":"어시스턴트 코치","nationality":"China","links":{"vlr":"https://www.vlr.gg/player/42154/3water"},"src":"s280"},
-  {"id":"muggle","name":"Muggle","kind":"coach","realName":"Tang Shijun (唐时俊)","role":"코치","nationality":"China","career":[{"team":"bilibili-gaming","from":"2025-11","to":"2026-06"},{"team":"titan-esports-club","from":"2026-06","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/29401/muggle"},"src":"s281"}
+  {"id":"muggle","name":"Muggle","kind":"coach","realName":"Tang Shijun (唐时俊)","role":"코치","nationality":"China","career":[{"team":"bilibili-gaming","from":"2025-11","to":"2026-06"},{"team":"titan-esports-club","from":"2026-06","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/29401/muggle"},"src":"s281"},
+  {"id":"smoggy","name":"Smoggy","kind":"player","realName":"Zhang Zhao","role":"Controller","nationality":"China","src":"s283"},
+  {"id":"spring","name":"Spring","kind":"player","realName":"Liu Chun-ting","nationality":"Taiwan","src":"s284"},
+  {"id":"hype","name":"Hype","kind":"coach","realName":"Park Min-soo (박민수)","role":"코치","nationality":"South Korea","career":[{"team":"onside-gaming","from":"2025-12","to":"2026-09"},{"team":"nongshim-redforce","from":"2026-11","to":null}],"links":{"vlr":"https://www.vlr.gg/player/4041/park-min-soo"},"src":"s285"}
 ]
