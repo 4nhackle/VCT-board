@@ -172,5 +172,12 @@
   {"id":"darker","name":"Darker","kind":"player","role":"Controller","nationality":"Colombia","src":"s267"},
   {"id":"sacy","name":"Sacy","kind":"coach","realName":"Gustavo Rossi","role":"헤드 코치(예정)","nationality":"Brazil","links":{"liquipedia":"https://liquipedia.net/valorant/Sacy"},"src":"s271"},
   {"id":"tkzin","name":"tkzin","kind":"player","realName":"Enzo Zimiani","nationality":"Brazil","src":"s268"},
-  {"id":"westside","name":"westside","kind":"player","realName":"Miłosz Duda","links":{"vlr":"https://www.vlr.gg/player/34684/westside"},"src":"s269"}
+  {"id":"westside","name":"westside","kind":"player","realName":"Miłosz Duda","links":{"vlr":"https://www.vlr.gg/player/34684/westside"},"src":"s269"},
+  {"id":"saadhak","name":"saadhak","kind":"player","realName":"Matias Delipetro","nationality":"Argentina","career":[{"team":"loud","from":"2022-02","to":"2024-11"},{"team":"karmine-corp","from":"2024-11","to":"2025-11"},{"team":"kru-esports","from":"2025-12","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/727/saadhak"},"src":"s275"},
+  {"id":"dantedeu5","name":"Dantedeu5","kind":"player","realName":"Jesús Federico Larrosa","nationality":"Argentina","career":[{"team":"kru-esports","from":"2025-07","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/41135/dantedeu5"},"src":"s276"},
+  {"id":"haodong","name":"Haodong","kind":"player","realName":"Guo Haodong (郭浩东)","nationality":"China","career":[{"team":"titan-esports-club","from":"2024-10","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/4720/haodong"},"src":"s277"},
+  {"id":"bai","name":"Bai","kind":"player","realName":"Zhang Zeyang (张泽洋)","nationality":"China","career":[{"team":"all-gamers","from":"2025-03","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/52101/bai"},"src":"s278"},
+  {"id":"after","name":"AfteR","kind":"coach","realName":"Lo Wen-Hsin (罗文信)","role":"헤드 코치","nationality":"Taiwan","career":[{"team":"titan-esports-club","from":"2024-10","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/8643/after"},"src":"s279"},
+  {"id":"3water","name":"3water","kind":"coach","realName":"Liu Miao (刘淼)","role":"어시스턴트 코치","nationality":"China","links":{"vlr":"https://www.vlr.gg/player/42154/3water"},"src":"s280"},
+  {"id":"muggle","name":"Muggle","kind":"coach","realName":"Tang Shijun (唐时俊)","role":"코치","nationality":"China","career":[{"team":"bilibili-gaming","from":"2025-11","to":"2026-06"},{"team":"titan-esports-club","from":"2026-06","to":"2026-11"}],"links":{"vlr":"https://www.vlr.gg/player/29401/muggle"},"src":"s281"}
 ]
