@@ -99,11 +99,13 @@
   {"id":"all-gamers","name":"All Gamers","short":"AG","region":"China","country":"China","tier":"partner","active":true,"note":"VCT China 2027 파트너. 11/2 헤드 코치 ED101 퇴단(AG 공식 X)","aliases":["AG"]},
   {"id":"bilibili-gaming","name":"Bilibili Gaming","region":"China","active":true},
   {"id":"dragon-ranger-gaming","name":"Dragon Ranger Gaming","short":"DRG","region":"China","country":"China","tier":"ascended","active":true},
-  {"id":"edward-gaming","name":"EDward Gaming","short":"EDG","region":"China","country":"China","tier":"partner","active":true,"note":"VCT China 2027-28 파트너. 11/5 Smoggy BLG 합류 예정 보도(Sheep)","aliases":["EDG"]},
+  {"id":"edward-gaming","name":"EDward Gaming","short":"EDG","region":"China","country":"China","tier":"partner","active":true,"note":"VCT China 2027-28 파트너. 11/5 Smoggy BLG 합류 예정 보도(Sheep) / 11/5 nobody·CHICHOO Trace 합류 예정 보도(Sheep)","aliases":["EDG"]},
   {"id":"funplus-phoenix","name":"FunPlus Phoenix","region":"China","active":true,"aliases":["FPX"]},
   {"id":"nova-esports","name":"Nova Esports","region":"China","active":true},
   {"id":"rare-atom","name":"Rare Atom","region":"China","active":true},
   {"id":"titan-esports-club","name":"Titan Esports Club","region":"China","active":true,"aliases":["Titan"]},
+  {"id":"trace-esports","name":"Trace Esports","region":"China","country":"China","tier":"partner","active":true,"note":"VCT China 2027 파트너(Sheep 허브 기준). 11/5 CHICHOO·nobody(전 EDG) 합류 예정 보도(Sheep)"},
+  {"id":"tyloo","name":"TYLOO","region":"China","country":"China","tier":"partner","active":true,"note":"VCT China 2027 파트너(Sheep 허브 기준). 11/5 pipsoN(전 GIANTX) 헤드 코치 합류 예정 보도(Sheep)"},
   {"id":"weibo-gaming","name":"Weibo Gaming","short":"WBG","region":"China","country":"China","tier":"challengers","active":true},
   {"id":"wolves-esports","name":"Wolves Esports","region":"China","country":"China","tier":"partner","active":true},
   {"id":"xi-lai-gaming","name":"Xi Lai Gaming","short":"XLG","region":"China","country":"China","tier":"partner","active":true,"aliases":["XLG Esports"]},
@@ -198,8 +200,6 @@
   {"id":"galorys","name":"Galorys","active":true},
   {"id":"gamax-esports","name":"Gamax Esports","active":true},
   {"id":"gambit-esports","name":"Gambit Esports","active":true},
-  {"id":"gamelanders-blue","name":"Gamelanders Blue","active":true},
-  {"id":"gank-gaming","name":"Gank Gaming","active":true},
   {"id":"ghost-gaming","name":"Ghost Gaming","active":true},
   {"id":"giants-gaming","name":"Giants Gaming","active":true},
   {"id":"global-esports-academy","name":"Global Esports Academy","tier":"academy","active":true},
@@ -338,5 +338,7 @@
   {"id":"yari-esports","name":"YARI Esports","active":true},
   {"id":"yfp","name":"YFP","active":true},
   {"id":"zeta-gaming","name":"ZETA Gaming","active":true},
-  {"id":"zol-esports","name":"ZOL Esports","active":true}
+  {"id":"zol-esports","name":"ZOL Esports","active":true},
+  {"id":"gamelanders-blue","name":"Gamelanders Blue","active":true},
+  {"id":"gank-gaming","name":"Gank Gaming","active":true}
 ]
