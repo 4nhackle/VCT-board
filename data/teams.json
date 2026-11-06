@@ -340,5 +340,9 @@
   {"id":"zeta-gaming","name":"ZETA Gaming","active":true},
   {"id":"zol-esports","name":"ZOL Esports","active":true},
   {"id":"gamelanders-blue","name":"Gamelanders Blue","active":true},
-  {"id":"gank-gaming","name":"Gank Gaming","active":true}
+  {"id":"gank-gaming","name":"Gank Gaming","active":true},
+  {"id":"turtle-troop","name":"Turtle Troop","active":true},
+  {"id":"rankers","name":"RANKERS","active":true},
+  {"id":"s2g-academy","name":"S2G Academy","active":true},
+  {"id":"reborn","name":"REBORN","active":true}
 ]
