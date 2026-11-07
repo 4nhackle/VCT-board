@@ -1,0 +1,39 @@
+# 2026-11-08 PR 4: 오늘 탭과 거르기 4개
+
+- 목적: 지시문 `docs/instructions/PR4-today-filters.md` 대로 (1) 오늘(KST) 소식 탭 `today`, (2) 거르기 4개: 포지션·확인 단계·기간·상위 팀만.
+- 이 세션이 대체하는 것: 없음. 연결: `docs/PROGRESS.md` 21회차 절.
+- 브랜치: `feature/today-filters` (origin/main `9e2d944`, PR 1·2 병합 뒤). PR 기준 `main`. 병합하지 않았다.
+- 바꾼 파일
+  - `js/model.js`: `buildTabs(D, today)` 에 오늘 탭 추가(선수 탭 뒤), `matches(it, tab, state, today)` 에 거르기 4개 추가.
+  - `js/state.js`: 상태 `pos`·`stage`·`days`·`top` 추가. `filtersOf(loc)`·`queryOf(s)`·상수 3개 추가. `parseRoute` 는 `?` 앞 탭 이름만 준다. `pushTab` 은 거르기 값을 주소에 붙인다.
+  - `js/main.js`: 오늘 탭은 항상 최근 소식순으로 그리고 정렬 칩을 숨긴다. 없을 때는 `hint.todayFallback`(최근 날짜). 거르기 칩 줄(`#fx`, JS 로 만듦). 요약 칩 개수는 거르기 전부를 반영한다. 주소의 거르기 값으로 다시 그린다.
+  - `js/i18n/ko.js`, `js/i18n/en.js`: `tab.today`, `hint.today`, `hint.todayFallback`, `filter.*`, `stage.*`, `days.*`.
+  - `scripts/test.mjs`: 시험 6개 추가(포지션·단계·기간·상위 팀, 오늘 탭과 대체 날짜, 주소 읽기·쓰기).
+- 결정과 이유
+  - 거르기 값은 주소의 `?pos=…&stage=…&days=…&top=1` 에 둔다. 지시문은 "region/status 와 같은 방식"이라 했지만, 기존 region·status 는 주소에 들어 있지 않고 `history.state` 에만 있다. 지시문 시험("reload with filters in the hash")에 맞추려고 새 4개만 주소에 둔다. region·status 는 그대로다.
+  - 포지션 줄은 선수·오늘·한국 탭에만 보인다. 지시문은 코치 탭만 뺐다. 이적 탭은 원본 행에 포지션 칸이 없어 포지션을 고르면 빈 목록이 되므로 뺐다. 지켜볼 팀도 뺐다.
+  - 포지션 판정은 `sub` 의 첫 칸을 소문자로 바꿔 부분 일치한다. "Duelist/Flex" 는 Duelist 와 Flex 양쪽에 걸린다. 한국어 값 "이니시에이터"(1행)는 Initiator 에 걸리지 않는다.
+  - 오늘 탭 항목은 병합된 선수+코치 목록이다(인물당 한 줄). 이적 탭의 원본 행은 따로 넣지 않는다.
+  - 요약 칩 개수: 지시문은 "지역·검색처럼 적용"이라 했으나 기존 코드는 지역·검색을 개수에 반영하지 않았다. 이번에 모든 거르기(지역·검색·새 4개)를 반영하도록 바꿨다. 기존 동작이 바뀐다.
+  - 주소를 직접 고쳐 같은 탭의 거르기만 바뀌면 다시 그린다. 처음에 이 경우를 놓쳐(early return) 브라우저 시험에서 찾아 고쳤다.
+- 확인 결과 (직접 실행)
+  - `node scripts/test.mjs`: 133개 통과(PR 2 의 127 + 새 6). 종료 코드 0.
+  - `node scripts/validate.mjs`: 오류 0, 경고 564(변화 없음).
+  - `node scripts/css-check.mjs`: 스타일 점검 통과.
+  - `node scripts/i18n-report.mjs`: 누락 0. 번역 표 318 = 쓰이는 키 318.
+  - `node scripts/build.mjs _site`: 성공. `origin/main` 빌드와 비교: `js/` 를 뺀 나머지 출력 파일 차이 0(p/·t/ 정적 페이지와 sitemap 포함).
+  - 브라우저(개발 서버, 한·영):
+    - 오늘 탭: 오늘 소식이 없어 `11/7`(영문 `Nov 7`) 5행으로 대체, 힌트 문구 표시, 정렬 칩 숨김.
+    - 칩 클릭: `#today?stage=confirmed` → `&days=7` → `&top=1` 로 주소가 바뀌고 행 수가 줄어든다.
+    - 주소를 붙인 상태로 전체 새로 고침: 칩 상태가 복원된다.
+    - 같은 탭에서 주소만 바꿈(`stage=reported`): 4행으로 다시 그림.
+    - 인물 상세 열기 → 뒤로: 거르기와 행 수가 복원된다.
+    - 코치·이적 탭: 포지션 줄이 없다. 거르기는 탭을 옮겨도 이어진다.
+    - 영문 390px: 가로 넘침 없음. 1280px 은 DOM 으로만 확인했다.
+- 확인하지 못한 것
+  - 1280px 화면 모양은 보지 않았다.
+  - 칩 줄 모양: 지시문은 "칩 줄 하나"였으나 실제로는 그룹 4개(포지션·단계·기간·상위 팀)가 390px 에서 4줄로 나뉜다. 모양은 디자인 세션에서 정리한다.
+  - 프로덕션 배포 뒤의 실제 데이터 동작은 확인하지 않았다(개발 서버만).
+- 남은 일
+  - PR 병합(사용자 확인 뒤). 병합 시각은 예약 작업 시각 앞뒤 30분을 피한다(CLAUDE.md).
+  - 칩 줄 모양 정리(디자인 세션).

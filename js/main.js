@@ -1,7 +1,7 @@
-import { isNew, esc, withKst } from "./format.js";
+import { isNew, esc, withKst, fmtDate } from "./format.js";
 import { REGIONS, regionName, buildTabs, buildIndex, matches, cls } from "./model.js";
 import { t, LANG, ledeHTML, setEnTable } from "./i18n.js";
-import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute } from "./state.js";
+import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
 import { scheduleHTML } from "./views/schedule.js";
@@ -35,7 +35,8 @@ function renderView() {
   if (tab.mode === "schedule") {
     html = scheduleHTML(D.schedule);
   } else {
-    var total = 0, fresh = 0, recent = state.order === "recent" && tab.mode === "entry";
+    // 오늘 탭은 정렬 칩과 상관없이 최근 소식순으로 그린다.
+    var total = 0, fresh = 0, recent = (state.order === "recent" || tab.id === "today") && tab.mode === "entry";
     tab.groups.forEach(function (g) {
       var items = g.items.filter(function (it) { return matches(it, tab, state); });
       total += items.length;
@@ -45,7 +46,9 @@ function renderView() {
       html += recent ? recentHTML(items, tab) : regionsHTML(items, tab);
     });
     if (!total) html = '<div class="empty">' + t("msg.empty") + "</div>";
-    if (tab.hint) html = '<p class="hint">' + tab.hint + "</p>" + html;
+    // 오늘 소식이 없으면 가장 최근 날짜를 알린다(fallbackDate 는 buildTabs 가 정한다).
+    var hint = tab.fallbackDate != null ? t("hint.todayFallback", { d: fmtDate(tab.fallbackDate) }) : tab.hint;
+    if (hint) html = '<p class="hint">' + hint + "</p>" + html;
   }
   if (tab.mode === "entry" && state.order === "recent" && total) html = '<p class="hint">' + t("hint.recent") + "</p>" + html;
   $("view").innerHTML = html;
@@ -85,21 +88,51 @@ function renderChrome() {
   $("summary").hidden = !tab.status;
   if (tab.status) {
     var base = [].concat.apply([], tab.groups.map(function (g) { return g.items; }));
+    // 요약 칩 개수는 지역·검색·거르기를 반영한다(상태 칩 자체는 개수에서 뺀다).
+    var cs = Object.assign({}, state, { status: "all" });
     $("summary").innerHTML = statusLabels().map(function (s) {
-      var n = s[0] === "all" ? base.length : base.filter(function (it) { return cls(it) === s[0]; }).length;
+      var n = base.filter(function (it) { return matches(it, tab, cs) && (s[0] === "all" || cls(it) === s[0]); }).length;
       return '<button type="button" class="chip sum ' + s[0] + '" data-status="' + s[0] + '" aria-pressed="' + (state.status === s[0]) + '"><span class="k">' + s[1] + '</span><span class="n">' + n + "</span></button>";
     }).join("");
   }
   $("regions").innerHTML = ["all"].concat(REGIONS).map(function (r) {
     return '<button type="button" class="chip" data-region="' + r + '" aria-pressed="' + (state.region === r) + '">' + (r === "all" ? t("region.all") : regionName(r)) + "</button>";
   }).join("");
-  $("order").hidden = tab.mode !== "entry";
+  $("order").hidden = tab.mode !== "entry" || tab.id === "today";
   renderOrder();
+  renderFilters(tab);
   ["tabs", "regions", "summary"].forEach(function (id) {
     var box = $(id), cur = box.querySelector('[aria-pressed="true"]');
     if (cur && box.scrollWidth > box.clientWidth) box.scrollLeft = cur.offsetLeft - (box.clientWidth - cur.offsetWidth) / 2;
   });
   document.title = (state.tab === "players" ? "" : tab.label + " · ") + t("title.site");
+}
+
+// 거르기 칩 줄(포지션·확인 단계·기간·상위 팀). 정적 HTML 을 고치지 않으려고 #filters 안에 JS 로 만든다.
+// 포지션 줄은 선수·오늘·한국 탭에서만 보인다(코치·이적·지켜볼 팀은 포지션 칸이 없다).
+function renderFilters(tab) {
+  var box = $("fx");
+  if (!box) { box = document.createElement("div"); box.id = "fx"; box.className = "bar b3"; $("filters").appendChild(box); }
+  box.hidden = tab.mode !== "entry";
+  if (box.hidden) { box.innerHTML = ""; return; }
+  function row(key, label, opts, cur) {
+    return '<div class="chips" role="group" aria-label="' + esc(label) + '">' + opts.map(function (o) {
+      return '<button type="button" class="chip" data-' + key + '="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + "</button>";
+    }).join("") + "</div>";
+  }
+  var rows = [];
+  if (tab.id === "players" || tab.id === "today" || tab.id === "korea") {
+    rows.push(row("pos", t("filter.position"), POS_VALUES.map(function (v) { return [v, v === "all" ? t("status.all") : v]; }), state.pos));
+  }
+  rows.push(row("stage", t("filter.stage"), [["all", t("status.all")], ["confirmed", t("stage.confirmed")], ["reported", t("stage.reported")]], state.stage));
+  rows.push(row("days", t("filter.days"), [["all", t("status.all")], ["0", t("days.0")], ["3", t("days.3")], ["7", t("days.7")]], state.days));
+  rows.push('<div class="chips" role="group" aria-label="' + esc(t("filter.top")) + '"><button type="button" class="chip" data-toponly="1" aria-pressed="' + state.top + '">' + t("filter.top") + "</button></div>");
+  box.innerHTML = rows.join("");
+}
+
+// 거르기를 바꾸면 주소의 ?…만 고친다(기록을 바꿔 쓴다). 탭 이름은 그대로다.
+function syncHash() {
+  try { history.replaceState(history.state, "", location.pathname + location.search + "#" + state.tab + queryOf(state)); } catch (e) {}
 }
 
 // 사이트 안의 인물·팀 상세 주소인지. 다른 출처나 출처 링크(외부)는 해당하지 않는다.
@@ -144,15 +177,20 @@ document.addEventListener("click", function (e) {
   var b = e.target.closest("button");
   if (!b) return;
   if (b.dataset.top) { window.scrollTo(0, 0); return; }
-  var tabChanged = false;
+  var tabChanged = false, filterChanged = false;
   if (b.dataset.tab) { tabChanged = b.dataset.tab !== state.tab; state.tab = b.dataset.tab; }
   else if (b.dataset.region) state.region = b.dataset.region;
   else if (b.dataset.status) state.status = b.dataset.status;
   else if (b.dataset.order) saveOrder(b.dataset.order);
+  else if (b.dataset.pos) { state.pos = b.dataset.pos; filterChanged = true; }
+  else if (b.dataset.stage) { state.stage = b.dataset.stage; filterChanged = true; }
+  else if (b.dataset.days) { state.days = b.dataset.days; filterChanged = true; }
+  else if (b.dataset.toponly) { state.top = !state.top; filterChanged = true; }
   else return;
   renderChrome();
   renderView();
   if (tabChanged) { pushTab(); langLinks(); }
+  else if (filterChanged) syncHash();
 });
 
 // 상세로 가기 전에 목록 상태와 스크롤 위치를 지금 기록(목록 항목)에 적어 둔다. 뒤로 오면 savedList() 로 되살린다.
@@ -172,12 +210,23 @@ function renderRoute() {
   if (r.view === "list") {
     var h = r.tab || "players", saved = savedList();
     // 목록 안에서 같은 탭이면 다시 그리지 않는다(기존 동작).
-    if (VIEW === "list" && (h === state.tab || !tabById(h))) return;
+    if (VIEW === "list" && (h === state.tab || !tabById(h))) {
+      // 같은 탭에서 주소의 거르기만 바뀌면(직접 고친 주소) 그 값으로 다시 그린다.
+      var nf = filtersOf(location);
+      if (h === state.tab && Object.keys(nf).some(function (k) { return nf[k] !== state[k]; })) {
+        Object.assign(state, nf);
+        renderChrome();
+        renderView();
+      }
+      return;
+    }
     if (saved) {
       state.region = saved.region; state.status = saved.status; state.order = saved.order;
       state.q = saved.q.trim(); $("q").value = saved.q;
     }
     if (tabById(h)) state.tab = h;
+    // 거르기는 주소(?…)에서 읽는다. 주소가 없으면 기본값이다.
+    Object.assign(state, filtersOf(location));
     $("tabs").hidden = false;
     if (notes) notes.hidden = false;
     detailChrome(false);

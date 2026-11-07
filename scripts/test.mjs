@@ -11,7 +11,7 @@ import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
 import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
-import { parseRoute } from "../js/state.js";
+import { parseRoute, filtersOf, queryOf } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
 import { noteParts } from "../js/note.js";
@@ -122,6 +122,80 @@ t("buildTabs: 한국 탭은 국적 또는 한국 팀 기준(코치 국적은 인
   assert.ok(!krCoaches.includes("fc"), "외국인 코치가 외국 팀이면 빠진다");
   assert.ok(krPlayers.includes("jp"), "외국 선수라도 한국 팀 소속이면 든다");
   assert.ok(krPlayers.includes("moved"), "이적 도착 팀이 한국 팀이면 든다");
+});
+
+// 오늘 탭·거르기(PR 4). 기준일은 T, 탭 묶음은 MD.
+const ST = (o) => ({ region: "all", status: "all", q: "", pos: "all", stage: "all", days: "all", top: false, ...o });
+const PLAIN = { id: "players", status: true, teamObj: { t1: { tier: "partner" }, t2: { tier: "academy" } } };
+// 선수 항목 한 줄. over 의 tid·tidTo 는 항목에, 나머지는 시트 행에 덮는다.
+const pRow = (over = {}) => {
+  const { tid = "t2", tidTo, ...row } = over;
+  const base = { region: "EMEA", team: "Y", name: "A", position: "Duelist", nationality: "Japan", status: "FA 진입 예정", date: T, conf: "C", src: "s1" };
+  return Object.assign(toItem({ ...base, ...row }, "player", {}), { tid }, tidTo ? { tidTo } : {});
+};
+
+t("matches: 포지션은 sub 의 첫 칸에서 대소문자 무시로 찾고, 코치·이적·지켜볼 팀 탭은 거르지 않는다", () => {
+  const it = pRow({});
+  assert.equal(matches(it, PLAIN, ST({ pos: "Duelist" })), true);
+  assert.equal(matches(it, PLAIN, ST({ pos: "duelist" })), true);
+  assert.equal(matches(it, PLAIN, ST({ pos: "Initiator" })), false);
+  assert.equal(matches(pRow({ position: "Duelist/Flex" }), PLAIN, ST({ pos: "Flex" })), true, "슬래시 조합은 부분 일치");
+  assert.equal(matches(it, { ...PLAIN, id: "coaches" }, ST({ pos: "Initiator" })), true);
+  assert.equal(matches(it, { ...PLAIN, id: "transfers" }, ST({ pos: "Initiator" })), true);
+});
+
+t("matches: 확인 단계는 알약 단계와 같아야 하고, 단계 없는 항목은 '전체'가 아니면 빠진다", () => {
+  const confirmed = toItem({ region: "EMEA", from: "A", to: "B", type: "이적", date: T, conf: "C", src: "s1", name: "X", fromTeam: "a", toTeam: "b", signedDate: T - 1 }, "t", {});
+  const reported = pRow({ status: "계약 완료(X) · 합류 보도", conf: "R" });
+  const open = pRow({ status: "FA 진입 예정" });
+  assert.equal(matches(confirmed, PLAIN, ST({ stage: "confirmed" })), true);
+  assert.equal(matches(confirmed, PLAIN, ST({ stage: "reported" })), false);
+  assert.equal(matches(reported, PLAIN, ST({ stage: "reported" })), true);
+  assert.equal(matches(open, PLAIN, ST({ stage: "confirmed" })), false, "단계 없는 항목은 빠진다");
+  assert.equal(matches(open, PLAIN, ST({ stage: "all" })), true);
+});
+
+t("matches: 기간은 오늘(인자)과 보도 날짜의 차이, 날짜 숫자가 없으면 빠진다", () => {
+  const two = pRow({ date: T - 2 }), five = pRow({ date: T - 5 }), noDate = pRow({ date: undefined });
+  assert.equal(matches(two, PLAIN, ST({ days: "3" }), T), true);
+  assert.equal(matches(five, PLAIN, ST({ days: "3" }), T), false);
+  assert.equal(matches(five, PLAIN, ST({ days: "7" }), T), true);
+  assert.equal(matches(two, PLAIN, ST({ days: "0" }), T), false);
+  assert.equal(matches(pRow({ date: T }), PLAIN, ST({ days: "0" }), T), true);
+  assert.equal(matches(noDate, PLAIN, ST({ days: "7" }), T), false);
+  assert.equal(matches(five, PLAIN, ST({ days: "3" }), T - 4), true, "기준일을 바꾸면 달라진다");
+});
+
+t("matches: 상위 팀만은 소속 팀 또는 이적 도착 팀이 partner·ascended 일 때만 맞는다", () => {
+  assert.equal(matches(pRow({ tid: "t1" }), PLAIN, ST({ top: true })), true);
+  assert.equal(matches(pRow({ tid: "t2" }), PLAIN, ST({ top: true })), false);
+  assert.equal(matches(pRow({ tid: "t2", tidTo: "t1" }), PLAIN, ST({ top: true })), true, "도착 팀이 상위");
+  assert.equal(matches(pRow({ tid: "t2" }), PLAIN, ST({ top: false })), true, "끄면 거르지 않는다");
+});
+
+t("buildTabs: 오늘 탭은 오늘 날짜 인물만 넣고, 없으면 가장 최근 날짜를 쓰며 fallbackDate 를 준다", () => {
+  const row = (name, date) => ({ region: "EMEA", team: "Team", teamId: "korea-team", name, position: "Duelist", nationality: "Japan", status: "FA 진입 예정", date, conf: "C", personId: name.toLowerCase() });
+  const D1 = { ...MD, players: [row("Now", T), row("Old", T - 1)], coaches: [] };
+  const today = buildTabs(D1, T).find((x) => x.id === "today");
+  assert.deepEqual(today.groups[0].items.map((x) => x.name), ["Now"]);
+  assert.equal(today.fallbackDate, undefined);
+  const players = buildTabs(D1, T).find((x) => x.id === "players");
+  assert.ok(players, "선수 탭은 그대로 있다");
+  const D2 = { ...MD, players: [row("Older", T - 3), row("Oldest", T - 5)], coaches: [] };
+  const fb = buildTabs(D2, T).find((x) => x.id === "today");
+  assert.deepEqual(fb.groups[0].items.map((x) => x.name), ["Older"]);
+  assert.equal(fb.fallbackDate, T - 3);
+  assert.equal(buildTabs(D2, T).findIndex((x) => x.id === "today"), 1, "선수 탭 뒤");
+});
+
+t("주소: 거르기 값은 ?뒤에서 읽고, 잘못된 값은 기본으로 돌아가며, 기본값은 주소에 쓰지 않는다", () => {
+  const B = "/VCT-board/";
+  assert.deepEqual(parseRoute({ pathname: B, hash: "#today?pos=Duelist&days=3" }, B), { view: "list", tab: "today" });
+  assert.deepEqual(filtersOf({ hash: "#today?pos=Duelist&stage=confirmed&days=3&top=1" }), { pos: "Duelist", stage: "confirmed", days: "3", top: true });
+  assert.deepEqual(filtersOf({ hash: "#today?pos=Bogus&stage=x&days=5&top=0" }), { pos: "all", stage: "all", days: "all", top: false });
+  assert.deepEqual(filtersOf({ hash: "#players" }), { pos: "all", stage: "all", days: "all", top: false });
+  assert.equal(queryOf({ pos: "all", stage: "all", days: "all", top: false }), "");
+  assert.equal(queryOf({ pos: "Flex", stage: "reported", days: "0", top: true }), "?pos=Flex&stage=reported&days=0&top=1");
 });
 
 // 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.
