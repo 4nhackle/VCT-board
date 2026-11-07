@@ -102,12 +102,14 @@ export function buildTabs(D, today) {
     var latestDay = ALL.reduce(function (m, it) { return dayOf(it.date) > m ? dayOf(it.date) : m; }, -1);
     if (latestDay >= 0) { fallbackDate = latestDay; todayItems = ALL.filter(function (it) { return dayOf(it.date) === latestDay; }); }
   }
+  var rosters = rosterCards(buildIndex(D), td);
   var TABS = [
     { id: "players", label: t("tab.players"), mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
     { id: "today", label: t("tab.today"), mode: "entry", status: true, size: todayItems.length, hint: t("hint.today"), fallbackDate: fallbackDate, groups: [{ items: todayItems }] },
     { id: "coaches", label: t("tab.coaches"), mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
     { id: "korea", label: t("tab.korea"), mode: "entry", status: true, size: PK.length + CK.length, hint: t("hint.korea"), groups: [{ title: t("group.players"), items: PK }, { title: t("group.coaches"), items: CK }] },
     { id: "transfers", label: t("tab.transfers"), mode: "entry", size: T1.length + T2.length, hint: t("hint.transfers"), groups: [{ title: t("group.players"), items: T1 }, { title: t("group.coaches"), items: T2 }] },
+    { id: "roster", label: t("tab.roster"), mode: "roster", size: rosters.length, hint: t("hint.roster"), cards: rosters },
     { id: "watch", label: t("tab.watch"), mode: "watch", size: W.length, teams: TS, hint: t("hint.watch"), groups: [{ items: W }] },
     { id: "schedule", label: t("tab.schedule"), mode: "schedule", size: D.schedule.length },
     { id: "suggest", label: t("tab.suggest"), mode: "suggest" }
@@ -278,6 +280,23 @@ export function teamNews(id, IDX, today) {
     return da ? a.person.contractUntil - b.person.contractUntil : +a.person.contractUntil - +b.person.contractUntil;
   });
   return { events: events, expiring: expiring };
+}
+
+// 로스터 탭 카드: partner·ascended 팀마다 현재 로스터와 이번 비시즌 합류(+)·이탈(−) 인원.
+// 지역 순(REGIONS), 같은 지역은 팀 이름 순. 로스터가 5명 미만이면 partial(정보 일부).
+export function rosterCards(IDX, today) {
+  var order = function (r) { var i = REGIONS.indexOf(r); return i < 0 ? REGIONS.length : i; };
+  return Object.keys(IDX.teams).map(function (id) { return IDX.teams[id]; }).filter(function (tm) {
+    return tm.tier === "partner" || tm.tier === "ascended";
+  }).map(function (tm) {
+    var m = teamMoves(tm.id, IDX, today);
+    return { team: tm, roster: m.roster, inCount: m.incoming.length, outCount: m.outgoing.length, partial: m.roster.length < 5 };
+  }).sort(function (a, b) {
+    var d = order(a.team.region) - order(b.team.region);
+    if (d) return d;
+    var na = String(a.team.name || ""), nb = String(b.team.name || "");
+    return na < nb ? -1 : na > nb ? 1 : 0;
+  });
 }
 
 // 인물·팀별 소식 모음. 탭과 상관없이 한 사람·한 팀의 행을 모은다.
