@@ -671,6 +671,18 @@ Liquipedia | 8 | 6 | 14
 - tkzin, nats 는 최근 이적이 "잔류"라 알약이 "잔류"로 바뀌었다. 확인 필요.
 - 이 PR 은 `fix/transfer-merge` 에 있다. 병합은 하지 않았다.
 
+## 20회차 계약 연도, caption 칸, 출처 경고 (PR 2, 2026-11-08)
+
+### 결과
+- 계약 만료는 숫자(시트 일련번호) 또는 연도 "yyyy" 를 받는다. 연도만 있으면 "2027년까지"로 보이고, 지난 해면 만료됨이다.
+- 행에 `caption`(한 줄 요약)을 두면 목록 설명글로 쓴다. 출처 줄과 보도 시각은 비고 기준 그대로다. caption 이 없으면 화면은 이전과 같다.
+- `validate.mjs`: caption 이 문자열이 아니면 오류, 120자 넘으면 경고. 출처 경고(https 아님, 홈페이지 주소, 같은 주소 중복)는 경고만 낸다. 현재 data 에는 출처 경고가 0건이다.
+- 화면 비교: 이 PR 과 PR 1 커밋(`dd326c1`)의 목록(한·영)과 인물 상세가 같다.
+
+### 열린 결정 · 알아 둘 점
+- 이 PR 은 `feature/data-rules` 에 있고, 기준이 `fix/transfer-merge`(PR 1)다. PR 1 병합 뒤 기준을 `main` 으로 바꾼다.
+- `style-snapshot.mjs` 는 실행하지 않았다(Playwright 미설치). 자세한 것은 `docs/sessions/2026-11-08-pr2-data-rules.md`.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.

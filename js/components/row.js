@@ -38,11 +38,13 @@ export function rowHTML(it, tab, opt) {
   opt = opt || {};
   // 이동이면 경로 줄이 출발·도착 팀을 보여 주므로 팀 링크 대신 쓴다. 팀별 보기는 팀 머리가 출발 팀이라 도착만 쓴다.
   var r = routeOf(it, tab.teamObj), route = r ? routeHTML(r, { noFrom: !!opt.noTeam }) : "";
+  // 요약(caption)이 있으면 설명글로 쓴다. 출처 줄과 보도 시각은 메모 기준 그대로다. 없으면 메모 본문.
+  var cap = cleanName(it.caption), body = cap ? noteText(cap) : sp.body;
   return '<li class="row s-' + (p[2] === "reported" ? "reported" : p[0]) + '"><div class="main">' + link("name", it.pid ? personUrl(it.pid) : "", nameHTML(it.name)) +
     (r || opt.noTeam ? "" : link("team", it.tid ? teamUrl(it.tid) : "", textHTML(trWhole(it.team)))) +
     (opt.region ? '<span class="reg">' + esc(regionName(it.region) || it.region) + "</span>" : "") +
     route + (meta ? '<span class="meta">' + meta + "</span>" : "") + "</div>" +
     '<div class="state">' + pill(p) + badge(it) +
     '<span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "") + t("pill.reportedMark") + "</span></div>" +
-    (lead || sp.body ? '<p class="detail">' + lead + textHTML(sp.body) + "</p>" : "") + (opt.more || "") + srcsHTML(sp, it.src) + "</li>";
+    (lead || body ? '<p class="detail">' + lead + textHTML(body) + "</p>" : "") + (opt.more || "") + srcsHTML(sp, it.src) + "</li>";
 }

@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { REGIONS, toItem, pillOf, idsOf, ID_RE, slugOf, cleanName } from "../js/model.js";
+import { REGIONS, toItem, pillOf, idsOf, ID_RE, slugOf, cleanName, contractOK } from "../js/model.js";
 import { stampOf, daysIn } from "../js/format.js";
 import { setEnTable, trEn } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
@@ -28,10 +28,18 @@ const errors = [], warns = [], used = new Set();
 // 경고는 어디서(where)·무엇(kind)·문장(text)으로 모은다. 많으면 종류별 개수만 보여 준다.
 const warn = (where, kind, text) => warns.push({ where, kind, text });
 
+// 출처 주소 경고(오류 아님): https 가 아니거나, 홈페이지만 가리키거나, 같은 주소가 두 출처 키에 있으면 알린다.
+const urlKeys = new Map();
 for (const [key, [label, url]] of Object.entries(sources)) {
   if (!label) errors.push(`sources.${key}: 이름이 비었습니다`);
   if (!/^https?:\/\//i.test(url)) errors.push(`sources.${key}: 주소가 http(s)가 아닙니다 (${url})`);
+  if (!/^https:\/\//i.test(url)) warn("sources", "출처 주소", `sources.${key}: https:// 로 시작하지 않습니다 (${url})`);
+  let pathname = "";
+  try { pathname = new URL(url).pathname; } catch (e) { /* 형식 오류는 위에서 본다 */ }
+  if (pathname === "" || pathname === "/") warn("sources", "출처 홈페이지", `sources.${key}: 홈페이지 주소입니다 (${url}). 글 주소를 쓰세요`);
+  urlKeys.set(url, [...(urlKeys.get(url) || []), key]);
 }
+for (const [url, keys] of urlKeys) if (keys.length >= 2) warn("sources", "출처 중복", `같은 주소가 출처 ${keys.join(", ")} 에 있습니다 (${url})`);
 
 for (const [file, rows] of Object.entries(sets)) {
   const seen = new Map();
@@ -103,7 +111,9 @@ for (const [file, rows] of Object.entries(sets)) {
     } else {
       for (const f of ["teamId", "fromTeam", "toTeam"]) if (r[f] !== undefined) ref(at, f, r[f], hasTeams && tIds, "teams");
     }
-    if (r.contractUntil !== undefined && typeof r.contractUntil !== "number") errors.push(`${at}: contractUntil 은 시트 일련번호(숫자)여야 합니다`);
+    if (r.contractUntil !== undefined && !contractOK(r.contractUntil)) errors.push(`${at}: contractUntil 은 시트 일련번호(숫자) 또는 yyyy 여야 합니다`);
+    if (r.caption !== undefined && typeof r.caption !== "string") errors.push(`${at}: caption 은 문자열이어야 합니다`);
+    else if (r.caption !== undefined && r.caption.length > 120) warn(file, "요약 길이", `${at}: caption 이 120자를 넘습니다 (${r.caption.length}자)`);
     if (r.signedDate !== undefined && typeof r.signedDate !== "number") errors.push(`${at}: signedDate 는 시트 일련번호(숫자)여야 합니다`);
   });
 }
@@ -112,7 +122,7 @@ if (hasPeople) {
   people.forEach((p) => {
     const at = `people ${p.id}`;
     if (p.birth !== undefined && !validBirth(String(p.birth))) errors.push(`${at}: birth "${p.birth}" 은(는) yyyy 또는 yyyy-mm-dd 여야 합니다`);
-    if (p.contractUntil !== undefined && typeof p.contractUntil !== "number") errors.push(`${at}: contractUntil 은 시트 일련번호(숫자)여야 합니다`);
+    if (p.contractUntil !== undefined && !contractOK(p.contractUntil)) errors.push(`${at}: contractUntil 은 시트 일련번호(숫자) 또는 yyyy 여야 합니다`);
     for (const c of p.career || []) {
       if (hasTeams && !tIds.has(c.team)) errors.push(`${at}: career.team "${c.team}" 이(가) teams.json 에 없습니다`);
       else if (!ID_RE.test(String(c.team))) errors.push(`${at}: career.team "${c.team}" 의 ID 형식이 맞지 않습니다`);

@@ -4,7 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildIndex, cleanName, newestFirst } from "../js/model.js";
+import { buildIndex, cleanName, contractOK, newestFirst } from "../js/model.js";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const read = (f, fallback) => {
@@ -25,7 +25,7 @@ export function gapsOf(p) {
   if (!(Array.isArray(p.career) && p.career.length)) out.push("career");
   if (!cleanName(links.vlr)) out.push("vlr");
   if (!cleanName(links.liquipedia)) out.push("liquipedia");
-  if (typeof p.contractUntil !== "number") out.push("contract");
+  if (!contractOK(p.contractUntil)) out.push("contract");
   return out;
 }
 

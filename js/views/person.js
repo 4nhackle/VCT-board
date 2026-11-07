@@ -1,5 +1,5 @@
 import { esc, srcHTML, fmtDate, isoOf, textHTML } from "../format.js";
-import { regionName, tierName, pillOf, routeOf, ageOf, contractState, careerOf, newestFirst } from "../model.js";
+import { regionName, tierName, pillOf, routeOf, ageOf, contractOK, contractState, careerOf, newestFirst } from "../model.js";
 import { t, LANG } from "../i18n.js";
 import { pill } from "../components/pill.js";
 import { badge } from "../components/badge.js";
@@ -12,7 +12,9 @@ function dotYM(s) { return String(s || "").replace("-", "."); }
 
 // 계약 만료일과 상태. 값이 없으면 "미공개".
 function contractText(n) {
-  if (typeof n !== "number") return t("label.undisclosed");
+  if (!contractOK(n)) return t("label.undisclosed");
+  // 연도만 있는 값은 날짜를 만들지 않고 연도 글만 보인다.
+  if (typeof n === "string") return contractState(n).label;
   return isoOf(n) + " (" + contractState(n).label + ")";
 }
 
@@ -57,12 +59,12 @@ function moveHTML(list, p, teams) {
     if (typeof top.row.signedDate === "number") facts.push("<li>" + t("fact.official", { date: fmtDate(top.row.signedDate) }) + "</li>");
     else if (top.row.conf === "R") facts.push("<li>" + t("fact.notOfficial") + "</li>");
     // 이전 계약: 이적 전 LFT·FA 행의 계약, 없으면 people 의 계약.
-    var prev = list.filter(function (e) { return e.kind !== "t" && typeof e.row.contractUntil === "number"; })[0];
-    var prevUntil = prev ? prev.row.contractUntil : (p && typeof p.contractUntil === "number" ? p.contractUntil : undefined);
+    var prev = list.filter(function (e) { return e.kind !== "t" && contractOK(e.row.contractUntil); })[0];
+    var prevUntil = prev ? prev.row.contractUntil : (p && contractOK(p.contractUntil) ? p.contractUntil : undefined);
     facts.push("<li>" + t("fact.prevContract", { x: contractText(prevUntil) }) + "</li>");
     facts.push("<li>" + t("fact.newContract", { x: contractText(top.row.contractUntil) }) + "</li>");
   } else {
-    var until = typeof top.row.contractUntil === "number" ? top.row.contractUntil : (p ? p.contractUntil : undefined);
+    var until = contractOK(top.row.contractUntil) ? top.row.contractUntil : (p ? p.contractUntil : undefined);
     facts.push("<li>" + t("fact.contract", { x: contractText(until) }) + "</li>");
   }
   // 제목은 경로 줄(출발 → 도착). 경로가 없으면 "소속 · 상태". 합류 단계와 꾸밈말은 뒤의 작은 배지로 둔다.
@@ -125,7 +127,7 @@ function personInfo(list, p, teams, nat, role) {
     until = top.row.contractUntil;
     done = typeof top.row.signedDate === "number" ? isoOf(top.row.signedDate) : t("fact.notOfficial");
   } else {
-    until = top && typeof top.row.contractUntil === "number" ? top.row.contractUntil : p ? p.contractUntil : undefined;
+    until = top && contractOK(top.row.contractUntil) ? top.row.contractUntil : p ? p.contractUntil : undefined;
   }
   var a = p && p.birth ? birthText(p.birth) : "";
   return [
@@ -133,7 +135,7 @@ function personInfo(list, p, teams, nat, role) {
     [t("info.role"), termHTML(role)],
     [t("info.nationality"), textHTML(nat)],
     [t("info.birth"), a ? esc(a) : ""],
-    [t("info.contract"), typeof until === "number" ? esc(contractText(until)) : ""],
+    [t("info.contract"), contractOK(until) ? esc(contractText(until)) : ""],
     [t("info.done"), esc(done)]
   ];
 }

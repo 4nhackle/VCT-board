@@ -54,6 +54,7 @@ export var KO = {
   "contract.expired": "만료됨",
   "contract.today": "오늘 만료",
   "contract.dday": "D-{n}",
+  "contract.year": "{y}년까지",
   "date.today": "오늘",
   "date.yesterday": "어제",
   "date.ago": "{n}일 전",

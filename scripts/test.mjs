@@ -20,7 +20,7 @@ import { collectTargets } from "./i18n-targets.mjs";
 import { KO } from "../js/i18n/ko.js";
 import { EN } from "../js/i18n/en.js";
 import { regionName, tierName } from "../js/model.js";
-import { birthText } from "../js/views/person.js";
+import { birthText, personHTML } from "../js/views/person.js";
 import { gapsOf } from "./gaps.mjs";
 import { tabName } from "../js/views/common.js";
 import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
@@ -124,6 +124,80 @@ t("buildTabs: 한국 탭은 국적 또는 한국 팀 기준(코치 국적은 인
   assert.ok(krPlayers.includes("moved"), "이적 도착 팀이 한국 팀이면 든다");
 });
 
+// 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.
+t("contractState: 연도만 있는 값은 year(올해 이후) 또는 expired(지난 해), 숫자 값은 그대로", () => {
+  setLang("ko");
+  assert.equal(contractState("2027", T).kind, "year");
+  assert.equal(contractState("2027", T).label, "2027년까지");
+  assert.equal(contractState("2026", T).kind, "year"); // T 는 2026년
+  assert.equal(contractState("2025", T).kind, "expired");
+  assert.equal(contractState(T + 1, T).kind, "active");
+  assert.equal(contractState("2027-05", T).kind, "unknown"); // 연도 형식이 아니다
+});
+
+const VALIDATE_JS = fileURLToPath(new URL("./validate.mjs", import.meta.url));
+// 임시 데이터 폴더에 행 하나를 두고 validate.mjs 를 돌린다. 실제 data/ 는 건드리지 않는다.
+function validateFixture(name, { row = {}, sources = { s1: ["VLR", "https://www.vlr.gg/777970/x"] } } = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vct-v2-" + name + "-"));
+  const base = { region: "EMEA", team: "Team X", name: "Alpha", status: "FA 진입 예정", date: T, conf: "C", src: "s1" };
+  fs.writeFileSync(path.join(dir, "sources.json"), JSON.stringify(sources));
+  fs.writeFileSync(path.join(dir, "transfers.json"), JSON.stringify({ players: [], coaches: [] }));
+  fs.writeFileSync(path.join(dir, "players.json"), JSON.stringify([{ ...base, ...row }]));
+  fs.writeFileSync(path.join(dir, "coaches.json"), "[]");
+  fs.writeFileSync(path.join(dir, "watch.json"), "[]");
+  return spawnSync(process.execPath, [VALIDATE_JS, dir], { encoding: "utf8" });
+}
+
+t("validate: contractUntil 은 숫자 또는 yyyy 만 통과, '2027-05' 와 caption 5 는 오류", () => {
+  assert.equal(validateFixture("num", { row: { contractUntil: T + 30 } }).status, 0);
+  assert.equal(validateFixture("year", { row: { contractUntil: "2027" } }).status, 0);
+  const bad = validateFixture("bad-year", { row: { contractUntil: "2027-05" } });
+  assert.equal(bad.status, 1);
+  assert.match(bad.stderr, /contractUntil 은 시트 일련번호\(숫자\) 또는 yyyy/);
+  const cap = validateFixture("cap-num", { row: { caption: 5 } });
+  assert.equal(cap.status, 1);
+  assert.match(cap.stderr, /caption 은 문자열이어야 합니다/);
+});
+
+t("validate: caption 이 120자를 넘으면 경고만(종료 0)", () => {
+  const r = validateFixture("cap-long", { row: { caption: "가".repeat(121) } });
+  assert.equal(r.status, 0);
+  assert.match(r.stderr, /caption 이 120자를 넘습니다/);
+});
+
+t("validate: 출처 경고 — https 아님, 홈페이지 주소, 같은 주소 중복은 경고만 낸다", () => {
+  const http = validateFixture("src-http", { sources: { s1: ["VLR", "http://www.vlr.gg/777970/x"] } });
+  assert.equal(http.status, 0);
+  assert.match(http.stderr, /https:\/\/ 로 시작하지 않습니다/);
+  const home = validateFixture("src-home", { sources: { s1: ["VLR", "https://www.vlr.gg/"] } });
+  assert.equal(home.status, 0);
+  assert.match(home.stderr, /홈페이지 주소입니다/);
+  const dup = validateFixture("src-dup", { sources: { s1: ["VLR", "https://www.vlr.gg/1/x"], s2: ["VLR 2", "https://www.vlr.gg/1/x"] } });
+  assert.equal(dup.status, 0);
+  assert.match(dup.stderr, /같은 주소가 출처 s1, s2 에 있습니다/);
+});
+
+t("rowHTML: caption 이 있으면 설명글로 쓰고 출처 줄은 남김, 없거나 빈 값이면 메모 본문 그대로", () => {
+  setLang("ko");
+  const tab = { mode: "entry", teamObj: {}, shared: new Map() };
+  const base = { region: "EMEA", team: "Team", name: "Alpha", sub: "Duelist", status: "FA 진입 예정", date: T, conf: "C", note: "긴 메모 본문", src: ["VLR", "https://www.vlr.gg/1/x"], pid: "alpha", tid: "team" };
+  const withCap = rowHTML({ ...base, caption: "한 줄 요약" }, tab, {});
+  assert.match(withCap, /한 줄 요약/);
+  assert.doesNotMatch(withCap, /긴 메모 본문/);
+  assert.match(withCap, /https:\/\/www\.vlr\.gg\/1\/x/, "출처 링크는 그대로");
+  const noCap = rowHTML(base, tab, {});
+  assert.match(noCap, /긴 메모 본문/);
+  assert.equal(rowHTML({ ...base, caption: "" }, tab, {}), noCap, "빈 caption 은 없는 것과 같다");
+  assert.equal(rowHTML({ ...base, caption: "-" }, tab, {}), noCap, "'-' caption 은 빈 칸이다");
+});
+
+t("personHTML: 연도만 있는 계약 만료는 날짜 없이 '2027년까지'", () => {
+  setLang("ko");
+  const D = { sources: {}, players: [], coaches: [], transfers: { players: [], coaches: [] }, watch: [], teams: [], people: [{ id: "p1", name: "Alpha", kind: "player", role: "Duelist", nationality: "Japan", contractUntil: "2027" }] };
+  const { html } = personHTML("p1", buildIndex(D));
+  assert.match(html, /2027년까지/);
+});
+
 t("birthText: 날짜·연도만·미성년 경계(만 18세 생일 어제·당일·내일), 빈 값, 영문 표기", () => {
   setLang("ko");
   assert.equal(birthText("2002-05-21", T), "2002-05-21 (24세)");
@@ -141,9 +215,11 @@ t("birthText: 날짜·연도만·미성년 경계(만 18세 생일 어제·당�
   setLang("ko");
 });
 
-t("gapsOf: 빈 칸·'-'·빈 경력·계약 숫자 아님은 빈 항목, 값이 있으면 없다", () => {
-  assert.deepEqual(gapsOf({ name: "x", birth: "-", role: "-", nationality: "", realName: "-", career: [], links: { vlr: "-" }, contractUntil: "2026" }),
+t("gapsOf: 빈 칸·'-'·빈 경력은 빈 항목, 계약은 숫자나 yyyy 면 채운 것(그 밖의 글은 빈 항목)", () => {
+  assert.deepEqual(gapsOf({ name: "x", birth: "-", role: "-", nationality: "", realName: "-", career: [], links: { vlr: "-" }, contractUntil: "2026-05" }),
     ["birth", "role", "nationality", "realName", "career", "vlr", "liquipedia", "contract"]);
+  assert.deepEqual(gapsOf({ name: "x", birth: "-", role: "-", nationality: "", realName: "-", career: [], links: { vlr: "-" }, contractUntil: "2026" }),
+    ["birth", "role", "nationality", "realName", "career", "vlr", "liquipedia"]);
   assert.deepEqual(gapsOf({ birth: "2001", role: "Duelist", nationality: "Japan", realName: "A", career: [{ team: "t", from: "2024-01", to: null }], links: { vlr: "https://v", liquipedia: "https://l" }, contractUntil: 46326 }), []);
 });
 
