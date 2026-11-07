@@ -38,7 +38,8 @@ export function toItem(r, kind, S) {
 }
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
-export function buildTabs(D) {
+export function buildTabs(D, today) {
+  var td = today == null ? TODAY : today;
   var PEOPLE = Object.create(null);
   (D.people || []).forEach(function (p) { PEOPLE[p.id] = p; });
   // 목록 행의 포지션(코치는 역할)·국적이 비었으면 인물 정보로 채운다. 행에 값이 있으면 행 값을 쓴다.
@@ -93,8 +94,15 @@ export function buildTabs(D) {
   function isKorea(id) { var tm = own(TEAM_OBJ, id); return !!tm && tm.country === "South Korea"; }
   var PK = P.filter(function (it) { return /South Korea/.test(it.sub) || krTeam(it); });
   var CK = CO.filter(function (it) { var pp = own(PEOPLE, it.pid); return (!!pp && pp.nationality === "South Korea") || krTeam(it); });
+  // 오늘 탭: 오늘(KST) 날짜의 인물 행(선수·코치 병합 목록, 인물당 한 줄). 오늘 것이 없으면 가장 최근 날짜의 행을 보이고 fallbackDate 로 알린다.
+  var ALL = P.concat(CO), todayItems = ALL.filter(function (it) { return dayOf(it.date) === td; }), fallbackDate;
+  if (!todayItems.length) {
+    var latestDay = ALL.reduce(function (m, it) { return dayOf(it.date) > m ? dayOf(it.date) : m; }, -1);
+    if (latestDay >= 0) { fallbackDate = latestDay; todayItems = ALL.filter(function (it) { return dayOf(it.date) === latestDay; }); }
+  }
   var TABS = [
     { id: "players", label: t("tab.players"), mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
+    { id: "today", label: t("tab.today"), mode: "entry", status: true, size: todayItems.length, hint: t("hint.today"), fallbackDate: fallbackDate, groups: [{ items: todayItems }] },
     { id: "coaches", label: t("tab.coaches"), mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
     { id: "korea", label: t("tab.korea"), mode: "entry", status: true, size: PK.length + CK.length, hint: t("hint.korea"), groups: [{ title: t("group.players"), items: PK }, { title: t("group.coaches"), items: CK }] },
     { id: "transfers", label: t("tab.transfers"), mode: "entry", size: T1.length + T2.length, hint: t("hint.transfers"), groups: [{ title: t("group.players"), items: T1 }, { title: t("group.coaches"), items: T2 }] },
@@ -419,12 +427,32 @@ export function ownItem(it, shared) {
   return Object.assign({}, it, { note: ownPart(it.note, tail), _st: stampOf(it) });
 }
 
-export function matches(it, tab, state) {
+// 목록 거르기. 순수 함수: 오늘 날짜(today, 기본 TODAY)는 인자로 받는다.
+// 포지션은 sub 의 첫 칸(포지션)에서 찾는다. 코치 탭·지켜볼 팀·이적 탭은 포지션 칸이 없어 거르지 않는다.
+export function matches(it, tab, state, today) {
+  var td = today == null ? TODAY : today;
   if (state.region !== "all" && it.region !== state.region) return false;
   if (tab.status && state.status !== "all" && cls(it) !== state.status) return false;
   if (state.q) {
     var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, regionName(it.region)].join(" ").toLowerCase();
     if (hay.indexOf(state.q.toLowerCase()) < 0) return false;
+  }
+  if (state.pos && state.pos !== "all" && tab.id !== "coaches" && tab.id !== "watch" && tab.id !== "transfers") {
+    var head = String(it.sub || "").split(", ")[0].toLowerCase();
+    if (head.indexOf(String(state.pos).toLowerCase()) < 0) return false;
+  }
+  // 확인 단계: 알약의 단계(confirmed·reported)와 같아야 한다. 단계가 없는 항목은 "전체"가 아니면 빠진다.
+  if (state.stage && state.stage !== "all" && pillOf(it)[2] !== state.stage) return false;
+  if (state.days && state.days !== "all") {
+    if (!(typeof it.date === "number" && td - it.date <= +state.days)) return false;
+  }
+  // 상위 팀만: 소속 팀(이적이면 도착 팀)이 partner 또는 ascended 이다.
+  if (state.top && tab.teamObj) {
+    var top = [it.tid, it.tidTo].some(function (id) {
+      var tm = id ? tab.teamObj[id] : null;
+      return !!tm && (tm.tier === "partner" || tm.tier === "ascended");
+    });
+    if (!top) return false;
   }
   return true;
 }

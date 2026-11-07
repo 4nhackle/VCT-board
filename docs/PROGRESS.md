@@ -683,6 +683,18 @@ Liquipedia | 8 | 6 | 14
 - 이 PR 은 `feature/data-rules` 에 있고, 기준이 `fix/transfer-merge`(PR 1)다. PR 1 병합 뒤 기준을 `main` 으로 바꾼다.
 - `style-snapshot.mjs` 는 실행하지 않았다(Playwright 미설치). 자세한 것은 `docs/sessions/2026-11-08-pr2-data-rules.md`.
 
+## 21회차 오늘 탭과 거르기 4개 (PR 4, 2026-11-08)
+
+### 결과
+- 오늘 탭(선수 탭 뒤): 오늘(KST) 보도된 인물 행을 최근 소식순으로 보인다. 오늘 것이 없으면 가장 최근 날짜를 보이고 "오늘 소식 없음 · 최근 M/D"를 알린다.
+- 거르기 4개: 포지션(선수·오늘·한국 탭), 확인 단계, 기간(오늘·3일·7일), 상위 팀만. 주소 `?pos=…&stage=…&days=…&top=1` 에 쓰이고 새로 고침·뒤로 가기에서 복원된다.
+- 요약 칩 개수가 지역·검색·거르기를 반영한다(예전에는 지역·검색을 반영하지 않았다).
+
+### 열린 결정 · 알아 둘 점
+- 거르기 칩은 지시문의 "한 줄"이 아니라 그룹 4개로 나뉜다. 모양 정리는 디자인 세션.
+- 포지션 "이니시에이터"(한국어 1행)는 Initiator 에 걸리지 않는다.
+- 이 PR 은 `feature/today-filters` 에 있고 기준은 `main`. 병합은 하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr4-today-filters.md`.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
