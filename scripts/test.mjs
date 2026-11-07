@@ -59,6 +59,71 @@ t("buildTabs: 목록 행의 포지션·국적·역할을 인물 정보로 채운
   assert.equal(D.players[0].position, "-", "원본 행은 바뀌지 않는다");
 });
 
+// buildTabs 이적 병합 시험용 묶음(합성 값). 기준일 T 와 같은 시트 일련번호를 쓴다.
+const MD = {
+  sources: {}, schedule: [], watch: [],
+  teams: [{ id: "korea-team", name: "Korea Team", country: "South Korea", active: true }, { id: "foreign", name: "Foreign", country: "Japan", active: true }],
+  people: [{ id: "kc", name: "KC", role: "Coach", nationality: "South Korea" }],
+  players: [], coaches: [], transfers: { players: [], coaches: [] }
+};
+const playersOf = (D) => buildTabs(D).find((x) => x.id === "players").groups[0].items;
+
+t("buildTabs: 이적 행만 있는 인물도 선수 탭에 들어가고, 알약은 합류 확정", () => {
+  setLang("ko");
+  const D = { ...MD, transfers: { players: [{ region: "Americas", name: "Glyph", from: "A", to: "B", type: "이적", date: T - 2, conf: "C", personId: "glyph", fromTeam: "a", toTeam: "b", signedDate: T - 1 }], coaches: [] } };
+  const it = playersOf(D).find((x) => x.pid === "glyph");
+  assert.ok(it, "선수 탭에 있다");
+  assert.equal(it.moved, true);
+  assert.equal(pillOf(it)[0], "signed");
+  assert.equal(pillOf(it)[2], "confirmed");
+});
+
+t("buildTabs: LFT 행 '합류 보도' + 공식 발표일 있는 이적이면 확정 단계, 팀 칸은 LFT 행 값", () => {
+  setLang("ko");
+  const D = { ...MD, players: [{ region: "EMEA", team: "Y", name: "D4v41", position: "Duelist", status: "계약 완료(X) · 합류 보도", date: T - 3, conf: "R", personId: "d4v41" }], transfers: { players: [{ region: "EMEA", name: "D4v41", from: "Y", to: "X", type: "이적", date: T - 2, conf: "C", personId: "d4v41", fromTeam: "y", toTeam: "x", signedDate: T - 1 }], coaches: [] } };
+  const it = playersOf(D).find((x) => x.pid === "d4v41");
+  assert.equal(it.team, "Y");
+  assert.equal(it.moved, true);
+  assert.equal(pillOf(it)[2], "confirmed");
+});
+
+t("buildTabs: LFT 행이 이적 날짜보다 나중이면 덮지 않는다", () => {
+  setLang("ko");
+  const D = { ...MD, players: [{ region: "EMEA", team: "Y", name: "Late", status: "FA 진입 예정", date: T, conf: "C", personId: "late" }], transfers: { players: [{ region: "EMEA", name: "Late", from: "Y", to: "X", type: "이적", date: T - 5, conf: "C", personId: "late", fromTeam: "y", toTeam: "x", signedDate: T - 4 }], coaches: [] } };
+  const rows = playersOf(D).filter((x) => x.pid === "late");
+  assert.equal(rows.length, 1, "한 번만 들어간다");
+  assert.equal(rows[0].moved, undefined);
+  assert.equal(rows[0].status, "FA 진입 예정");
+});
+
+t("buildTabs: 이적 행이 잔류면 잔류 알약", () => {
+  setLang("ko");
+  const D = { ...MD, transfers: { players: [{ region: "EMEA", name: "Stay", from: "Z", to: "", type: "잔류", date: T - 1, conf: "C", personId: "stay", fromTeam: "z" }], coaches: [] } };
+  const it = playersOf(D).find((x) => x.pid === "stay");
+  assert.equal(pillOf(it)[0], "signed");
+  assert.equal(pillOf(it)[1], tIn("ko", "pill.stayed"));
+});
+
+t("buildTabs: 한국 탭은 국적 또는 한국 팀 기준(코치 국적은 인물 정보, 이적 도착 팀 포함)", () => {
+  setLang("ko");
+  const D = {
+    ...MD,
+    people: [...MD.people, { id: "jp", name: "JP", role: "Duelist", nationality: "Japan" }, { id: "fc", name: "FC", role: "Coach", nationality: "Japan" }],
+    // 외국 선수가 한국 팀(korea-team) 소속: 국적과 무관하게 든다.
+    players: [{ region: "EMEA", team: "Korea Team", teamId: "korea-team", name: "JP", position: "Duelist", nationality: "Japan", status: "FA 진입 예정", date: T, conf: "C", personId: "jp" }],
+    // kc: 한국인 코치가 외국 팀 소속(든다). fc: 외국인 코치가 외국 팀 소속(빠진다).
+    coaches: [{ region: "EMEA", team: "Foreign", teamId: "foreign", name: "KC", role: "Coach", status: "FA 진입 예정", date: T, conf: "C", personId: "kc" }, { region: "EMEA", team: "Foreign", teamId: "foreign", name: "FC", role: "Coach", status: "FA 진입 예정", date: T, conf: "C", personId: "fc" }],
+    // 외국 선수가 한국 팀으로 이적: 도착 팀(korea-team)으로 든다.
+    transfers: { players: [{ region: "EMEA", name: "Moved", from: "Foreign", to: "Korea Team", type: "이적", date: T - 1, conf: "C", personId: "moved", fromTeam: "foreign", toTeam: "korea-team", signedDate: T - 1 }], coaches: [] }
+  };
+  const kr = buildTabs(D).find((x) => x.id === "korea").groups;
+  const krPlayers = kr[0].items.map((x) => x.pid), krCoaches = kr[1].items.map((x) => x.pid);
+  assert.ok(krCoaches.includes("kc"), "한국인 코치는 외국 팀이어도 든다");
+  assert.ok(!krCoaches.includes("fc"), "외국인 코치가 외국 팀이면 빠진다");
+  assert.ok(krPlayers.includes("jp"), "외국 선수라도 한국 팀 소속이면 든다");
+  assert.ok(krPlayers.includes("moved"), "이적 도착 팀이 한국 팀이면 든다");
+});
+
 t("birthText: 날짜·연도만·미성년 경계(만 18세 생일 어제·당일·내일), 빈 값, 영문 표기", () => {
   setLang("ko");
   assert.equal(birthText("2002-05-21", T), "2002-05-21 (24세)");

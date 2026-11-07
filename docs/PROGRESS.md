@@ -660,6 +660,17 @@ Liquipedia | 8 | 6 | 14
 - 시험: 116 통과. 영문 `og:image` 는 `og-en.png`, 한국어 `og.png`, `og-en.png` 1200×630 PNG·44KB 이하(시험 확인). validate 오류 0.
 - 배포 뒤: 카카오·X·Slack 은 이미지를 캐시한다. 새 이미지가 안 보이면 각 서비스의 링크 미리보기 도구로 `https://4nhackle.github.io/VCT-board/en/` 를 다시 읽힌다.
 
+## 19회차 이적 병합과 한국 탭 기준 통일 (PR 1, 2026-11-08)
+
+### 결과
+- 이적 행만 있던 9명(LFT 행 없음)이 선수·코치 탭에 들어갔다. LFT 행이 있는 이적은 그 행을 이적 상태로 바꾼다(발표일이 있으면 확정).
+- 한국 탭은 "국적 한국 또는 소속(이적이면 도착) 팀 국가 한국" 한 기준이다. 해외 팀의 한국인 코치가 들어간다. 개수: 23 → 29.
+- 선수 144 → 150, 코치 44 → 47. 자세한 것은 `docs/sessions/2026-11-08-pr1-transfer-merge.md`.
+
+### 열린 결정 · 알아 둘 점
+- tkzin, nats 는 최근 이적이 "잔류"라 알약이 "잔류"로 바뀌었다. 확인 필요.
+- 이 PR 은 `fix/transfer-merge` 에 있다. 병합은 하지 않았다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.

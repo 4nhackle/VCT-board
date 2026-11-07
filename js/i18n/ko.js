@@ -8,7 +8,7 @@ export var KO = {
   "tab.watch": "지켜볼 팀",
   "tab.schedule": "일정",
   "tab.suggest": "건의",
-  "hint.korea": "국적이 South Korea인 선수와 한국 팀(T1, KIWOOM DRX, Nongshim RedForce) 소속 코치·스태프입니다.",
+  "hint.korea": "국적이 South Korea인 선수·코치, 또는 소속 팀 국가가 South Korea인 팀의 선수·코치입니다. 이적이면 도착 팀도 봅니다.",
   "hint.transfers": "이전 소속 팀 기준으로 묶었습니다.",
   "hint.watch": "계약 만료나 존속 여부가 정해지지 않은 팀입니다.",
   "group.players": "선수",

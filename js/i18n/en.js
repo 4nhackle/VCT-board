@@ -7,7 +7,7 @@ export var EN = {
   "tab.watch": "Teams to Watch",
   "tab.schedule": "Schedule",
   "tab.suggest": "Feedback",
-  "hint.korea": "Players with South Korea as nationality, and coaches and staff of Korean teams (T1, KIWOOM DRX, Nongshim RedForce).",
+  "hint.korea": "Players and coaches with South Korea as nationality, or on a team based in South Korea. For a transfer, the destination team counts too.",
   "hint.transfers": "Grouped by previous team.",
   "hint.watch": "Teams whose contracts or continued existence are not yet decided.",
   "group.players": "Players",
