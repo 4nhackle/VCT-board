@@ -8,6 +8,7 @@ import { scheduleHTML } from "./views/schedule.js";
 import { suggestHTML, bindSuggest } from "./views/suggest.js";
 import { personHTML, backHTML } from "./views/person.js";
 import { teamHTML } from "./views/team.js";
+import { rosterHTML } from "./views/roster.js";
 
 var FILES = ["sources", "players", "coaches", "transfers", "watch", "schedule"];
 var OPTIONAL = ["people", "teams"];
@@ -29,6 +30,12 @@ function renderView() {
   $("sgview").hidden = tab.mode !== "suggest";
   if (tab.mode === "suggest") {
     if (!$("sg")) { $("sgview").innerHTML = suggestHTML(); bindSuggest(); }
+    jumpList();
+    return;
+  }
+  if (tab.mode === "roster") {
+    // 로스터 탭은 지역 거르기만 쓴다. 정렬·상태·거르기 칩은 숨겨져 있다(renderChrome).
+    $("view").innerHTML = rosterHTML(tab.cards, state);
     jumpList();
     return;
   }

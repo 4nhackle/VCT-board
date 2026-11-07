@@ -1,0 +1,36 @@
+# 2026-11-08 PR 6: 로스터 탭
+
+- 목적: 지시문 `docs/instructions/PR6-roster-tab.md` 대로 로스터 탭 `roster`(`#roster`)을 추가한다. partner·ascended 팀마다 현재 로스터와 이번 비시즌 합류(+)·이탈(−) 인원을 보인다.
+- 이 세션이 대체하는 것: 없음. 연결: `docs/PROGRESS.md` 23회차 절.
+- 브랜치: `feature/roster-tab` (origin/main `8d39e50`). PR 기준 `main`. 병합하지 않았다.
+- 선행 확인
+  - PR 1 병합(완료).
+  - 로스터 백필: 사용자가 "Continue" 로 진행을 허락했다. 지시문의 "백필 완료·웹 반영" 조건은 아직 완전히 충족되지 않았다(아래 커버리지).
+  - 커버리지(8d39e50 기준, 이 PR 본문에도 씀): partner·ascended 34팀 중 5명 미만 21팀(기준 17팀 이상 → 중단 조건에 해당), 0명 4팀, 로스터 총 134명. 사용자 승인으로 계속했다.
+- 바꾼 파일
+  - `js/model.js`: `rosterCards(IDX, today)`(내보냄)·`buildTabs` 에 `roster` 탭(`watch` 앞, 크기는 카드 수). 카드는 `buildTabs` 안에서 `buildIndex(D)` 로 만든다(main.js 를 바꾸지 않으려고).
+  - `js/views/roster.js`(새 파일): `rosterHTML(cards, state)`. 지역 거르기만 적용. 팀 링크·인원 +/− · 부분 표시 · 로스터 칸(선수 다음 코치). 로스터가 없으면 "정리 중" 또는 "운영 종료".
+  - `js/main.js`: `renderView` 에 `roster` 분기 한 개(검색·정렬·상태 칩은 쓰지 않는다).
+  - `js/i18n/ko.js`, `en.js`: `tab.roster`, `hint.roster`, `roster.partial`, `roster.inout`.
+  - `scripts/test.mjs`: 시험 4개 추가(`rosterCards` 거르기·순서·partial·운영 종료, 코치 뒤, 탭 위치, `rosterHTML` 지역 거르기).
+- 결정과 이유
+  - 카드 계산 위치: `buildTabs` 안(작은 변경). 지시문의 두 방법 중 이쪽을 골랐다.
+  - 로스터 탭에서 검색 칸은 그대로 보인다. 지시문은 지역 거르기만 적용하라고 했으므로 검색 입력은 아무 작용을 하지 않는다. 고칠지 결정이 필요하다.
+  - 데이터의 역할 값은 한국어(예: "헤드 코치")다. 영문 화면에서도 그대로 보인다(데이터 문제, 번역 표에 있는 값이 아니다).
+- 확인 결과 (직접 실행)
+  - `node scripts/test.mjs`: 142개 통과(PR 5 의 138 + 새 4). 종료 코드 0.
+  - `node scripts/validate.mjs`: 오류 0, 경고 606(데이터가 늘어 PR 5 의 564 에서 증가).
+  - `node scripts/css-check.mjs`: 통과(기존 클래스만 씀).
+  - `node scripts/i18n-report.mjs`: 누락 0. 번역 표 322 = 쓰이는 키 322.
+  - `node scripts/build.mjs _site`: 성공.
+  - 브라우저(개발 서버):
+    - 한국어: 로스터 탭 34팀, 정렬·요약 칩 숨김, 지역 거르기(EMEA 8팀), 팀 링크 → 팀 페이지 → 뒤로 가기(로스터 탭 복원), 인물 링크 → 뒤로 가기.
+    - 영문 390px: 34팀, 가로 넘침 없음.
+    - 1280px 은 보지 않았다.
+- 확인하지 못한 것
+  - 1280px 화면 모양.
+  - 백필이 끝난 뒤의 커버리지(지금은 21/34 팀이 5명 미만).
+- 남은 일
+  - PR 병합(사용자 확인 뒤). 병합 시각은 예약 작업 시각 앞뒤 30분을 피한다(CLAUDE.md).
+  - 검색 칸을 로스터 탭에서 숨길지 결정.
+  - 백필이 끝나면 커버리지를 다시 확인한다.

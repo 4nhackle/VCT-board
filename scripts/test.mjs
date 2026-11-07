@@ -9,7 +9,8 @@ import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
-import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews } from "../js/model.js";
+import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards } from "../js/model.js";
+import { rosterHTML } from "../js/views/roster.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute, filtersOf, queryOf } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
@@ -258,6 +259,61 @@ t("buildTabs: 목록 항목에 계약 칸을 붙인다 — 행 값, 없으면 �
   const tabs = buildTabs(D, T);
   assert.equal(tabs.find((x) => x.id === "players").groups[0].items.find((x) => x.pid === "cee").contract, "2027");
   assert.equal(tabs.find((x) => x.id === "coaches").groups[0].items.find((x) => x.pid === "dee").contract, T + 60);
+});
+
+// 로스터 탭(PR 6). 기준일 T. 로스터는 현재 진행 중 경력이 그 팀인 인물.
+const RT = {
+  sources: {}, schedule: [], transfers: { players: [], coaches: [] }, players: [], coaches: [], watch: [],
+  teams: [
+    { id: "zz", name: "Zed", region: "Americas", tier: "ascended", active: true },
+    { id: "aa", name: "Alpha", region: "Americas", tier: "partner", active: true },
+    { id: "mm", name: "Mid", region: "EMEA", tier: "partner", active: true },
+    { id: "ch", name: "Chal", region: "Americas", tier: "challengers", active: true },
+    { id: "cl", name: "Closed", region: "Pacific", tier: "partner", active: false }
+  ],
+  people: [
+    { id: "coach1", name: "Coach", kind: "coach", role: "Head Coach", career: [{ team: "aa", from: "2026-01", to: null }] },
+    { id: "p1", name: "P1", kind: "player", role: "Duelist", career: [{ team: "aa", from: "2026-01", to: null }] },
+    { id: "p2", name: "P2", kind: "player", career: [{ team: "aa", from: "2026-01", to: null }] },
+    { id: "p3", name: "P3", kind: "player", career: [{ team: "aa", from: "2026-01", to: null }] },
+    { id: "p4", name: "P4", kind: "player", career: [{ team: "aa", from: "2026-01", to: null }] },
+    { id: "p5", name: "P5", kind: "player", career: [{ team: "aa", from: "2026-01", to: null }] },
+    { id: "m1", name: "M1", kind: "player", career: [{ team: "mm", from: "2026-01", to: null }] },
+    { id: "ch1", name: "C1", kind: "player", career: [{ team: "ch", from: "2026-01", to: null }] }
+  ]
+};
+
+t("rosterCards: partner·ascended 만, 지역 순, 같은 지역은 이름순, 5명 미만은 partial, 운영 종료 팀은 빈 로스터", () => {
+  const cards = rosterCards(buildIndex(RT), T);
+  assert.deepEqual(cards.map((c) => c.team.id), ["aa", "zz", "mm", "cl"], "challengers(ch)는 뺀다");
+  assert.deepEqual(cards.map((c) => c.partial), [false, true, true, true]);
+  assert.equal(cards[0].roster.length, 6);
+  assert.equal(cards[1].roster.length, 0);
+  assert.equal(cards[3].roster.length, 0, "운영 종료 팀");
+});
+
+t("rosterCards: 코치는 선수 뒤", () => {
+  const roster = rosterCards(buildIndex(RT), T)[0].roster;
+  assert.deepEqual(roster.map((p) => p.kind), ["player", "player", "player", "player", "player", "coach"]);
+});
+
+t("buildTabs: 로스터 탭은 지켜볼 팀 앞에 있고 크기는 팀 카드 수", () => {
+  const tabs = buildTabs(RT, T);
+  const i = tabs.findIndex((x) => x.id === "roster");
+  assert.equal(tabs[i].mode, "roster");
+  assert.equal(tabs[i].size, 4);
+  assert.equal(tabs[i + 1].id, "watch");
+});
+
+t("rosterHTML: 지역 거르기는 카드를 거르고, 5명 미만은 일부 표시, +·− 인원을 쓴다", () => {
+  setLang("ko");
+  const cards = rosterCards(buildIndex(RT), T);
+  const all = rosterHTML(cards, { region: "all" });
+  assert.match(all, /로스터 정보 일부/);
+  assert.match(all, /\+0 \/ −0/);
+  const emea = rosterHTML(cards, { region: "EMEA" });
+  assert.match(emea, /Mid/);
+  assert.doesNotMatch(emea, /Alpha/);
 });
 
 // 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.
