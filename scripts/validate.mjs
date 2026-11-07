@@ -88,6 +88,8 @@ if (hasPeople) checkDefs("people", people, pIds);
 
 // 참조 값: 형식은 항상, 존재 여부는 그 파일이 있을 때만 본다.
 function ref(at, field, value, set, label) {
+  // 빈 문자열은 "ID 없음"이다. idsOf 가 이 경우 팀 이름에서 임시 ID 를 만들거나 비워 두므로 오류가 아니다.
+  if (value === "") return;
   if (!ID_RE.test(String(value))) errors.push(`${at}: ${field} "${value}" 의 ID 형식이 맞지 않습니다`);
   else if (set && !set.has(value)) errors.push(`${at}: ${field} "${value}" 이(가) ${label}.json 에 없습니다`);
 }
