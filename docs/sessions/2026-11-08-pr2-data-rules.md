@@ -1,0 +1,35 @@
+# 2026-11-08 PR 2: 계약 연도, caption 칸, 출처 경고
+
+- 목적: 지시문 `docs/instructions/PR2-data-rules.md` 대로 (1) 계약 만료에 연도 "yyyy" 허용, (2) 행에 한 줄 요약 `caption` 칸을 두고 목록 설명글로 쓰기, (3) `validate.mjs` 출처 주소 경고. 데이터가 없으면 화면은 바뀌지 않아야 한다.
+- 이 세션이 대체하는 것: 없음. 연결: `docs/PROGRESS.md` 20회차 절.
+- 브랜치: `feature/data-rules`. 지시문은 "origin/main 에서 분기, PR 1 병합 뒤"다. PR 1(`fix/transfer-merge`, PR #27)은 아직 병합하지 않았으므로 `fix/transfer-merge` 위에 쌓았다(stacked). PR 의 기준 브랜치는 `fix/transfer-merge`. PR 1 병합 뒤 기준을 `main` 으로 바꾼다.
+- 병합하지 않았다. PR 을 열고 보고한다.
+- 바꾼 파일
+  - `js/model.js`: `contractOK(v)` 추가(숫자 또는 `^\d{4}$` 문자열). `contractState` 에 연도 분기(`kind: "year"`, 지난 해면 `expired`). 숫자 경로는 그대로. `toItem` 에 `caption` 추가(선수·코치·이적).
+  - `js/i18n/ko.js`, `js/i18n/en.js`: `contract.year` ("{y}년까지", "through {y}").
+  - `js/views/person.js`: `contractText` 와 계약 칸 판정을 `contractOK` 로. 연도 문자열은 `contractState(...).label` 만 보인다(ISO 날짜 없음). 인물 상세의 비고는 그대로(caption 안 씀).
+  - `js/components/row.js`: `caption` 이 `cleanName` 후 비어 있지 않으면 설명글 본문으로 쓴다. 출처 줄과 보도 시각은 비고 기준 그대로. 캡션이 없으면 출력이 이전과 같다.
+  - `scripts/validate.mjs`: 계약 검사(행·인물)를 `contractOK` 로, 오류 글 "시트 일련번호(숫자) 또는 yyyy". caption 이 문자열이 아니면 오류, 120자 넘으면 경고. 출처 경고: https 아님, 홈페이지 주소(경로 비었거나 `/`), 같은 주소가 두 키에 있음.
+  - `scripts/gaps.mjs`: 계약 칸은 `contractOK` 면 채운 것.
+  - `scripts/i18n-targets.mjs`: caption 을 번역 대상으로(note 와 같은 방식, " / " 조각마다).
+  - `scripts/test.mjs`: 시험 6개 추가, 기존 `gapsOf` 시험 한 줄 고침(아래).
+- 결정과 이유
+  - 연도 값이 `contractUntil` 이면 "미공개"가 아니라 "2027년까지"로 본다(지시문의 "채워진 값").
+  - caption 은 설명글 본문만 바꾼다. 보도 시각과 출처 줄은 비고 기준으로 남긴다(지시문대로). 상태 앞머리(lead)는 그대로 둔다.
+  - 출처 경고는 `warn` 으로만 낸다(오류 아님). 요약 줄의 경고 총수에 들어간다. 요약 줄은 바꾸지 않았다.
+- 기존 시험을 고친 것
+  - `gapsOf` 시험: 계약 값이 "2026"(연도)이면 빈 항목이 아니게 되었다. 지시문의 "a year string counts as filled"에 맞춘 것이다. "2026-05" 는 여전히 빈 항목으로 시험한다.
+- 확인 결과 (직접 실행)
+  - `node scripts/test.mjs`: 127개 통과(PR 1 의 121 + 새 6). 종료 코드 0.
+  - `node scripts/validate.mjs`: 오류 0, 경고 564(PR 1 과 같다). 출처 경고는 현재 data 에서 0건이다. 독립 확인: https 아님 0, 홈페이지 0, 중복 0.
+  - `node scripts/i18n-report.mjs`: 누락 0. 번역 표 318 = 쓰이는 키 318.
+  - `node scripts/build.mjs _site`: 성공.
+  - 빌드 HTML 비교(기준: 부모 커밋 `dd326c1`, PR 1): 정적 HTML 차이 0. 차이는 `js/` 파일 5개뿐(model.js, person.js, row.js, ko.js, en.js).
+  - 화면 비교(두 개발 서버, 기준 `dd326c1` 와 이 브랜치): 한국어 목록(선수 150행)과 영문 목록(150행)의 본문 HTML 해시가 같다. 인물 상세(`p/glyph/`)도 같다.
+- 확인하지 못한 것
+  - `scripts/style-snapshot.mjs` 는 실행하지 않았다. Playwright 가 저장소에 설치되어 있지 않다. 화면 비교는 위 DOM 해시로 갈음했다.
+  - 기준을 `origin/main` 으로 한 비교는 하지 않았다. `origin/main` 과의 차이는 PR 1 의 변화다.
+  - 연도 계약 값과 caption 은 현재 data 에 없다. 표시는 시험(연도 라벨, 설명글, 빈 caption)으로만 확인했다.
+- 남은 일
+  - PR 1 병합 뒤, 이 PR 의 기준 브랜치를 `main` 으로 바꾼다.
+  - 예약 작업 지시문(`schedule-web-publish.md`)에 적힌 새 규칙을 이 PR 본문에 적었다. 병합은 예약 작업 지시문 변경보다 먼저다.

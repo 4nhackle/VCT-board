@@ -31,10 +31,10 @@ function own(obj, key) {
 }
 
 export function toItem(r, kind, S) {
-  if (kind === "player") return { region: r.region, team: r.team, name: r.name, sub: [r.position, r.nationality].filter(Boolean).join(", "), status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
-  if (kind === "coach") return { region: r.region, team: r.team, name: r.name, sub: r.role, status: r.status, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src) };
+  if (kind === "player") return { region: r.region, team: r.team, name: r.name, sub: [r.position, r.nationality].filter(Boolean).join(", "), status: r.status, date: r.date, conf: r.conf, note: r.note, caption: r.caption, src: own(S, r.src) };
+  if (kind === "coach") return { region: r.region, team: r.team, name: r.name, sub: r.role, status: r.status, date: r.date, conf: r.conf, note: r.note, caption: r.caption, src: own(S, r.src) };
   if (kind === "watch") return { region: r.region, team: r.team, name: r.targets, note: r.situation, src: own(S, r.src) };
-  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, src: own(S, r.src), signed: r.signedDate };
+  return { region: r.region, team: r.from, name: r.name, sub: "", status: r.type, next: r.to, moved: true, date: r.date, conf: r.conf, note: r.note, caption: r.caption, src: own(S, r.src), signed: r.signedDate };
 }
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
@@ -150,7 +150,15 @@ export function ageOf(birth, today) {
 }
 
 // 계약 만료 상태. until 은 시트 일련번호. 만료 당일은 "오늘 만료", 하루라도 지났으면 "만료됨".
+// 계약 만료 칸 값: 시트 일련번호(숫자) 또는 연도 "yyyy"(문자열). 그 밖은 없는 값이다.
+export function contractOK(v) { return typeof v === "number" || (typeof v === "string" && /^\d{4}$/.test(v)); }
+
 export function contractState(until, today) {
+  if (typeof until === "string" && /^\d{4}$/.test(until)) {
+    var y = +until, ty = +isoOf(today == null ? TODAY : today).slice(0, 4);
+    if (y < ty) return { kind: "expired", label: t("contract.expired"), days: y - ty };
+    return { kind: "year", label: t("contract.year", { y: until }), year: y };
+  }
   if (typeof until !== "number") return { kind: "unknown", label: t("label.undisclosed") };
   var d = until - (today == null ? TODAY : today);
   if (d < 0) return { kind: "expired", label: t("contract.expired"), days: d };

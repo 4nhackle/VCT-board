@@ -53,6 +53,7 @@ export var EN = {
   "contract.expired": "Expired",
   "contract.today": "Expires today",
   "contract.dday": "in {n} days",
+  "contract.year": "through {y}",
   "date.today": "Today",
   "date.yesterday": "Yesterday",
   "date.ago": "{n} days ago",

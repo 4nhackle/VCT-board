@@ -12,11 +12,13 @@ export function collectTargets(D) {
   for (const [file, rows] of [["players", D.players || []], ["coaches", D.coaches || []]]) {
     for (const r of rows) {
       if (r.note) for (const seg of String(r.note).split(" / ")) add(file, "note", seg, seg);
+      if (r.caption) for (const seg of String(r.caption).split(" / ")) add(file, "caption", seg, seg);
       if (r.team && termEn(r.team) === null) add(file, "team", r.team, r.team);
     }
   }
   for (const r of [...((D.transfers || {}).players || []), ...((D.transfers || {}).coaches || [])]) {
     if (r.note) for (const seg of String(r.note).split(" / ")) add("transfers", "note", seg, seg);
+    if (r.caption) for (const seg of String(r.caption).split(" / ")) add("transfers", "caption", seg, seg);
   }
   for (const r of D.watch || []) {
     if (r.situation) { const b = watchMeta(r.situation).body; add("watch", "situation", b, b); }
