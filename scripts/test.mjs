@@ -9,7 +9,7 @@ import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
-import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs } from "../js/model.js";
+import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews } from "../js/model.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute, filtersOf, queryOf } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
@@ -196,6 +196,68 @@ t("주소: 거르기 값은 ?뒤에서 읽고, 잘못된 값은 기본으로 돌
   assert.deepEqual(filtersOf({ hash: "#players" }), { pos: "all", stage: "all", days: "all", top: false });
   assert.equal(queryOf({ pos: "all", stage: "all", days: "all", top: false }), "");
   assert.equal(queryOf({ pos: "Flex", stage: "reported", days: "0", top: true }), "?pos=Flex&stage=reported&days=0&top=1");
+});
+
+// 팀 소식·계약 칸(PR 5). 기준일 T. 로스터 인물은 t1 소속(2026-01 부터 진행 중).
+const TN = {
+  sources: {}, schedule: [], transfers: { players: [], coaches: [] }, players: [], coaches: [],
+  teams: [{ id: "t1", name: "Team One", region: "Americas", country: "Chile", tier: "partner", active: true }],
+  people: [
+    { id: "pf", name: "PF", career: [{ team: "t1", from: "2026-01", to: null }], contractUntil: T - 5 },
+    { id: "pa", name: "PA", career: [{ team: "t1", from: "2026-01", to: null }], contractUntil: T + 30 },
+    { id: "pb", name: "PB", career: [{ team: "t1", from: "2026-01", to: null }], contractUntil: T + 200 },
+    { id: "pc", name: "PC", career: [{ team: "t1", from: "2026-01", to: null }], contractUntil: "2026" },
+    { id: "pd", name: "PD", career: [{ team: "t1", from: "2026-01", to: null }], contractUntil: "2027" },
+    { id: "pe", name: "PE", career: [{ team: "t1", from: "2026-01", to: null }] }
+  ],
+  watch: [
+    { region: "Americas", team: "Team One", teamIds: ["t1"], targets: "소속 선수", situation: "철수 발표. 선수 명단 미확인", src: null },
+    { region: "Americas", team: "Team One", teamIds: ["t1"], targets: "소속 선수", situation: "PA 합류 보도(Sheep)", src: null },
+    { region: "Americas", team: "Team One", teamIds: ["t1"], targets: "소속 선수", situation: "메모만 있음", src: null }
+  ]
+};
+
+t("teamNews: 철수·합류 보도는 사건, 그 밖의 지켜볼 팀 글은 뺀다(입력 순서 유지)", () => {
+  const n = teamNews("t1", buildIndex(TN), T);
+  assert.deepEqual(n.events.map((e) => e.item.note), ["철수 발표. 선수 명단 미확인", "PA 합류 보도(Sheep)"]);
+});
+
+t("teamNews: 계약 만료 임박 — 90일 안(지난 것 포함)·올해 이하 연도만 넣고, 가까운 날짜순·연도는 뒤", () => {
+  const n = teamNews("t1", buildIndex(TN), T);
+  assert.deepEqual(n.expiring.map((x) => x.person.id), ["pf", "pa", "pc"], "200일 뒤(pb)·2027(pd)·계약 없음(pe)은 뺀다");
+  assert.equal(n.expiring[0].state.kind, "expired");
+  assert.equal(n.expiring[1].state.kind, "active");
+  assert.equal(n.expiring[2].state.kind, "year");
+});
+
+t("teamNews: 소속 없는 팀은 두 목록 모두 빈 배열", () => {
+  const n = teamNews("none", buildIndex(TN), T);
+  assert.deepEqual(n.events, []);
+  assert.deepEqual(n.expiring, []);
+});
+
+t("rowHTML: 계약 칸이 있으면 메타 줄 끝에 '계약 ~…'(연도는 그대로, 날짜는 ISO), 없으면 메타 줄 그대로", () => {
+  setLang("ko");
+  const tab = { mode: "entry", teamObj: {}, shared: new Map() };
+  const base = { region: "EMEA", team: "Team", name: "Alpha", sub: "Duelist", status: "FA 진입 예정", date: T, conf: "C", note: "", src: null, pid: "alpha", tid: "team" };
+  const none = rowHTML(base, tab, {});
+  assert.doesNotMatch(none, /계약 ~/);
+  assert.match(rowHTML({ ...base, contract: "2027" }, tab, {}), /계약 ~2027/);
+  assert.match(rowHTML({ ...base, contract: T + 30 }, tab, {}), /계약 ~\d{4}-\d{2}-\d{2}/);
+  assert.equal(rowHTML({ ...base, contract: "bad" }, tab, {}), none, "형식이 아니면 메타 줄을 바꾸지 않는다");
+});
+
+t("buildTabs: 목록 항목에 계약 칸을 붙인다 — 행 값, 없으면 인물 정보", () => {
+  setLang("ko");
+  const D = {
+    ...MD,
+    people: [...MD.people, { id: "dee", name: "Dee", role: "Coach", nationality: "Japan", contractUntil: T + 60 }],
+    players: [{ region: "EMEA", team: "Team", teamId: "korea-team", name: "Cee", position: "Duelist", nationality: "Japan", status: "FA 진입 예정", date: T, conf: "C", personId: "cee", contractUntil: "2027" }],
+    coaches: [{ region: "EMEA", team: "Team", teamId: "korea-team", name: "Dee", role: "Coach", status: "FA 진입 예정", date: T, conf: "C", personId: "dee" }]
+  };
+  const tabs = buildTabs(D, T);
+  assert.equal(tabs.find((x) => x.id === "players").groups[0].items.find((x) => x.pid === "cee").contract, "2027");
+  assert.equal(tabs.find((x) => x.id === "coaches").groups[0].items.find((x) => x.pid === "dee").contract, T + 60);
 });
 
 // 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.

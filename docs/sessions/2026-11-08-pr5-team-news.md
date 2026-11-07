@@ -1,0 +1,33 @@
+# 2026-11-08 PR 5: 팀 소식 구역과 목록 계약 표시
+
+- 목적: 지시문 `docs/instructions/PR5-team-news.md` 대로 (1) 팀 화면에 "팀 소식" 구역(지켜볼 팀 사건 + 로스터 계약 만료 임박), (2) 목록 행 메타 줄에 "계약 ~…".
+- 이 세션이 대체하는 것: 없음. 연결: `docs/PROGRESS.md` 22회차 절.
+- 브랜치: `feature/team-news` (origin/main `2849e07`, PR 1·2·4 병합 뒤). PR 기준 `main`. 병합하지 않았다.
+- 선행 확인: PR 2 병합(완료). PR 4 는 지시문의 선행 조건이 아니지만 같은 `js/model.js` `buildTabs` 를 고치므로, 사용자 요청으로 먼저 병합했다.
+- 바꾼 파일
+  - `js/model.js`: `teamNews(id, IDX, today)` 추가(내보냄). `buildTabs` 의 `items()` 가 `contract` 를 붙인다(행 값, 없으면 인물 정보).
+  - `js/views/team.js`: "팀 소식" 구역을 "관련 소식" 바로 앞에 넣는다. 둘 다 없으면 구역을 넣지 않는다.
+  - `js/components/row.js`: `it.contract` 가 맞으면 메타 줄 끝에 `t("row.contract")` 를 붙인다.
+  - `js/i18n/ko.js`, `js/i18n/en.js`: `team.news`, `team.expiring`, `row.contract`.
+  - `scripts/test.mjs`: 시험 5개 추가(사건 선택, 계약 임박 규칙, 빈 팀, 계약 칸 표시, 목록 항목의 계약 칸).
+- 결정과 이유
+  - 지켜볼 팀 사건(`events`)은 입력 순서를 그대로 둔다. 지시문은 "newest first 로 정렬"과 "날짜가 없으니 입력 순서"를 함께 적었다. 지켜볼 팀 행에는 날짜가 없으므로 입력 순서를 택했다.
+  - 계약 임박(`expiring`): 숫자 값은 `until - today <= 90`(지난 것 포함), 연도 문자열은 올해 이하. 정렬은 날짜 값 먼저(가까운 순), 연도만 있는 것은 뒤.
+  - 팀 소식의 사건 항목은 `rowHTML(item, {mode: "watch", teams})` 로 그린다(지켜볼 팀 탭과 같은 모양).
+  - 목록 계약 값: 숫자면 ISO 날짜, 연도 문자열이면 그대로. 형식이 맞지 않으면 메타 줄을 바꾸지 않는다.
+- 확인 결과 (직접 실행)
+  - `node scripts/test.mjs`: 138개 통과(PR 4 의 133 + 새 5). 종료 코드 0.
+  - `node scripts/validate.mjs`: 오류 0, 경고 564(변화 없음).
+  - `node scripts/css-check.mjs`: 통과(기존 클래스만 씀).
+  - `node scripts/i18n-report.mjs`: 누락 0.
+  - `node scripts/build.mjs _site`: 성공.
+  - 브라우저(개발 서버, 한국어):
+    - `t/lyon/`: "팀 소식" 구역에 철수 사건(철수·해체, "발로란트 철수 발표") 표시.
+    - `t/furia/`: "팀 소식" 구역 표시. 원인은 구두 합의 보도(합류) 사건이다. FURIA 에는 철수 사건이 없다(지시문의 확인 대상은 잘못 적혔다).
+    - 선수 탭: 계약 칸이 있는 1명이 "IGL · South Korea · 계약 ~2026-11-02" 로 보인다.
+- 확인하지 못한 것
+  - `scripts/fixture-site.mjs` 샘플 사이트로 계약 임박 목록을 보지 않았다. 실제 data 에는 계약 칸이 1명뿐이라 임박 목록이 비어 있다.
+  - 영문 화면 확인은 하지 않았다(번역 키는 추가했다).
+- 남은 일
+  - PR 병합(사용자 확인 뒤). 병합 시각은 예약 작업 시각 앞뒤 30분을 피한다(CLAUDE.md).
+  - 지시문의 FURIA 확인 대상을 LYON 으로 고친다(지시문 문서 수정은 별도).
