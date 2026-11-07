@@ -7,7 +7,6 @@ export var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
 export function regionName(r) { return REGIONS.indexOf(r) >= 0 ? t("region." + r) : ""; }
 var TIERS = ["partner", "ascended", "challengers", "academy"];
 export function tierName(tier) { return TIERS.indexOf(tier) >= 0 ? t("team." + tier) : ""; }
-var KR_TEAMS = /^(T1|KIWOOM DRX|Nongshim RedForce|Gen\.G|DRX)$/i;
 
 // 인물·팀 ID 형식. 주소(p/<id>/, t/<id>/)에 그대로 쓴다.
 export var ID_RE = /^[a-z0-9-]+$/;
@@ -22,6 +21,9 @@ export function slugOf(s) {
   for (var i = 0; i < raw.length; i++) { h ^= raw.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
   return "x-" + h.toString(36);
 }
+
+// 날짜 비교용: 시트 일련번호가 아니면 가장 옛날(-1)로 본다.
+function dayOf(d) { return typeof d === "number" ? d : -1; }
 
 // 객체에서 자기 속성만 읽는다. 데이터 값이 constructor 같은 이름이어도 상속 속성을 돌려주지 않는다.
 function own(obj, key) {
@@ -53,14 +55,44 @@ export function buildTabs(D) {
       return Object.assign(toItem(p && kind !== "t" && kind !== "watch" ? fillRow(r, kind, p) : r, kind, D.sources), ids);
     });
   }
-  var P = items(D.players, "player"), CO = items(D.coaches, "coach"), W = items(D.watch, "watch");
+  var P0 = items(D.players, "player"), CO0 = items(D.coaches, "coach"), W = items(D.watch, "watch");
   // 지켜볼 팀의 팀 링크는 teams 에 있는 ID 만 건다.
   var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
   var TEAM_OBJ = Object.create(null);
   (D.teams || []).forEach(function (t) { TEAM_OBJ[t.id] = t; });
   var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
-  var PK = P.filter(function (it) { return /South Korea/.test(it.sub); });
-  var CK = CO.filter(function (it) { return KR_TEAMS.test(it.team); });
+  // 인물별 가장 최근 이적: 날짜 최신순, 같은 날이면 공식 발표일(signedDate)이 있는 행.
+  var latest = Object.create(null);
+  [T1, T2].forEach(function (rows) {
+    rows.forEach(function (m) {
+      if (!m.pid) return;
+      var cur = own(latest, m.pid);
+      if (!cur || dayOf(m.date) > dayOf(cur.date) || (dayOf(m.date) === dayOf(cur.date) && typeof m.signed === "number" && typeof cur.signed !== "number")) latest[m.pid] = m;
+    });
+  });
+  // LFT 행에 같은 인물의 이적이 있고 이적이 LFT 행과 같은 날이거나 나중이면, 이적 쪽 상태(도착 팀·발표일 등)를 쓴다.
+  function mergeMove(it) {
+    var mv = own(latest, it.pid);
+    if (!mv || dayOf(mv.date) < dayOf(it.date)) return it;
+    return Object.assign({}, it, { moved: true, next: mv.next, signed: mv.signed, status: mv.status, date: mv.date, conf: mv.conf, src: mv.src, tidTo: mv.tidTo });
+  }
+  var P = P0.map(mergeMove), CO = CO0.map(mergeMove);
+  // LFT 행이 없는 이적 인물은 이적 행을 그대로 넣는다. 선수 이적은 선수 탭, 코치 이적은 코치 탭.
+  var inP = new Set(P.map(function (x) { return x.pid; })), inCO = new Set(CO.map(function (x) { return x.pid; }));
+  Object.keys(latest).forEach(function (pid) {
+    var mv = latest[pid];
+    if (T1.indexOf(mv) >= 0) {
+      if (inP.has(pid)) return;
+      // 이적 행에는 포지션·국적 칸이 없어 인물 정보로 채운다(선수 탭 표시·한국 탭 판정).
+      var pp = own(PEOPLE, pid) || {};
+      P.push(Object.assign({}, mv, { sub: [cleanName(pp.role), cleanName(pp.nationality)].filter(Boolean).join(", ") }));
+    } else if (!inCO.has(pid)) CO.push(mv);
+  });
+  // 한국 탭: 국적이 South Korea 이거나, 소속 팀(이적이면 도착 팀)의 국가가 South Korea 인 항목.
+  function krTeam(it) { return isKorea(it.tid) || (!!it.moved && isKorea(it.tidTo)); }
+  function isKorea(id) { var tm = own(TEAM_OBJ, id); return !!tm && tm.country === "South Korea"; }
+  var PK = P.filter(function (it) { return /South Korea/.test(it.sub) || krTeam(it); });
+  var CK = CO.filter(function (it) { var pp = own(PEOPLE, it.pid); return (!!pp && pp.nationality === "South Korea") || krTeam(it); });
   var TABS = [
     { id: "players", label: t("tab.players"), mode: "entry", status: true, size: P.length, groups: [{ items: P }] },
     { id: "coaches", label: t("tab.coaches"), mode: "entry", status: true, size: CO.length, groups: [{ items: CO }] },
