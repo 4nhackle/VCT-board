@@ -1,6 +1,7 @@
 import { esc, textHTML } from "../format.js";
 import { personUrl } from "../state.js";
-import { regionName, tierName, teamMoves, teamNameOf, newestFirst } from "../model.js";
+import { regionName, tierName, teamMoves, teamNameOf, teamNews, newestFirst } from "../model.js";
+import { rowHTML } from "../components/row.js";
 import { backHTML } from "./person.js";
 import { val, newsRow, infoHTML, monoHTML, nameHTML } from "./common.js";
 import { t } from "../i18n.js";
@@ -32,6 +33,15 @@ export function teamHTML(id, IDX) {
   function rows(list) { return '<ul class="dp-list">' + list.map(function (e) { return newsRow(e, true); }).join("") + "</ul>"; }
   if (m.incoming.length) sections += '<div class="dp-sec"><h2>' + t("h.incoming") + "</h2>" + rows(m.incoming) + "</div>";
   if (m.outgoing.length) sections += '<div class="dp-sec"><h2>' + t("h.outgoing") + "</h2>" + rows(m.outgoing) + "</div>";
+  // 팀 소식: 지켜볼 팀 사건과 계약 만료 임박 인물. 둘 다 없으면 구역을 넣지 않는다.
+  var tnews = teamNews(id, IDX), watchTeams = new Set(Object.keys(IDX.teams));
+  if (tnews.events.length || tnews.expiring.length) {
+    var evs = tnews.events.length ? '<ul class="dp-list">' + tnews.events.map(function (e) { return rowHTML(e.item, { mode: "watch", teams: watchTeams }); }).join("") + "</ul>" : "";
+    var exp = tnews.expiring.length ? '<p class="dp-note">' + t("team.expiring") + '</p><ul class="dp-people">' + tnews.expiring.map(function (x) {
+      return '<li><a href="' + esc(personUrl(x.person.id)) + '">' + nameHTML(val(x.person.name) || x.person.id) + '</a> <span class="dp-facts-inline">' + esc(x.state.label) + "</span></li>";
+    }).join("") + "</ul>" : "";
+    sections += '<div class="dp-sec"><h2>' + t("team.news") + "</h2>" + evs + exp + "</div>";
+  }
   var shown = new Set(m.incoming.concat(m.outgoing)), rest = m.news.filter(function (e) { return !shown.has(e); });
   if (rest.length) sections += '<div class="dp-sec"><h2>' + t("h.news") + "</h2>" + rows(rest) + "</div>";
   else if (!shown.size) sections += '<div class="dp-sec"><h2>' + t("h.news") + '</h2><p class="dp-note">' + t("msg.noNews") + "</p></div>";

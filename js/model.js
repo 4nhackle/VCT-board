@@ -53,7 +53,9 @@ export function buildTabs(D, today) {
   function items(rows, kind) {
     return rows.map(function (r) {
       var ids = idsOf(r, kind), p = own(PEOPLE, ids.pid);
-      return Object.assign(toItem(p && kind !== "t" && kind !== "watch" ? fillRow(r, kind, p) : r, kind, D.sources), ids);
+      // 계약 만료: 행 값이 있으면 그것, 없으면 인물 정보. 목록 행에 "계약 ~…" 으로 보인다.
+      var until = kind === "watch" ? undefined : contractOK(r.contractUntil) ? r.contractUntil : p && contractOK(p.contractUntil) ? p.contractUntil : undefined;
+      return Object.assign(toItem(p && kind !== "t" && kind !== "watch" ? fillRow(r, kind, p) : r, kind, D.sources), ids, until === undefined ? {} : { contract: until });
     });
   }
   var P0 = items(D.players, "player"), CO0 = items(D.coaches, "coach"), W = items(D.watch, "watch");
@@ -254,6 +256,28 @@ export function teamMoves(id, IDX, today) {
     return String(a.name || "") < String(b.name || "") ? -1 : 1;
   });
   return { roster: roster, incoming: incoming, outgoing: outgoing, news: news, closed: closed };
+}
+
+// 팀 소식(팀 화면): 이 팀의 지켜볼 팀 사건(철수·파트너십 탈락·계약 만료 예정·합류 보도)과,
+// 로스터 인물 가운데 계약 만료가 90일 안이거나 이미 지난 인물, 그리고 연도만 있는 계약이 올해 이하인 인물.
+// events 는 행 입력 순서를 그대로 둔다(지켜볼 팀 행에는 날짜가 없다). expiring 은 가까운 날짜순, 연도만 있는 것은 뒤에 둔다.
+var NEWS_KINDS = ["withdraw", "dropped", "expiring", "joining"];
+export function teamNews(id, IDX, today) {
+  var td = today == null ? TODAY : today, thisYear = +isoOf(td).slice(0, 4);
+  var events = (IDX.byTeam[id] || []).filter(function (e) {
+    return e.kind === "watch" && NEWS_KINDS.indexOf(watchMeta(e.item.note).kind) >= 0;
+  });
+  var expiring = teamMoves(id, IDX, td).roster.filter(function (p) {
+    var u = p.contractUntil;
+    if (typeof u === "number") return u - td <= 90;
+    return typeof u === "string" && /^\d{4}$/.test(u) && +u <= thisYear;
+  }).map(function (p) { return { person: p, state: contractState(p.contractUntil, td) }; });
+  expiring.sort(function (a, b) {
+    var da = typeof a.person.contractUntil === "number", db = typeof b.person.contractUntil === "number";
+    if (da !== db) return da ? -1 : 1;
+    return da ? a.person.contractUntil - b.person.contractUntil : +a.person.contractUntil - +b.person.contractUntil;
+  });
+  return { events: events, expiring: expiring };
 }
 
 // 인물·팀별 소식 모음. 탭과 상관없이 한 사람·한 팀의 행을 모은다.
