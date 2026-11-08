@@ -328,6 +328,54 @@ t("개인정보처리방침: web3forms·Cloudflare 를 한·영 모두 밝히고
   assert.ok(EN["form.privacyNote"], "en 키");
 });
 
+// PR 10: 인물 이름 충돌은 personId 없는 소식 행이 끼면 오류, 인물 명단끼리만이면 경고. 임시 데이터 폴더에서 validate.mjs 를 돌린다.
+const VALIDATE_PATH = fileURLToPath(new URL("./validate.mjs", import.meta.url));
+function runValidate(name, { players = [], coaches = [], people = null, teams = null }) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vct-pr10-" + name + "-"));
+  const put = (f, v) => fs.writeFileSync(path.join(dir, f + ".json"), JSON.stringify(v));
+  put("sources", { s1: ["VLR", "https://www.vlr.gg/1/x"] });
+  put("transfers", { players: [], coaches: [] });
+  put("players", players);
+  put("coaches", coaches);
+  put("watch", []);
+  if (people) put("people", people);
+  if (teams) put("teams", teams);
+  return spawnSync(process.execPath, [VALIDATE_PATH, dir], { encoding: "utf8" });
+}
+const vrow = (team, name, extra = {}) => ({ region: "EMEA", team, name, status: "FA 진입 예정", date: T, conf: "C", src: "s1", ...extra });
+const vperson = (id, name) => ({ id, name, role: "Duelist", nationality: "Japan" });
+
+t("validate: 소식 행끼리 ZYZZ·zyzz(personId 없음)는 오류 종료 1", () => {
+  const r = runValidate("rows", { players: [vrow("A", "ZYZZ"), vrow("B", "zyzz")] });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /인물 이름 충돌/);
+});
+
+t("validate: 소식 행 ZYZZ(personId 없음)와 인물 명단 zyzz 는 오류", () => {
+  const r = runValidate("row-people", { players: [vrow("A", "ZYZZ")], people: [vperson("zyzz-x", "zyzz")] });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /인물 이름 충돌/);
+});
+
+t("validate: 인물 명단끼리만 ZYZZ·zyzz 는 경고만(종료 0)", () => {
+  const r = runValidate("people-only", { people: [vperson("zyzz", "ZYZZ"), vperson("zyzz-2", "zyzz")] });
+  assert.equal(r.status, 0);
+  assert.match(r.stderr, /같은 ID 'zyzz'/);
+  assert.doesNotMatch(r.stderr, /인물 이름 충돌/);
+});
+
+t("validate: personId 가 있는 행끼리 같은 철자는 충돌이 아니다", () => {
+  const r = runValidate("ids", { players: [vrow("A", "ZYZZ", { personId: "zyzz-a" }), vrow("B", "zyzz", { personId: "zyzz-b" })] });
+  assert.equal(r.status, 0);
+  assert.doesNotMatch(r.stderr, /같은 ID 'zyzz'/);
+});
+
+t("validate: 팀 이름 Leviatán·LEVIATÁN 은 경고만(종료 0)", () => {
+  const r = runValidate("teams", { players: [vrow("Leviatán", "P1"), vrow("LEVIATÁN", "P2")] });
+  assert.equal(r.status, 0);
+  assert.match(r.stderr, /같은 ID 'leviatan'/);
+});
+
 // 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.
 t("contractState: 연도만 있는 값은 year(올해 이후) 또는 expired(지난 해), 숫자 값은 그대로", () => {
   setLang("ko");

@@ -729,6 +729,17 @@ Liquipedia | 8 | 6 | 14
 - web3forms 방침 원문과 DPA 는 403 으로 읽지 못했다. 보관 기간·IP 문장은 사람이 확인해야 한다.
 - 이 PR 은 `docs/privacy-disclosure` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr7-privacy-disclosure.md`.
 
+## 27회차 인물 이름 충돌은 personId 없는 소식 행이 끼면 오류 (PR 10, 2026-11-08)
+
+### 결과
+- `validate.mjs`: 인물 이름이 같은 ID 가 되고, 그 가운데 personId 없는 소식 행(players·coaches·transfers)이 있으면 오류로 멈춘다. 인물 명단끼리만의 충돌과 팀 이름 충돌은 경고 그대로다.
+- 시험 5개 추가(임시 데이터 폴더에서 `validate.mjs` 실행). 현재 data 는 오류 0.
+- 로컬 `docs/instructions/revised/web-publish-daily.txt`(git 에 없음)의 4단계에 같은 규칙을 넣었다. 예약 작업 쪽 반영은 사용자 작업이다.
+
+### 열린 결정 · 알아 둘 점
+- 예약 작업의 안전 검사가 `validate.mjs` 와 맞아야 한다. 맞지 않으면 커밋한 뒤 Actions 가 거부한다(PR 본문의 문구를 붙여 넣는다).
+- 이 PR 은 `fix/person-id-clash` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr10-person-id-clash.md`.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
