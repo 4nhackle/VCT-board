@@ -14,6 +14,7 @@ import { rosterHTML } from "../js/views/roster.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute, filtersOf, queryOf, listAction, themeOf } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
+import { mailParts } from "../js/views/suggest.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
 import { noteParts } from "../js/note.js";
 import { tIn, setLang, setEnTable, trEn, trNote, trWhole } from "../js/i18n.js";
@@ -642,6 +643,18 @@ t("themeOf: 라이트·다크·시스템은 그대로, 그 밖의 값과 없음�
   assert.equal(themeOf(""), "system");
   assert.equal(themeOf(null), "system");
   assert.equal(themeOf(undefined), "system");
+});
+
+t("mailParts: 제목은 접두어+유형, 본문은 글·근거 링크·바닥글 순서, 링크가 없으면 근거 줄 없음", () => {
+  setLang("ko");
+  const withLink = mailParts("정보 오류", "본문", "https://x.test/a");
+  assert.equal(withLink.subject, KO["form.subjectPrefix"] + "정보 오류");
+  assert.ok(withLink.body.startsWith("본문"));
+  assert.ok(withLink.body.includes("\n\n" + KO["form.linkLabel"] + "https://x.test/a"));
+  assert.ok(withLink.body.endsWith("\n\n" + KO["form.footer"]));
+  const bare = mailParts("정보 오류", "본문", "");
+  assert.equal(bare.body, "본문\n\n" + KO["form.footer"]);
+  assert.ok(!bare.body.includes(KO["form.linkLabel"]));
 });
 
 t("parseRoute: 목록·인물·팀·끝 슬래시 없음·잘못된 ID", () => {

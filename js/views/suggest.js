@@ -20,13 +20,17 @@ export function suggestHTML() {
     "</form>";
 }
 
+// 메일 제목과 본문. 입력은 이미 다듬은 글이다(보내기·복사·web3forms 가 같이 쓴다).
+export function mailParts(type, text, link) {
+  return {
+    subject: t("form.subjectPrefix") + type,
+    body: text + (link ? "\n\n" + t("form.linkLabel") + link : "") + "\n\n" + t("form.footer")
+  };
+}
+
 export function bindSuggest() {
   function composed() {
-    var text = $("sgText").value.trim(), link = $("sgLink").value.trim();
-    return {
-      subject: t("form.subjectPrefix") + $("sgType").value,
-      body: text + (link ? "\n\n" + t("form.linkLabel") + link : "") + "\n\n" + t("form.footer")
-    };
+    return mailParts($("sgType").value, $("sgText").value.trim(), $("sgLink").value.trim());
   }
   // hCaptcha: 건의 탭을 처음 그릴 때만 불러온다(다른 화면은 요청하지 않는다). 불러오지 못하면 보내기만 끈다.
   var capId = null, capFailed = false;
