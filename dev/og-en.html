@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Link preview source (English, 1200×630). Source of the root og-en.png. build.mjs does not copy dev/.
+     Redraw (Windows Chrome, from the repo root):
+     "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --hide-scrollbars --window-size=1200,630 --screenshot=og-en.png file:///C:/.../VCT-board/dev/og-en.html
+     Font used for capture: Malgun Gothic. Pretendard is not installed on this PC, so the stack fell back to it. -->
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#F4F5F7}
+.card{position:relative;width:1200px;height:630px;background:#F4F5F7;color:#14171C;font-family:"Pretendard Variable","Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;word-break:keep-all}
+.bar{position:absolute;left:0;top:0;width:1200px;height:10px;background:#C42F3B}
+.kicker{position:absolute;left:66px;top:76px;margin:0;font-size:26px;font-weight:800;letter-spacing:.14em;color:#C42F3B;white-space:nowrap}
+.title{position:absolute;left:66px;top:124px;margin:0;font-size:92px;font-weight:900;line-height:1.12;letter-spacing:-.02em;white-space:nowrap}
+.rule{position:absolute;left:66px;top:352px;width:120px;height:5px;background:#14171C}
+.desc{position:absolute;left:66px;top:382px;margin:0;font-size:30px;line-height:1.4;color:#5A6270;white-space:nowrap}
+.pills{position:absolute;left:66px;top:500px;display:flex;gap:18px}
+.pill{display:inline-flex;align-items:center;height:60px;padding:0 28px;border-radius:999px;font-size:30px;font-weight:700;white-space:nowrap}
+.p-open{background:#FDECC8;color:#7A4A00}
+.p-signed{background:#D9F2E4;color:#0F5B39}
+.p-left{background:#E6E9EE;color:#3B4652}
+</style>
+</head>
+<body>
+<div class="card" role="img" aria-label="VALORANT VCT Player Moves">
+  <div class="bar"></div>
+  <p class="kicker">VCT OFFSEASON 2026</p>
+  <h1 class="title">VALORANT VCT<br>Player Moves</h1>
+  <div class="rule"></div>
+  <p class="desc">Players and coaches seeking new teams, and confirmed moves.</p>
+  <div class="pills">
+    <span class="pill p-open">○ Looking for team</span>
+    <span class="pill p-signed">✓ Joined new team</span>
+    <span class="pill p-left">→ Left team</span>
+  </div>
+</div>
+</body>
+</html>
