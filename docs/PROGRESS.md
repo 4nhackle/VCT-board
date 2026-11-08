@@ -825,6 +825,17 @@ Liquipedia | 8 | 6 | 14
 ### 열린 결정 · 알아 둘 점
 - 빈 파일(`[]`) 검사는 하지 않았다. 후속 작업.
 
+## PR 12 건의 메일 제목·본문 시험 (2026-11-08)
+
+### 결과
+- 브랜치 `test/suggest-mail` (기준 `origin/main` bd30f27). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr12-suggest-mail-test.md`.
+- `js/views/suggest.js`: 메일 제목·본문을 만드는 식을 `mailParts(type, text, link)` 순수 함수로 뺐다. `composed()` 는 그 호출 한 줄이다. 화면 변화는 없다.
+- 시험 1개 추가(제목, 근거 링크 줄, 바닥글, 링크 없음). 기대 글은 `KO` 에서 읽는다.
+- 확인: 시험 159개 통과(전 158), validate 오류 0·경고 644(전후 같음), css-check·빌드 통과. 원래 식과 네 입력에서 같음(Node 비교).
+
+### 열린 결정 · 알아 둘 점
+- 브라우저에서 `mailto:` 를 직접 보지 못했다. Obscura 가 `127.0.0.1` 을 막는다. 내장 브라우저는 허락 없이 쓰지 않았다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
