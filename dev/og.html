@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<!-- 링크 미리보기 원본(한국어, 1200×630). 저장소 루트 og.png 의 원본이다. build.mjs 는 dev/ 를 복사하지 않는다.
+     다시 그리기(Windows Chrome, 저장소 루트에서):
+     "C:\Program Files\Google\Chrome\Application\chrome.exe" --headless=new --hide-scrollbars --window-size=1200,630 --screenshot=og.png file:///C:/.../VCT-board/dev/og.html
+     캡처에 쓴 글꼴: Malgun Gothic(맑은 고딕). Pretendard 는 이 PC에 설치되어 있지 않아 다음 글꼴로 대체되었다. -->
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#F4F5F7}
+.card{position:relative;width:1200px;height:630px;background:#F4F5F7;color:#14171C;font-family:"Pretendard Variable","Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;word-break:keep-all}
+.bar{position:absolute;left:0;top:0;width:1200px;height:10px;background:#C42F3B}
+.kicker{position:absolute;left:66px;top:76px;margin:0;font-size:26px;font-weight:800;letter-spacing:.14em;color:#C42F3B;white-space:nowrap}
+.title{position:absolute;left:66px;top:124px;margin:0;font-size:92px;font-weight:900;line-height:1.12;letter-spacing:-.02em;white-space:nowrap}
+.rule{position:absolute;left:66px;top:352px;width:120px;height:5px;background:#14171C}
+.desc{position:absolute;left:66px;top:382px;margin:0;font-size:30px;line-height:1.4;color:#5A6270;white-space:nowrap}
+.pills{position:absolute;left:66px;top:500px;display:flex;gap:18px}
+.pill{display:inline-flex;align-items:center;height:60px;padding:0 28px;border-radius:999px;font-size:30px;font-weight:700;white-space:nowrap}
+.p-open{background:#FDECC8;color:#7A4A00}
+.p-signed{background:#D9F2E4;color:#0F5B39}
+.p-left{background:#E6E9EE;color:#3B4652}
+</style>
+</head>
+<body>
+<div class="card" role="img" aria-label="발로란트 VCT 선수 이적 현황">
+  <div class="bar"></div>
+  <p class="kicker">VCT OFFSEASON 2026</p>
+  <h1 class="title">발로란트 VCT<br>선수 이적 현황</h1>
+  <div class="rule"></div>
+  <p class="desc">새 팀을 찾는 선수와 코치, 확정된 이적을 지역별로 정리했습니다.</p>
+  <div class="pills">
+    <span class="pill p-open">○ 구직 중</span>
+    <span class="pill p-signed">✓ 새 팀 합류</span>
+    <span class="pill p-left">→ 팀 떠남</span>
+  </div>
+</div>
+</body>
+</html>

@@ -763,6 +763,15 @@ Liquipedia | 8 | 6 | 14
 - 예약 작업의 안전 검사가 `validate.mjs` 와 맞아야 한다. 맞지 않으면 커밋한 뒤 Actions 가 거부한다(PR 본문의 문구를 붙여 넣는다).
 - 이 PR 은 `fix/person-id-clash` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr10-person-id-clash.md`.
 
+## D5 링크 미리보기 그림 다시 그리기 (2026-11-08)
+
+### 결과
+- 브랜치 `design/d5-og-image` (기준 `origin/main`). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-D5-og-이미지.md`.
+- 루트 `og.png`(한국어)·`og-en.png`(영어)를 밝은 Ink·Coral 스타일로 다시 그렸다. 1200×630, 각 40 KB·55 KB.
+- 원본 템플릿 `dev/og.html`, `dev/og-en.html` 을 저장소에 두었다. 캡처 명령은 각 파일 맨 위 주석, 다시 그리는 방법은 README 에 적었다.
+- 영문 설명문은 한 줄에 맞게 줄였다("Players and coaches seeking new teams, and confirmed moves."). 원문은 `meta.ogDesc`.
+- 글꼴은 Malgun Gothic 으로 캡처했다(Pretendard 미설치). 제목 굵기 900 은 Malgun 의 굵은 체로 그려졌다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
