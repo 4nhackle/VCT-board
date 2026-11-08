@@ -545,6 +545,20 @@ t("rowHTML: caption 이 있으면 설명글로 쓰고 출처 줄은 남김, 없�
   assert.equal(rowHTML({ ...base, caption: "-" }, tab, {}), noCap, "'-' caption 은 빈 칸이다");
 });
 
+t("rowHTML(지켜볼 팀): 첫 조각만 보이고 나머지와 출처는 펼침 영역에, 조각도 출처도 없으면 단추가 없다", () => {
+  setLang("ko");
+  resetFolds();
+  const tab = { mode: "watch", teams: new Set() };
+  const html = rowHTML({ team: "Team A", name: "대상", note: "A 갱신 / B 이전 (확인 11/8)", src: ["출처", "https://example.com/x"] }, tab, {});
+  const [visible, fold] = html.split('<div class="row-fold"');
+  assert.ok(visible.includes("A 갱신") && !visible.includes("B 이전"), "첫 조각만 보인다");
+  assert.ok(fold.includes("B 이전") && fold.includes("https://example.com/x"), "나머지와 출처는 펼침 영역");
+  assert.equal((html.match(/class="row-x"/g) || []).length, 1, "단추는 하나");
+  resetFolds();
+  const one = rowHTML({ team: "Team A", name: "대상", note: "A 만", src: null }, tab, {});
+  assert.ok(!one.includes("row-x") && !one.includes("row-fold"), "조각도 출처도 없으면 단추와 영역이 없다");
+});
+
 t("personHTML: 연도만 있는 계약 만료는 날짜 없이 '2027년까지'", () => {
   setLang("ko");
   const D = { sources: {}, players: [], coaches: [], transfers: { players: [], coaches: [] }, watch: [], teams: [], people: [{ id: "p1", name: "Alpha", kind: "player", role: "Duelist", nationality: "Japan", contractUntil: "2027" }] };

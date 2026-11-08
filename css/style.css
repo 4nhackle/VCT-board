@@ -254,6 +254,9 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 /* 지켜볼 팀: 종류 배지, 확정 도장, 확인 날짜 */
 .row.watch { padding-left: 0; grid-template-columns: minmax(0, 1fr) auto; }
 .row.watch::before { display: none; }
+/* 펼침 단추는 오른쪽 열의 첫 줄(이름 줄)에 둔다. 첫 줄은 접힌 동안만 두 줄로 자른다(펼치면 전체가 보인다). */
+.row.watch > .row-x { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+.row.watch:has(> .row-x[aria-expanded="false"]) .head { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .wk { --wk-pad-x: 8px; --wk-shift: 2px; display: inline-block; margin-right: var(--space-s); padding: 0 var(--wk-pad-x); border-radius: var(--radius-s); font-size: var(--text-meta); font-weight: 700; vertical-align: var(--wk-shift); background: var(--status-left-bg); color: var(--status-left-fg); }
 .wk.withdraw { background: var(--status-warn-bg); color: var(--status-warn-fg); }
 .wk.dropped { background: var(--status-open-bg); color: var(--status-open-fg); }
@@ -409,6 +412,7 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .row > .when { grid-area: when; }
   .row > .row-x { grid-area: x; }
   .row.watch { display: flex; flex-direction: column; align-items: stretch; }
+  .row.watch > .row-x { align-self: flex-end; }
   .cols { display: none; }
   .state { justify-content: flex-start; text-align: left; }
   .dp-info, .dp-info.c4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
