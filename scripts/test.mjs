@@ -127,7 +127,7 @@ t("buildTabs: 한국 탭은 국적 또는 한국 팀 기준(코치 국적은 인
 });
 
 // 오늘 탭·거르기(PR 4). 기준일은 T, 탭 묶음은 MD.
-const ST = (o) => ({ region: "all", status: "all", q: "", pos: "all", stage: "all", days: "all", top: false, ...o });
+const ST = (o) => ({ region: "all", status: "all", q: "", pos: "all", days: "all", top: false, ...o });
 const PLAIN = { id: "players", status: true, teamObj: { t1: { tier: "partner" }, t2: { tier: "academy" }, t3: { tier: "ascended" } } };
 // 선수 항목 한 줄. over 의 tid·tidTo 는 항목에, 나머지는 시트 행에 덮는다.
 const pRow = (over = {}) => {
@@ -144,17 +144,6 @@ t("matches: 포지션은 sub 의 첫 칸에서 대소문자 무시로 찾고, �
   assert.equal(matches(pRow({ position: "Duelist/Flex" }), PLAIN, ST({ pos: "Flex" })), true, "슬래시 조합은 부분 일치");
   assert.equal(matches(it, { ...PLAIN, id: "coaches" }, ST({ pos: "Initiator" })), true);
   assert.equal(matches(it, { ...PLAIN, id: "transfers" }, ST({ pos: "Initiator" })), true);
-});
-
-t("matches: 확인 단계는 알약 단계와 같아야 하고, 단계 없는 항목은 '전체'가 아니면 빠진다", () => {
-  const confirmed = toItem({ region: "EMEA", from: "A", to: "B", type: "이적", date: T, conf: "C", src: "s1", name: "X", fromTeam: "a", toTeam: "b", signedDate: T - 1 }, "t", {});
-  const reported = pRow({ status: "계약 완료(X) · 합류 보도", conf: "R" });
-  const open = pRow({ status: "FA 진입 예정" });
-  assert.equal(matches(confirmed, PLAIN, ST({ stage: "confirmed" })), true);
-  assert.equal(matches(confirmed, PLAIN, ST({ stage: "reported" })), false);
-  assert.equal(matches(reported, PLAIN, ST({ stage: "reported" })), true);
-  assert.equal(matches(open, PLAIN, ST({ stage: "confirmed" })), false, "단계 없는 항목은 빠진다");
-  assert.equal(matches(open, PLAIN, ST({ stage: "all" })), true);
 });
 
 t("matches: 기간은 오늘(인자)과 보도 날짜의 차이, 날짜 숫자가 없으면 빠진다", () => {
@@ -203,15 +192,17 @@ t("buildTabs: 오늘 탭은 오늘 날짜 인물만 넣고, 없으면 가장 최
 t("주소: 거르기 값은 ?뒤에서 읽고, 잘못된 값은 기본으로 돌아가며, 기본값은 주소에 쓰지 않는다", () => {
   const B = "/VCT-board/";
   assert.deepEqual(parseRoute({ pathname: B, hash: "#today?pos=Duelist&days=3" }, B), { view: "list", tab: "today" });
-  assert.deepEqual(filtersOf({ hash: "#today?pos=Duelist&stage=confirmed&days=3&top=1" }), { pos: "Duelist", stage: "confirmed", days: "3", top: true });
-  assert.deepEqual(filtersOf({ hash: "#today?pos=Bogus&stage=x&days=5&top=0" }), { pos: "all", stage: "all", days: "all", top: false });
-  assert.deepEqual(filtersOf({ hash: "#players" }), { pos: "all", stage: "all", days: "all", top: false });
-  assert.equal(queryOf({ pos: "all", stage: "all", days: "all", top: false }), "");
-  assert.equal(queryOf({ pos: "Flex", stage: "reported", days: "0", top: true }), "?pos=Flex&stage=reported&days=0&vct=1");
-  assert.deepEqual(filtersOf({ hash: "#players?vct=1" }), { pos: "all", stage: "all", days: "all", top: true });
-  assert.deepEqual(filtersOf({ hash: "#players?top=1&days=3" }), { pos: "all", stage: "all", days: "3", top: true }, "옛 주소 top=1 도 켠다");
-  assert.deepEqual(filtersOf({ hash: "#players?vct=0&top=junk" }), { pos: "all", stage: "all", days: "all", top: false }, "엉뚱한 값은 무시");
-  assert.equal(queryOf({ pos: "all", stage: "all", days: "all", top: true }), "?vct=1", "top=1 은 쓰지 않는다");
+  assert.deepEqual(filtersOf({ hash: "#today?pos=Duelist&days=3&top=1" }), { pos: "Duelist", days: "3", top: true });
+  assert.deepEqual(filtersOf({ hash: "#today?pos=Bogus&days=5&top=0" }), { pos: "all", days: "all", top: false });
+  assert.deepEqual(filtersOf({ hash: "#players" }), { pos: "all", days: "all", top: false });
+  assert.equal(queryOf({ pos: "all", days: "all", top: false }), "");
+  assert.equal(queryOf({ pos: "Flex", days: "0", top: true }), "?pos=Flex&days=0&vct=1");
+  assert.deepEqual(filtersOf({ hash: "#players?vct=1" }), { pos: "all", days: "all", top: true });
+  assert.deepEqual(filtersOf({ hash: "#players?top=1&days=3" }), { pos: "all", days: "3", top: true }, "옛 주소 top=1 도 켠다");
+  assert.deepEqual(filtersOf({ hash: "#players?vct=0&top=junk" }), { pos: "all", days: "all", top: false }, "엉뚱한 값은 무시");
+  assert.equal(queryOf({ pos: "all", days: "all", top: true }), "?vct=1", "top=1 은 쓰지 않는다");
+  assert.deepEqual(filtersOf({ hash: "#players?stage=confirmed&days=3" }), { pos: "all", days: "3", top: false }, "옛 stage 주소는 무시");
+  assert.equal(queryOf({ pos: "all", days: "all", top: false, stage: "confirmed" }), "", "stage 는 주소에 쓰지 않는다");
 });
 
 // 팀 소식·계약 칸(PR 5). 기준일 T. 로스터 인물은 t1 소속(2026-01 부터 진행 중).
@@ -443,7 +434,7 @@ t("mergeMoves: 입력 배열(LFT 행·이적 행)을 바꾸지 않는다", () =>
 });
 
 t("listAction: 상세 복귀·다른 탭은 full, 같은 탭·같은 거르기는 none, 같은 탭·거르기 변경은 refilter, 없는 탭은 none", () => {
-  const cur = { pos: "all", stage: "all", days: "all", top: false };
+  const cur = { pos: "all", days: "all", top: false };
   const same = { ...cur };
   const duel = { ...cur, pos: "Duelist" };
   assert.equal(listAction("person", "players", "players", true, cur, same), "full");

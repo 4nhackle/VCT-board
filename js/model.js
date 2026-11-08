@@ -492,8 +492,6 @@ export function matches(it, tab, state, today) {
     var head = String(it.sub || "").split(", ")[0].toLowerCase();
     if (head.indexOf(String(state.pos).toLowerCase()) < 0) return false;
   }
-  // 확인 단계: 알약의 단계(confirmed·reported)와 같아야 한다. 단계가 없는 항목은 "전체"가 아니면 빠진다.
-  if (state.stage && state.stage !== "all" && pillOf(it)[2] !== state.stage) return false;
   if (state.days && state.days !== "all") {
     if (!(typeof it.date === "number" && td - it.date <= +state.days)) return false;
   }
