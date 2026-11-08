@@ -32,6 +32,16 @@ export function listAction(view, curTab, nextTab, tabExists, cur, next) {
   return Object.keys(next).some(function (k) { return next[k] !== cur[k]; }) ? "refilter" : "none";
 }
 
+// 클릭 한 번이 무엇을 할지 고른다. 순서가 뜻을 가진다: 행 안의 링크는 링크지 행 펼침이 아니다.
+export function clickAction(target) {
+  var a = target.closest("a[href]");
+  if (a) return { kind: "link", el: a };
+  var row = target.closest("li.row");
+  if (row && row.querySelector(":scope > .row-x") && (target.closest(".row-x") || !target.closest("button, select, input, .row-fold"))) return { kind: "row", el: row };
+  var b = target.closest("button");
+  return b ? { kind: "button", el: b } : null;
+}
+
 try { if (localStorage.getItem("vct-order") === "recent") state.order = "recent"; } catch (e) {}
 
 // 화면 테마 저장값("light"·"dark"·"system")을 세 값 중 하나로. 그 밖의 값과 없음은 시스템으로 본다.

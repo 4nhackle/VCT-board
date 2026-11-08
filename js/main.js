@@ -1,7 +1,7 @@
 import { isNew, esc, withKst, fmtDate } from "./format.js";
 import { REGIONS, regionName, regionShort, buildTabs, buildIndex, matches, cls } from "./model.js";
 import { t, LANG, ledeHTML, setEnTable } from "./i18n.js";
-import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES, listAction, themeOf } from "./state.js";
+import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES, listAction, themeOf, clickAction } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
 import { scheduleHTML } from "./views/schedule.js";
@@ -226,8 +226,10 @@ function toggleRow(row) {
 }
 
 document.addEventListener("click", function (e) {
-  var a = e.target.closest("a[href]");
-  if (a) {
+  var act = clickAction(e.target);
+  if (!act) return;
+  if (act.kind === "link") {
+    var a = act.el;
     // EN·KR 링크: 고른 언어를 기억한다(저장 실패는 무시). 링크 동작은 그대로 둔다.
     if (a.dataset.lang) { try { localStorage.setItem("vct-lang", a.dataset.lang); } catch (err) {} return; }
     // "← 목록으로": 목록에서 왔으면 뒤로 가서 목록 상태를 되살리고, 아니면 목록 주소로 간다.
@@ -245,10 +247,8 @@ document.addEventListener("click", function (e) {
     return;
   }
   // 행의 펼침: 펼침 단추, 또는 행 안의 링크·단추·영역이 아닌 빈 곳을 누르면 여닫는다.
-  var row = e.target.closest("li.row");
-  if (row && row.querySelector(":scope > .row-x") && (e.target.closest(".row-x") || !e.target.closest("button, select, input, .row-fold"))) { toggleRow(row); return; }
-  var b = e.target.closest("button");
-  if (!b) return;
+  if (act.kind === "row") { toggleRow(act.el); return; }
+  var b = act.el;
   if (b.dataset.themeSet) { setTheme(themeOf(b.dataset.themeSet)); return; }
   if (b.dataset.top) { window.scrollTo(0, 0); return; }
   var tabChanged = false, filterChanged = false;
