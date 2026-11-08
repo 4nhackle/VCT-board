@@ -883,6 +883,17 @@ Liquipedia | 8 | 6 | 14
 - `.chip .n.new` 규칙은 죽은 코드지만 범위 밖이라 두었다.
 - Obscura 가 `localhost` 를 막아 내장 브라우저로 확인했다. 1280 폭 고정 확인은 하지 않았다.
 
+## PR 17 화면 테마 전환 제거, OS 설정만 따르기 (2026-11-09)
+
+### 결과
+- 브랜치 `feat/theme-system-only` (기준 `origin/main` f0277a4). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-09-pr17-theme-system-only.md`.
+- 라이트·다크·시스템 전환 단추와 관련 스크립트·i18n 키를 지웠다. 사이트는 OS 설정만 따른다. 저장된 `vct-theme` 은 지우지 않고 무시한다.
+- 확인: 시험 160 → 159(`themeOf` 시험 삭제), validate 오류 0, css-check·빌드 통과, `_site` 에 `vct-theme` 없음. 내장 브라우저로 저장값 무시, OS 다크 전환, 견본 다크 틀 확인.
+
+### 열린 결정 · 알아 둘 점
+- 강제 다크 CSS 블록은 견본·대비 점검용으로 남겼다.
+- 1280 폭 헤더 정렬과 EN 375 폭은 확인하지 않았다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.

@@ -40,9 +40,6 @@ export function clickAction(target) {
   return b ? { kind: "button", el: b } : null;
 }
 
-// 화면 테마 저장값("light"·"dark"·"system")을 세 값 중 하나로. 그 밖의 값과 없음은 시스템으로 본다.
-export function themeOf(stored) { return stored === "light" || stored === "dark" ? stored : "system"; }
-
 // 사이트 루트 경로(이 파일 js/state.js 기준). 배포는 "/VCT-board/", 루트로 열면 "/".
 // 상세 주소로 pushState 하면 상대 경로의 기준이 바뀌므로 사이트 안 주소는 항상 BASE 로 시작하는 절대 경로로 만든다.
 export var BASE = new URL("../", import.meta.url).pathname;

@@ -59,7 +59,7 @@
     color-scheme: dark;
   }
 }
-/* 강제 다크: 위 블록과 같은 1층 값이다. CSS 는 두 조건(OS 다크, data-theme)을 한 규칙으로 묶지 못해 값을 두 번 쓴다. */
+/* 강제 다크 블록: 화면은 더 이상 data-theme 를 달지 않는다. dev/styleguide 의 어두운 틀과 css-check 의 대비 점검이 쓴다. 위 블록과 같은 값이라 두 번 쓴다. */
 :root[data-theme="dark"] {
   --neutral-0: #181D24; --neutral-50: #0F1318; --neutral-200: #2A313B; --neutral-600: #9AA4B1; --neutral-900: #ECEFF3;
   --neutral-float: #222831; --neutral-mono: #222831; --neutral-mono-fg: #ECEFF3;
@@ -111,10 +111,10 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 /* EN/KR 전환: 현재 언어는 굵기와 밑줄로도 보인다(색만으로 구분하지 않는다). */
 /* 전환 버튼은 내용 폭을 지킨다: 부모 flex 가 늘이거나 줄이지 못하게 한다. */
 /* 테마 전환(시스템·라이트·다크)은 EN/KR 과 같은 알약 묶음을 쓴다. 고른 칸은 굵기와 밑줄로도 보인다. */
-.lang-switch, .theme-switch { display: inline-flex; flex: 0 0 auto; width: auto; max-width: max-content; align-items: center; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); overflow: hidden; font-size: var(--text-small); }
-.lang-switch a, .theme-switch button { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: var(--control-h); padding: 0 var(--space-m); border: 0; background: none; color: var(--color-mute); text-decoration: none; }
-.lang-switch a:hover, .theme-switch button:hover { color: var(--color-ink); text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
-.lang-switch a[aria-current="true"], .theme-switch button[aria-pressed="true"] { color: var(--color-ink); font-weight: 700; text-decoration: underline; text-underline-offset: var(--link-underline-offset); background: var(--surface); }
+.lang-switch { display: inline-flex; flex: 0 0 auto; width: auto; max-width: max-content; align-items: center; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); overflow: hidden; font-size: var(--text-small); }
+.lang-switch a { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: var(--control-h); padding: 0 var(--space-m); border: 0; background: none; color: var(--color-mute); text-decoration: none; }
+.lang-switch a:hover { color: var(--color-ink); text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
+.lang-switch a[aria-current="true"] { color: var(--color-ink); font-weight: 700; text-decoration: underline; text-underline-offset: var(--link-underline-offset); background: var(--surface); }
 /* 원문 표시: 영문 화면의 한국어 글. KR 표시는 글자 크기를 줄여 테두리 칸으로 둔다. */
 .kr-tag { --kr-pad: 5px; --kr-shift: 1px; display: inline-block; margin-left: var(--space-xs); padding: 0 var(--kr-pad); border: 1px solid var(--color-line); border-radius: var(--radius-s); font-size: var(--text-meta); line-height: 1.5; color: var(--color-mute); vertical-align: var(--kr-shift); }
 

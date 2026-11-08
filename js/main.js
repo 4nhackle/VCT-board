@@ -1,7 +1,7 @@
 import { esc, withKst, fmtDate } from "./format.js";
 import { REGIONS, regionName, regionShort, buildTabs, buildIndex, matches, cls } from "./model.js";
 import { t, LANG, ledeHTML, setEnTable } from "./i18n.js";
-import { state, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES, listAction, themeOf, clickAction } from "./state.js";
+import { state, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES, listAction, clickAction } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
 import { scheduleHTML } from "./views/schedule.js";
@@ -183,22 +183,6 @@ function langLinks() {
   });
 }
 
-// 화면 테마: 시스템(data-theme 없음)·라이트·다크. 고른 값은 vct-theme 에 남기고 theme-color 두 개를 그 바탕색으로 맞춘다.
-var THEME_BG = { light: "#F4F5F7", dark: "#0F1318" };
-function storedTheme() { try { return themeOf(localStorage.getItem("vct-theme")); } catch (e) { return "system"; } }
-function setTheme(v) {
-  if (v === "system") document.documentElement.removeAttribute("data-theme");
-  else document.documentElement.setAttribute("data-theme", v);
-  try { localStorage.setItem("vct-theme", v); } catch (e) {}
-  document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
-    m.content = THEME_BG[v] || (/dark/.test(m.media) ? THEME_BG.dark : THEME_BG.light);
-  });
-  syncTheme(v);
-}
-function syncTheme(v) {
-  document.querySelectorAll("[data-theme-set]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.themeSet === v)); });
-}
-
 // 목록 행의 펼침: 설명·출처 영역을 여닫는다. 주소·저장소에 남기지 않고 다시 그리지도 않는다(영역의 hidden 과 단추의 aria 만 바꾼다).
 function toggleRow(row) {
   var btn = row.querySelector(":scope > .row-x"), fold = document.getElementById(btn.getAttribute("aria-controls"));
@@ -232,7 +216,6 @@ document.addEventListener("click", function (e) {
   // 행의 펼침: 펼침 단추, 또는 행 안의 링크·단추·영역이 아닌 빈 곳을 누르면 여닫는다.
   if (act.kind === "row") { toggleRow(act.el); return; }
   var b = act.el;
-  if (b.dataset.themeSet) { setTheme(themeOf(b.dataset.themeSet)); return; }
   if (b.dataset.top) { window.scrollTo(0, 0); return; }
   var tabChanged = false, filterChanged = false;
   if (b.dataset.tab) { tabChanged = b.dataset.tab !== state.tab; state.tab = b.dataset.tab; }
@@ -375,7 +358,6 @@ function localizeStatic() {
   }
 }
 if (LANG === "en" && document.documentElement.lang !== "en") localizeStatic();
-syncTheme(storedTheme());
 
 // 머리말 시각에 KST 를 붙인다. 텍스트 노드만 고쳐 .intro·.more 의 구조는 그대로 둔다.
 var LEDE = document.querySelector(".lede");
