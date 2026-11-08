@@ -12,6 +12,15 @@ function link(cls, href, html) {
   return href ? '<a class="' + cls + '" href="' + esc(href) + '">' + html + "</a>" : '<span class="' + cls + '">' + html + "</span>";
 }
 
+// 펼침 영역 번호. 목록을 그릴 때마다 renderView 가 resetFolds()로 0 에 되돌린다. 단추의 aria-controls 와 영역 id 가 같다.
+var FOLD_SEQ = 0;
+export function resetFolds() { FOLD_SEQ = 0; }
+
+// 목록 머리 행(데스크톱에서만 보인다). 칸 순서는 행과 같다. 스크린 리더에는 읽히지 않는다.
+export function colsHTML() {
+  return '<li class="cols" aria-hidden="true"><span>' + t("col.person") + "</span><span>" + t("col.move") + "</span><span>" + t("col.status") + "</span><span>" + t("col.date") + "</span><span></span></li>";
+}
+
 // 지켜볼 팀 행: 종류 배지와 팀 링크, 확정·확인 날짜, "대상" 라벨, 본문, 출처 줄.
 function watchHTML(it, tab) {
   // 대상 팀마다 따로 링크한다. 팀 이름 칸은 " / " 로 나뉘어 있다. teams 에 없는 ID 는 링크 없이 글자만.
@@ -28,9 +37,12 @@ function watchHTML(it, tab) {
     (sp.body ? '<p class="detail">' + textHTML(sp.body) + "</p>" : "") + srcsHTML(sp, it.src) + "</li>";
 }
 
+// 행의 칸 순서: 사람(이름·메타) · 이동(경로 또는 팀) · 상태(알약·배지·상태 글) · 날짜 · 펼침 단추. 펼침 영역은 설명·단체 링크·출처 줄.
+// 팀 로고 자리(D4)는 이름과 도착 팀 앞에 둔다. 지금은 빈 칸이다.
 export function rowHTML(it, tab, opt) {
   if (tab.mode === "watch") return watchHTML(it, tab);
-  var p = pillOf(it), sp = splitNote(noteText(it.note)), lead = "";
+  var p = pillOf(it), sp = splitNote(noteText(it.note));
+  opt = opt || {};
   // 시트에서 빈 칸을 "-"로 적은 값은 보여주지 않는다. 직책·국적은 용어집으로 옮긴다.
   var meta = (it.sub || "").split(", ").filter(cleanName).map(function (x) { return termHTML(x); }).join(" · ");
   // 계약 만료를 알면 메타 줄 끝에 "계약 ~2027" 처럼 붙인다(연도면 연도, 날짜면 ISO 날짜). 없으면 메타 줄은 그대로다.
@@ -38,18 +50,28 @@ export function rowHTML(it, tab, opt) {
     var ctx = t("row.contract", { x: typeof it.contract === "number" ? isoOf(it.contract) : it.contract });
     meta = meta ? meta + " · " + esc(ctx) : esc(ctx);
   }
-  // 데이터 판정용 글자(상태 글 앞머리). 판정은 원문으로 하고, 화면 글자는 용어집 또는 원문 + KR 로 보인다.
-  if (!it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status)) lead = termHTML(it.status) + ". ";
-  opt = opt || {};
-  // 이동이면 경로 줄이 출발·도착 팀을 보여 주므로 팀 링크 대신 쓴다. 팀별 보기는 팀 머리가 출발 팀이라 도착만 쓴다.
-  var r = routeOf(it, tab.teamObj), route = r ? routeHTML(r, { noFrom: !!opt.noTeam }) : "";
+  // 지역 묶음이 아닌 최근 소식 보기에서는 메타 줄 앞에 지역 짧은 이름을 붙인다.
+  if (opt.region) meta = esc(regionShort(it.region) || it.region) + (meta ? " · " + meta : "");
+  // 상태 글(알약 아래 작은 글): 이동이 아니고 판정 앞머리가 아닌 행만. 판정은 원문으로 하고, 화면 글자는 용어집 또는 원문 + KR 로 보인다.
+  var status = !it.moved && !/^(팀 이탈|계약 완료|방출|이탈 보도)/.test(it.status) ? termHTML(it.status) : "";
+  // 이동 칸: 이동이면 경로(팀별 보기는 도착만). 이동이 없으면 팀 이름, 팀별 보기에서는 "—".
+  var r = routeOf(it, tab.teamObj), move;
+  if (r) move = routeHTML(r, { noFrom: !!opt.noTeam });
+  else if (opt.noTeam) move = '<span class="none">—</span>';
+  else move = link("team", it.tid ? teamUrl(it.tid) : "", textHTML(trWhole(it.team)));
   // 요약(caption)이 있으면 설명글로 쓴다. 출처 줄과 보도 시각은 메모 기준 그대로다. 없으면 메모 본문.
   var cap = cleanName(it.caption), body = cap ? noteText(cap) : sp.body;
+  var detail = (body ? '<p class="detail">' + textHTML(body) + "</p>" : "") + (opt.more || "") + srcsHTML(sp, it.src);
+  var btn = "", fold = "";
+  if (detail) {
+    var id = "row-fold-" + (++FOLD_SEQ), more = t("row.expand"), less = t("row.collapse");
+    btn = '<button type="button" class="row-x" aria-expanded="false" aria-controls="' + id + '" aria-label="' + esc(more) + '" data-expand="' + esc(more) + '" data-collapse="' + esc(less) + '"></button>';
+    fold = '<div class="row-fold" id="' + id + '" hidden>' + detail + "</div>";
+  }
   return '<li class="row s-' + (p[2] === "reported" ? "reported" : p[0]) + '"><div class="main">' + link("name", it.pid ? personUrl(it.pid) : "", nameHTML(it.name)) +
-    (r || opt.noTeam ? "" : link("team", it.tid ? teamUrl(it.tid) : "", textHTML(trWhole(it.team)))) +
-    (opt.region ? '<span class="reg">' + esc(regionShort(it.region) || it.region) + "</span>" : "") +
-    route + (meta ? '<span class="meta">' + meta + "</span>" : "") + "</div>" +
-    '<div class="state">' + pill(p) + badge(it) +
-    '<span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "") + t("pill.reportedMark") + "</span></div>" +
-    (lead || body ? '<p class="detail">' + lead + textHTML(body) + "</p>" : "") + (opt.more || "") + srcsHTML(sp, it.src) + "</li>";
+    (meta ? '<span class="meta">' + meta + "</span>" : "") + "</div>" +
+    '<div class="move">' + move + "</div>" +
+    '<div class="state">' + pill(p) + badge(it) + (status ? '<span class="lead">' + status + "</span>" : "") + "</div>" +
+    '<div class="when"><span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "") + t("pill.reportedMark") + "</span></div>" +
+    btn + fold + "</li>";
 }

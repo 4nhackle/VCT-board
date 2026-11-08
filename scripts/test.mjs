@@ -28,7 +28,7 @@ import { refuseReason, prepareOut, MARK } from "./out-dir.mjs";
 import { termEn } from "../js/i18n/glossary.js";
 import { toLang } from "./i18n-html.mjs";
 import { routeHTML } from "../js/components/route.js";
-import { rowHTML } from "../js/components/row.js";
+import { rowHTML, resetFolds, colsHTML } from "../js/components/row.js";
 
 const T = 46326; // 2026-10-31 (KST)
 let n = 0;
@@ -255,10 +255,12 @@ t("rowHTML: 계약 칸이 있으면 메타 줄 끝에 '계약 ~…'(연도는 �
   setLang("ko");
   const tab = { mode: "entry", teamObj: {}, shared: new Map() };
   const base = { region: "EMEA", team: "Team", name: "Alpha", sub: "Duelist", status: "FA 진입 예정", date: T, conf: "C", note: "", src: null, pid: "alpha", tid: "team" };
+  resetFolds();
   const none = rowHTML(base, tab, {});
   assert.doesNotMatch(none, /계약 ~/);
   assert.match(rowHTML({ ...base, contract: "2027" }, tab, {}), /계약 ~2027/);
   assert.match(rowHTML({ ...base, contract: T + 30 }, tab, {}), /계약 ~\d{4}-\d{2}-\d{2}/);
+  resetFolds();
   assert.equal(rowHTML({ ...base, contract: "bad" }, tab, {}), none, "형식이 아니면 메타 줄을 바꾸지 않는다");
 });
 
@@ -479,6 +481,35 @@ t("validate: 출처 경고 — https 아님, 홈페이지 주소, 같은 주소 
   assert.match(dup.stderr, /같은 주소가 출처 s1, s2 에 있습니다/);
 });
 
+t("rowHTML(D3): 펼침 단추의 aria-controls 는 영역 id 와 같고, 상태 글은 영역 밖, 출처 링크는 영역 안", () => {
+  setLang("ko");
+  const tab = { mode: "entry", teamObj: {}, shared: new Map() };
+  const it = { region: "EMEA", team: "Team", name: "Alpha", sub: "Duelist", status: "FA 진입 예정", date: T, conf: "C", note: "메모", src: ["VLR", "https://www.vlr.gg/1/x"], pid: "alpha", tid: "team" };
+  resetFolds();
+  const html = rowHTML(it, tab, {});
+  const id = /aria-controls="([^"]+)"/.exec(html)[1];
+  assert.ok(html.includes('id="' + id + '" hidden'), "펼침 영역은 같은 id 로 처음엔 숨김");
+  assert.match(html, /class="lead"[^>]*>[^<]*FA 진입 예정/, "상태 글이 있다");
+  assert.ok(html.indexOf('class="lead"') < html.indexOf('id="' + id + '"'), "상태 글은 펼침 영역 앞에 있다");
+  assert.ok(html.indexOf("https://www.vlr.gg/1/x") > html.indexOf('id="' + id + '"'), "출처 링크는 펼침 영역 안에 있다");
+});
+
+t("rowHTML(D3): 최근 소식은 메타 줄 앞에 지역 짧은 이름, 팀별 보기에서 이동 없는 행은 —, 팀별이 아니면 팀 이름", () => {
+  setLang("ko");
+  const tab = { mode: "entry", teamObj: {}, shared: new Map() };
+  const it = { region: "Americas", team: "Team", name: "Alpha", sub: "Duelist", status: "구직 중", date: T, conf: "C", note: "", src: null, pid: "alpha", tid: "team" };
+  resetFolds();
+  assert.match(rowHTML(it, tab, { region: true }), /class="meta">AMER · Duelist/);
+  assert.match(rowHTML(it, tab, { noTeam: true }), /class="move"><span class="none">—<\/span><\/div>/);
+  assert.match(rowHTML(it, tab, {}), /class="move"><a class="team"/, "팀별이 아니면 팀 이름");
+});
+
+t("colsHTML: 목록 머리 행은 aria-hidden 이고 사람·이동·상태·날짜 칸 이름을 가진다", () => {
+  setLang("ko");
+  assert.match(colsHTML(), /^<li class="cols" aria-hidden="true">/);
+  assert.match(colsHTML(), /사람.*이동.*상태.*날짜/);
+});
+
 t("rowHTML: caption 이 있으면 설명글로 쓰고 출처 줄은 남김, 없거나 빈 값이면 메모 본문 그대로", () => {
   setLang("ko");
   const tab = { mode: "entry", teamObj: {}, shared: new Map() };
@@ -487,9 +518,12 @@ t("rowHTML: caption 이 있으면 설명글로 쓰고 출처 줄은 남김, 없�
   assert.match(withCap, /한 줄 요약/);
   assert.doesNotMatch(withCap, /긴 메모 본문/);
   assert.match(withCap, /https:\/\/www\.vlr\.gg\/1\/x/, "출처 링크는 그대로");
+  resetFolds();
   const noCap = rowHTML(base, tab, {});
   assert.match(noCap, /긴 메모 본문/);
+  resetFolds();
   assert.equal(rowHTML({ ...base, caption: "" }, tab, {}), noCap, "빈 caption 은 없는 것과 같다");
+  resetFolds();
   assert.equal(rowHTML({ ...base, caption: "-" }, tab, {}), noCap, "'-' caption 은 빈 칸이다");
 });
 

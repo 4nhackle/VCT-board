@@ -197,10 +197,24 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 .dp-route .route { margin: 0; font-size: inherit; }
 /* 스크린 리더에만 읽힌다. */
 .sr { --sr-size: 1px; position: absolute; width: var(--sr-size); height: var(--sr-size); overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
-.list { list-style: none; margin: 0; padding: 0; }
+/* 목록 칸 너비: 목록마다 같은 값이라 사람·이동·상태·날짜 칸이 목록끼리 줄이 맞는다. */
+.list { --col-person: minmax(0, 2.2fr); --col-move: minmax(0, 2fr); --col-status: minmax(0, 1.6fr); --col-when: 7.5rem; --col-x: var(--control-h); list-style: none; margin: 0; padding: 0; }
+/* 목록 머리 행: 데스크톱에서만 보인다. 칸 순서는 행과 같다. */
+.cols { display: grid; grid-template-columns: var(--col-person) var(--col-move) var(--col-status) var(--col-when) var(--col-x); column-gap: var(--space-l); padding: var(--space-xs) 0 var(--space-xs) var(--space-l); font-size: var(--text-meta); color: var(--color-mute); border-bottom: 1px solid var(--color-line-strong); }
+.move { min-width: 0; color: var(--color-mute); font-size: var(--text-small); overflow-wrap: anywhere; }
+.move .team { margin-left: 0; font-size: var(--text-small); }
+.move .none { color: var(--color-mute); }
+.when { min-width: 0; }
+.lead { flex-basis: 100%; color: var(--color-mute); font-size: var(--text-meta); line-height: 1.5; }
+/* 펼침 단추: 제목 줄 오른쪽 끝. 칸 크기는 --control-h(데스크톱 36px, 모바일 44px). 펼침 영역은 전체 칸을 쓴다. */
+.row-x { --x-size: var(--control-h); --x-chev: var(--space-s); scroll-margin-top: calc(var(--tabs-h) + var(--space-3xl)); position: relative; justify-self: end; width: var(--x-size); height: var(--x-size); padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); background: var(--surface); color: var(--color-ink); }
+.row-x:hover { border-color: var(--color-ink); }
+.row-x::before { content: ""; width: var(--x-chev); height: var(--x-chev); border: solid currentColor; border-width: 0 2px 2px 0; transform: translateY(-25%) rotate(45deg); }
+.row-x[aria-expanded="true"]::before { transform: translateY(25%) rotate(-135deg); }
+.row-fold { grid-column: 1 / -1; margin: 0; padding-top: var(--space-xs); }
 
 /* ── 행: 왼쪽 띠(상태색) | 이름·메타 | 상태·날짜, 아래에 본문과 출처 줄 */
-.row { --rail-w: 3px; --rail-radius: 2px; --row-gap-y: 2px; position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--row-gap-y) var(--space-l); align-items: baseline; padding: var(--space-m) 0 var(--space-m) var(--space-l); border-top: 1px solid var(--color-line); }
+.row { --rail-w: 3px; --rail-radius: 2px; --row-gap-y: 2px; position: relative; display: grid; grid-template-columns: var(--col-person) var(--col-move) var(--col-status) var(--col-when) var(--col-x); gap: var(--row-gap-y) var(--space-l); align-items: start; padding: var(--space-m) 0 var(--space-m) var(--space-l); border-top: 1px solid var(--color-line); }
 .th + .list > .row:first-child, .rh + .list > .row:first-child { border-top: 0; }
 .row::before { content: ""; position: absolute; left: 0; top: var(--space-m); bottom: var(--space-m); width: var(--rail-w); border-radius: var(--rail-radius); background: var(--rail, var(--color-line)); }
 .row.s-open { --rail: var(--status-open-rail); }
@@ -214,7 +228,7 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 a.name { color: inherit; text-decoration: none; }
 a.team { color: var(--color-mute); text-decoration: none; }
 a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
-.state { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--space-xs) var(--space-s); text-align: right; }
+.state { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: var(--space-xs) var(--space-s); text-align: left; }
 .pill { --pill-gap: 5px; --pill-pad-y: 1px; --pill-pad-x: 10px; --outline-inset: -1px; display: inline-flex; align-items: center; gap: var(--pill-gap); padding: var(--pill-pad-y) var(--pill-pad-x); border-radius: var(--radius-pill); font-size: var(--text-meta); font-weight: 700; line-height: 1.6; background: var(--bg-c); color: var(--fg-c); }
 .pill.open { --bg-c: var(--status-open-bg); --fg-c: var(--status-open-fg); }
 .pill.open::before { content: "○"; content: "○" / ""; }
@@ -240,7 +254,7 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 .srcs > * + *::before { content: "·"; content: "·" / ""; margin-right: var(--space-xs); }
 
 /* 지켜볼 팀: 종류 배지, 확정 도장, 확인 날짜 */
-.row.watch { padding-left: 0; }
+.row.watch { padding-left: 0; grid-template-columns: minmax(0, 1fr) auto; }
 .row.watch::before { display: none; }
 .wk { --wk-pad-x: 8px; --wk-shift: 2px; display: inline-block; margin-right: var(--space-s); padding: 0 var(--wk-pad-x); border-radius: var(--radius-s); font-size: var(--text-meta); font-weight: 700; vertical-align: var(--wk-shift); background: var(--status-left-bg); color: var(--status-left-fg); }
 .wk.withdraw { background: var(--status-warn-bg); color: var(--status-warn-fg); }
@@ -389,7 +403,15 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .search { flex: none; --input-fs: 16px; font-size: var(--input-fs); }
   .sg select, .sg textarea, .sg input { --input-fs: 16px; font-size: var(--input-fs); }
   /* 한 열: DOM 순서(이름, 상태, 본문, 출처 줄) 그대로 쌓는다 */
-  .row { display: flex; flex-direction: column; align-items: stretch; gap: var(--row-gap-y); }
+  /* 두 줄 요약: 첫 줄은 이름과 상태, 둘째 줄은 이동, 셋째 줄은 날짜와 펼침 단추(오른쪽 끝). 펼침 영역은 그 아래 전체 폭. */
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "main state" "move move" "when x"; align-items: center; gap: var(--row-gap-y) var(--space-s); }
+  .row > .main { grid-area: main; }
+  .row > .move { grid-area: move; }
+  .row > .state { grid-area: state; }
+  .row > .when { grid-area: when; }
+  .row > .row-x { grid-area: x; }
+  .row.watch { display: flex; flex-direction: column; align-items: stretch; }
+  .cols { display: none; }
   .state { justify-content: flex-start; text-align: left; }
   .dp-info, .dp-info.c4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dp-name { font-size: var(--text-hero); }

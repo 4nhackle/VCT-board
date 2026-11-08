@@ -1,7 +1,7 @@
 import { esc, fmtDate, dayWord, stampOf, dateLong } from "../format.js";
 import { REGIONS, ownItem } from "../model.js";
 import { state, teamUrl } from "../state.js";
-import { rowHTML } from "../components/row.js";
+import { rowHTML, colsHTML } from "../components/row.js";
 import { t } from "../i18n.js";
 
 // 최근 소식순: 보도 날짜별로 묶어 최신부터.
@@ -29,7 +29,7 @@ export function recentHTML(items, tab) {
       if (w === fmtDate(n)) head = full; else { head = w; sub = full; }
     }
     return '<div class="rh"><h2>' + head + '</h2><span class="en">' + sub + '</span><span class="n">' + t("count.cases", { n: inDay.length }) + "</span></div>" +
-      '<ul class="list">' + inDay.map(function (it) {
+      '<ul class="list">' + colsHTML() + inDay.map(function (it) {
         // 팀이 섞여 있으므로 팀 공통 배경은 행에서 빼고, 팀 상세로 가는 작은 링크만 둔다.
         var o = ownItem(it, tab.shared), moved = o !== it && it.tid;
         return rowHTML(o, tab, { region: state.region === "all", more: moved ? '<p class="detail"><a class="tlink" href="' + esc(teamUrl(it.tid)) + '">' + t("link.teamShared") + "</a></p>" : "" });
