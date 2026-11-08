@@ -71,7 +71,7 @@ function checkDuplicates(rules, failures) {
 }
 
 // ── 2. 날것의 값
-const DEFAULT_TOKEN = /var\(\s*--(fs-|sp-|r-|neutral-|green-|amber-|slate-|red-|shadow-float-prim)/;
+const DEFAULT_TOKEN = /var\(\s*--(fs-|sp-|r-|neutral-|coral-|green-|amber-|slate-|plum-|shadow-float-prim)/;
 // 테두리·윤곽선 두께만 px 를 허용한다(1~3px). 0 은 항상 허용.
 const BORDER_PROP = /^(border(-(top|right|bottom|left))?(-width)?|outline(-width)?)$/;
 function checkRawValues(rules, failures) {
