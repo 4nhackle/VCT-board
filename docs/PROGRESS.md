@@ -110,9 +110,9 @@
 ## 샘플 사이트로 시험하는 법
 ```bash
 node scripts/fixture-site.mjs "$TEMP/vct-fixture"
-node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
+node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture/_site"
 ```
-열기: http://127.0.0.1:8705/VCT-board/ (목록). 인물 상세(`p/fx-one/` 등)는 이 샘플 폴더에서 만들어지지 않는다(2026-11-08 확인: 샘플 폴더에서 `build.mjs` 가 `scripts/i18n-html.mjs` 를 찾지 못해 실패, `p/fx-one/` 은 404). 시험이 끝나면 임시 폴더를 지운다. fixture-site.mjs 는 저장소 안 폴더를 거부한다. 샘플 기대값은 기준일 2026-10-31(46326) 에 맞춰 두었다. 날짜가 바뀌면 나이·계약 상태 값이 달라진다(함수는 today 를 받으므로 node 단위 확인은 날짜를 넣어 다시 할 수 있다).
+열기: http://127.0.0.1:8705/VCT-board/p/fx-one/ (상세). fx-two, fx-three, fx-four, fx-five, fx-coach 도 있다. 2026-11-08 PR 15: 샘플 폴더가 상세 페이지까지 빌드하도록 고쳤다(예전에는 build.mjs 가 실패해 404였다).
 
 ## 3회차 확인 결과 (직접 실행)
 - 현재 data/ 로 validate: 1회차와 출력이 같다(`출처 89개, 행 165개 점검: 오류 0, 경고 9`, 종료 코드 0). 출력 비교로 확인.
@@ -857,6 +857,18 @@ Liquipedia | 8 | 6 | 14
 
 ### 열린 결정 · 알아 둘 점
 - 브라우저 클릭 확인은 하지 못했다. Obscura 가 `127.0.0.1` 을 막는다. 내장 브라우저는 허락 없이 쓰지 않았다.
+
+## PR 15 개발 도구 정리, 샘플 사이트 빌드, SRI 결정 기록 (2026-11-08)
+
+### 결과
+- 브랜치 `fix/dev-tools-cleanup` (기준 `origin/main` c5cd56b). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr15-dev-tools-cleanup.md`.
+- `dev/styleguide.js`: 낡은 칩 견본을 지웠다. 지역 선택 상자는 `REGIONS` 에서 만든다.
+- `scripts/fixture-site.mjs`: 빌드에 필요한 파일을 옮기고 샘플 빌드를 돌린다. 샘플 사이트에 상세 페이지 `p/fx-one/` 이 생긴다(확인: 200).
+- SRI 결정: hCaptcha 스크립트는 SRI 없이 둔다(주소가 버전 없이 바뀌므로). 건의 탭에서만 돈다. 위험 수용. 주석은 `js/views/suggest.js`.
+- 확인: 시험 161개 통과(전 160), validate 오류 0·경고 644(전후 같음), css-check·빌드 통과. 배포되는 파일은 `js/views/suggest.js` 주석 한 줄뿐.
+
+### 열린 결정 · 알아 둘 점
+- 견본 화면과 콘솔 오류는 브라우저로 확인하지 못했다. Obscura 가 `127.0.0.1` 을 막는다.
 
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).

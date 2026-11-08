@@ -691,6 +691,17 @@ t("clickAction: 행 안의 링크는 링크, 행의 빈 곳·펼침 단추는 �
   assert.equal(clickAction(name).el, name, "고른 요소를 그대로 돌려준다");
 });
 
+t("fixture-site: 샘플 폴더에서 build 가 돌아 p/fx-one 상세 페이지가 생긴다(실패하면 종료 코드 0 아님)", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vct-fixture-"));
+  try {
+    const r = spawnSync(process.execPath, [fileURLToPath(new URL("./fixture-site.mjs", import.meta.url)), path.join(dir, "site")], { encoding: "utf8" });
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(fs.existsSync(path.join(dir, "site", "_site", "p", "fx-one", "index.html")));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 t("parseRoute: 목록·인물·팀·끝 슬래시 없음·잘못된 ID", () => {
   const B = "/VCT-board/";
   assert.deepEqual(parseRoute({ pathname: B, hash: "#players" }, B), { view: "list", tab: "players" });
