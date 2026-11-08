@@ -1,7 +1,7 @@
 // 견본 안쪽(styleguide.html?frame=1): 실제 CSS 와 실제 렌더 함수로 샘플을 그린다.
 // 샘플은 scripts/fixtures 에서 온다(dev-server 가 dev/fixtures/ 로 연다). data/ 는 읽지 않는다.
 import { setLang, t } from "../js/i18n.js";
-import { buildTabs, buildIndex, routeOf } from "../js/model.js";
+import { buildTabs, buildIndex, routeOf, REGIONS } from "../js/model.js";
 import { regionsHTML } from "../js/views/regions.js";
 import { recentHTML } from "../js/views/recent.js";
 import { infoHTML, monoHTML } from "../js/views/common.js";
@@ -79,14 +79,11 @@ const detail = '<header class="dp-head">' + monoHTML("Absol") + '<h1 class="dp-n
   infoHTML([["소속 팀", "Sentinels"], ["역할", "Duelist"], ["국적", ""], ["생년월일", "2006-08-27 (20세)"], ["계약 만료", ""], ["이적 완료", ""]]);
 const moveCard = MOVE ? '<div class="dp-move"><p class="dp-move-title">이번 이동</p>' + routeHTML(routeOf(MOVE, IDX.teams)) + "</div>" : "";
 
-// 칩·탭·정렬·고정 막대: main.js 의 탭 마크업과 같은 모양(main.js 는 불러오면 바로 시작하므로 여기서 같은 모양으로 그린다).
-const chips = '<div class="bar b2"><div class="regions chips" role="group" aria-label="지역">' +
-  ["Americas", "Korea", "EMEA", "Pacific"].map((r, i) => '<button type="button" class="chip" aria-pressed="' + (i === 0) + '">' + r + "</button>").join("") +
-  '</div><div class="order chips" role="group" aria-label="정렬"><button type="button" class="chip" aria-pressed="true">최근 소식순 <span class="n new">새 3</span></button><button type="button" class="chip" aria-pressed="false">팀별로</button></div></div>';
+// 탭·고정 막대: main.js 의 탭 마크업과 같은 모양(main.js 는 불러오면 바로 시작하므로 여기서 같은 모양으로 그린다).
 const tabs = '<nav class="tabs" aria-label="보기 선택">' + TABS.filter((t) => t.mode !== "suggest").map((t) =>
   '<button type="button" class="tab" data-tab="' + t.id + '" aria-pressed="' + (t.id === "players") + '">' + t.label + (t.size != null ? '<span class="n">' + t.size + "</span>" : "") + "</button>"
 ).join("") + "</nav>";
-const dock = '<div class="dock"><div class="jump"><select aria-label="지역 바로가기"><option>Americas</option><option>Korea</option></select></div><button type="button" class="totop" aria-label="맨 위로">▲</button></div>';
+const dock = '<div class="dock"><div class="jump"><select aria-label="지역 바로가기">' + REGIONS.map((r) => "<option>" + r + "</option>").join("") + '</select></div><button type="button" class="totop" aria-label="맨 위로">▲</button></div>';
 
 // 테마 전환(실제 헤더와 같은 마크업)과 경고 배지: 라이트·다크 어느 쪽에서도 ⚠ 가 붙는지 본다.
 const themeSwitch = '<div class="theme-switch" role="group" aria-label="' + t("theme.label") + '">' +
@@ -97,7 +94,7 @@ const section = (title, body) => '<section class="sg-sec"><h2 class="sg-h">' + t
 document.querySelector("#sg-root") || document.body.insertAdjacentHTML("beforeend", '<main id="sg-root" class="page"></main>');
 document.getElementById("sg-root").innerHTML = [
   section("토큰", tokenTable),
-  section("탭과 칩", tabs + chips),
+  section("탭", tabs),
   section("지역 머리, 팀 머리, 행", '<div id="view">' + listPlayers + "</div>"),
   section("이적 행: 이동 경로, 잔류", '<div id="view">' + listTransfers + "</div>"),
   section("지켜볼 팀", '<div id="view">' + listWatch + "</div>"),

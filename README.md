@@ -20,7 +20,7 @@ node scripts/build.mjs _site
 ```
 
 - 화면 불변 확인 스냅숏(수동, Playwright 필요. 설치: `npm i -D playwright && npx playwright install chromium`): `node scripts/style-snapshot.mjs out.json` 로 저장하고, `--compare before.json` 을 붙이면 다른 값만 보인다.
-- 샘플 사이트(수동, 배포하지 않음): `scripts/fixtures/` 의 샘플 데이터로 저장소 밖 폴더에 목록 화면을 만든다. `node scripts/fixture-site.mjs "$TEMP/vct-fixture"`, 이어서 `node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"` 로 열면 http://127.0.0.1:8705/VCT-board/ 가 보인다. 인물·팀 상세 페이지는 이 샘플에서 만들어지지 않는다. 자세한 내용은 `docs/PROGRESS.md` 의 "샘플 사이트로 시험하는 법".
+- 샘플 사이트(수동, 배포하지 않음): `scripts/fixtures/` 의 샘플 데이터로 저장소 밖 폴더에 사이트를 만든다(인물·팀 상세 페이지 포함). `node scripts/fixture-site.mjs "$TEMP/vct-fixture"`, 이어서 `node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture/_site"` 로 열면 http://127.0.0.1:8705/VCT-board/p/fx-one/ 가 보인다. 자세한 내용은 `docs/PROGRESS.md` 의 "샘플 사이트로 시험하는 법".
 - 번역 현황표(수동): 대상 필드별 원문·번역·누락 수를 출력한다. `node scripts/i18n-report.mjs`. 예약 작업 점검과 같은 기준이다.
 
 ## 링크 미리보기 그림

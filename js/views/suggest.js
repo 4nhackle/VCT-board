@@ -36,6 +36,7 @@ export function bindSuggest() {
   var capId = null, capFailed = false;
   function loadCaptcha() {
     var s = document.createElement("script");
+    // SRI(무결성 해시)를 쓰지 않는 까닭: hCaptcha 는 버전 없이 계속 바뀌는 파일을 준다. 건의 탭에서만 돌고, 위험은 받아들였다(PROGRESS 기록).
     s.src = "https://js.hcaptcha.com/1/api.js?render=explicit&hl=" + LANG;
     s.async = true;
     s.onload = function () {
