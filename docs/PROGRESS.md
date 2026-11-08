@@ -112,7 +112,7 @@
 node scripts/fixture-site.mjs "$TEMP/vct-fixture"
 node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture"
 ```
-열기: http://127.0.0.1:8705/VCT-board/p/fx-one/ (fx-two, fx-three, fx-four, fx-five, fx-coach 도 있다). 시험이 끝나면 임시 폴더를 지운다. fixture-site.mjs 는 저장소 안 폴더를 거부한다. 샘플 기대값은 기준일 2026-10-31(46326) 에 맞춰 두었다. 날짜가 바뀌면 나이·계약 상태 값이 달라진다(함수는 today 를 받으므로 node 단위 확인은 날짜를 넣어 다시 할 수 있다).
+열기: http://127.0.0.1:8705/VCT-board/ (목록). 인물 상세(`p/fx-one/` 등)는 이 샘플 폴더에서 만들어지지 않는다(2026-11-08 확인: 샘플 폴더에서 `build.mjs` 가 `scripts/i18n-html.mjs` 를 찾지 못해 실패, `p/fx-one/` 은 404). 시험이 끝나면 임시 폴더를 지운다. fixture-site.mjs 는 저장소 안 폴더를 거부한다. 샘플 기대값은 기준일 2026-10-31(46326) 에 맞춰 두었다. 날짜가 바뀌면 나이·계약 상태 값이 달라진다(함수는 today 를 받으므로 node 단위 확인은 날짜를 넣어 다시 할 수 있다).
 
 ## 3회차 확인 결과 (직접 실행)
 - 현재 data/ 로 validate: 1회차와 출력이 같다(`출처 89개, 행 165개 점검: 오류 0, 경고 9`, 종료 코드 0). 출력 비교로 확인.
@@ -824,6 +824,18 @@ Liquipedia | 8 | 6 | 14
 
 ### 열린 결정 · 알아 둘 점
 - 빈 파일(`[]`) 검사는 하지 않았다. 후속 작업.
+
+## PR 13 수동 도구 문서화, 기준 시각 줄 규칙 정정 (2026-11-08)
+
+### 결과
+- 브랜치 `docs/manual-tools` (기준 `origin/main` bd30f27). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr13-docs-manual-tools.md`.
+- `README.md`: 샘플 사이트와 번역 현황표 명령을 적었다.
+- `CLAUDE.md` 20번째 줄: 예약 작업이 `data/` 와 `index.html` 의 기준 시각 줄을 커밋한다고 고쳤다.
+- 발견: 샘플 사이트는 목록만 열린다. 인물 상세 `p/fx-one/` 은 404다(`fixture-site.mjs` 가 빌드 파일을 빠뜨린다). 이 절의 "열기" 줄도 그렇게 고쳤다. 복구는 후속 코드 작업.
+- 확인: 두 README 명령 종료 0, 시험 158개 통과, validate 오류 0·경고 644, css-check·빌드 통과.
+
+### 열린 결정 · 알아 둘 점
+- 사용자 답 없이 권장안(문서화)을 따랐다.
 
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
