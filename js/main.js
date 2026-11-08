@@ -9,6 +9,7 @@ import { suggestHTML, bindSuggest } from "./views/suggest.js";
 import { personHTML, backHTML } from "./views/person.js";
 import { teamHTML } from "./views/team.js";
 import { rosterHTML } from "./views/roster.js";
+import { resetFolds } from "./components/row.js";
 
 var FILES = ["sources", "players", "coaches", "transfers", "watch", "schedule"];
 var OPTIONAL = ["people", "teams"];
@@ -24,6 +25,7 @@ function tabById(id) { return TABS.filter(function (t) { return t.id === id; })[
 
 function renderView() {
   var tab = tabById(state.tab);
+  resetFolds();
   var html = "";
   // 건의 폼은 한 번만 만들어 두고 숨기기만 한다. 탭을 나갔다 와도 쓰던 글이 남는다.
   $("view").hidden = tab.mode === "suggest";
@@ -214,6 +216,15 @@ function syncTheme(v) {
   document.querySelectorAll("[data-theme-set]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.themeSet === v)); });
 }
 
+// 목록 행의 펼침: 설명·출처 영역을 여닫는다. 주소·저장소에 남기지 않고 다시 그리지도 않는다(영역의 hidden 과 단추의 aria 만 바꾼다).
+function toggleRow(row) {
+  var btn = row.querySelector(":scope > .row-x"), fold = document.getElementById(btn.getAttribute("aria-controls"));
+  var open = btn.getAttribute("aria-expanded") !== "true";
+  btn.setAttribute("aria-expanded", String(open));
+  btn.setAttribute("aria-label", open ? btn.dataset.collapse : btn.dataset.expand);
+  fold.hidden = !open;
+}
+
 document.addEventListener("click", function (e) {
   var a = e.target.closest("a[href]");
   if (a) {
@@ -233,6 +244,9 @@ document.addEventListener("click", function (e) {
     }
     return;
   }
+  // 행의 펼침: 펼침 단추, 또는 행 안의 링크·단추·영역이 아닌 빈 곳을 누르면 여닫는다.
+  var row = e.target.closest("li.row");
+  if (row && row.querySelector(":scope > .row-x") && (e.target.closest(".row-x") || !e.target.closest("button, select, input, .row-fold"))) { toggleRow(row); return; }
   var b = e.target.closest("button");
   if (!b) return;
   if (b.dataset.themeSet) { setTheme(themeOf(b.dataset.themeSet)); return; }

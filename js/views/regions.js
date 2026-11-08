@@ -1,7 +1,7 @@
 import { esc, textHTML } from "../format.js";
 import { REGIONS, regionName, regionShort, hasTail, ownItem } from "../model.js";
 import { t, trWhole } from "../i18n.js";
-import { rowHTML } from "../components/row.js";
+import { rowHTML, colsHTML } from "../components/row.js";
 import { splitNote, srcsHTML, noteText } from "./common.js";
 import { teamUrl } from "../state.js";
 
@@ -35,7 +35,7 @@ export function regionsHTML(items, tab) {
       // 공통 배경은 팀 머리 아래 한 번. 행에는 개인 부분만 보여 준다.
       var tail = tab.shared.get(teamName), first = inTeam.filter(function (it) { return hasTail(it.note, tail); })[0];
       if (first) out += tnoteHTML(tail, first);
-      out += '<ul class="list">' + inTeam.map(function (it) { return rowHTML(ownItem(it, tab.shared), tab, { noTeam: true }); }).join("") + "</ul>";
+      out += '<ul class="list">' + colsHTML() + inTeam.map(function (it) { return rowHTML(ownItem(it, tab.shared), tab, { noTeam: true }); }).join("") + "</ul>";
     });
   });
   return out;
