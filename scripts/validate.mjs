@@ -1,5 +1,5 @@
 // data/*.json 점검: 출처 키, 지역 값, 중복, 쓰이지 않는 출처. people·teams 가 있으면 인물·팀 참조와 형식도 본다.
-// 실행: node scripts/validate.mjs [데이터 폴더, 기본 data/]
+// people.json·teams.json 은 필수다(없으면 오류). 실행: node scripts/validate.mjs [데이터 폴더, 기본 data/]
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -65,8 +65,10 @@ for (const [file, rows] of Object.entries(sets)) {
 
 for (const key of Object.keys(sources)) if (!used.has(key)) warn("sources", "쓰이지 않음", `sources.${key}: 어디에서도 쓰이지 않습니다`);
 
-// ── 인물·팀 (people.json, teams.json 이 있을 때만 점검한다)
+// ── 인물·팀 (people.json, teams.json 은 필수다. 없으면 오류로 멈춘다. 있으면 참조와 형식을 점검한다)
 const hasPeople = has("people"), hasTeams = has("teams");
+if (!hasPeople) errors.push("people.json 이 없습니다. 인물·팀 파일은 필수입니다 (예약 작업 동기화를 확인하세요)");
+if (!hasTeams) errors.push("teams.json 이 없습니다. 인물·팀 파일은 필수입니다 (예약 작업 동기화를 확인하세요)");
 const people = hasPeople ? read("people") : [];
 const teams = hasTeams ? read("teams") : [];
 const pIds = new Set(), tIds = new Set();

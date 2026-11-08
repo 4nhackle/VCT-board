@@ -813,6 +813,18 @@ Liquipedia | 8 | 6 | 14
 - 모바일 두 줄은 지시문의 한 줄 대신 셋째 줄에 날짜와 단추를 둔다.
 - 1280px 다크, 375px 라이트, 최근 소식·지역 묶음 보기는 브라우저에서 따로 보지 않았다. 스크린샷은 저장하지 않았다.
 
+## PR 11 people.json·teams.json 필수화 (2026-11-08)
+
+### 결과
+- 브랜치 `fix/required-people-teams` (기준 `origin/main` 2bb0f1e). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr11-required-people-teams.md`.
+- `scripts/validate.mjs`: 두 파일이 없으면 오류로 종료한다. 빌드·배포 전에 CI 가 멈춘다.
+- `scripts/build.mjs`: 동작은 그대로(경고만), 주석만 고쳤다. 로컬 부분 빌드를 위해서다.
+- `scripts/test.mjs`: 시험 헬퍼가 두 파일을 `[]` 로 쓴다. 새 시험 1개(없음·있음). 인물 전용 시험의 픽스처에 인물을 추가했다.
+- 확인: 시험 158개 통과(전: 157개), 실제 데이터 검증 오류 0·경고 644(전후 같음), 빌드 통과.
+
+### 열린 결정 · 알아 둘 점
+- 빈 파일(`[]`) 검사는 하지 않았다. 후속 작업.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.

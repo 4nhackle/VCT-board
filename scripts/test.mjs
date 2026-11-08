@@ -360,7 +360,7 @@ t("건의 봇 확인: 방침 두 곳이 hCaptcha 를 밝히고, 확인 관련 �
 
 // PR 10: 인물 이름 충돌은 personId 없는 소식 행이 끼면 오류, 인물 명단끼리만이면 경고. 임시 데이터 폴더에서 validate.mjs 를 돌린다.
 const VALIDATE_PATH = fileURLToPath(new URL("./validate.mjs", import.meta.url));
-function runValidate(name, { players = [], coaches = [], people = null, teams = null }) {
+function runValidate(name, { players = [], coaches = [], people = [], teams = [] }) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vct-pr10-" + name + "-"));
   const put = (f, v) => fs.writeFileSync(path.join(dir, f + ".json"), JSON.stringify(v));
   put("sources", { s1: ["VLR", "https://www.vlr.gg/1/x"] });
@@ -368,8 +368,8 @@ function runValidate(name, { players = [], coaches = [], people = null, teams = 
   put("players", players);
   put("coaches", coaches);
   put("watch", []);
-  if (people) put("people", people);
-  if (teams) put("teams", teams);
+  put("people", people);
+  put("teams", teams);
   return spawnSync(process.execPath, [VALIDATE_PATH, dir], { encoding: "utf8" });
 }
 const vrow = (team, name, extra = {}) => ({ region: "EMEA", team, name, status: "FA 진입 예정", date: T, conf: "C", src: "s1", ...extra });
@@ -395,9 +395,33 @@ t("validate: 인물 명단끼리만 ZYZZ·zyzz 는 경고만(종료 0)", () => {
 });
 
 t("validate: personId 가 있는 행끼리 같은 철자는 충돌이 아니다", () => {
-  const r = runValidate("ids", { players: [vrow("A", "ZYZZ", { personId: "zyzz-a" }), vrow("B", "zyzz", { personId: "zyzz-b" })] });
+  const r = runValidate("ids", { players: [vrow("A", "ZYZZ", { personId: "zyzz-a" }), vrow("B", "zyzz", { personId: "zyzz-b" })], people: [vperson("zyzz-a", "Alpha"), vperson("zyzz-b", "Beta")] });
   assert.equal(r.status, 0);
   assert.doesNotMatch(r.stderr, /같은 ID 'zyzz'/);
+});
+
+t("validate: people.json 또는 teams.json 이 없으면 오류로 종료 1, 둘 다 있으면 통과", () => {
+  const folder = (skip) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vct-req-"));
+    const put = (f, v) => fs.writeFileSync(path.join(dir, f + ".json"), JSON.stringify(v));
+    put("sources", { s1: ["VLR", "https://www.vlr.gg/1/x"] });
+    put("transfers", { players: [], coaches: [] });
+    put("players", []);
+    put("coaches", []);
+    put("watch", []);
+    if (skip !== "people") put("people", []);
+    if (skip !== "teams") put("teams", []);
+    return dir;
+  };
+  const noPeople = spawnSync(process.execPath, [VALIDATE_PATH, folder("people")], { encoding: "utf8" });
+  assert.equal(noPeople.status, 1);
+  assert.match(noPeople.stderr, /people\.json 이 없습니다/);
+  const noTeams = spawnSync(process.execPath, [VALIDATE_PATH, folder("teams")], { encoding: "utf8" });
+  assert.equal(noTeams.status, 1);
+  assert.match(noTeams.stderr, /teams\.json 이 없습니다/);
+  const both = spawnSync(process.execPath, [VALIDATE_PATH, folder(null)], { encoding: "utf8" });
+  assert.equal(both.status, 0);
+  assert.doesNotMatch(both.stderr, /이 없습니다/);
 });
 
 t("validate: 팀 이름 Leviatán·LEVIATÁN 은 경고만(종료 0)", () => {
@@ -449,6 +473,8 @@ function validateFixture(name, { row = {}, sources = { s1: ["VLR", "https://www.
   fs.writeFileSync(path.join(dir, "players.json"), JSON.stringify([{ ...base, ...row }]));
   fs.writeFileSync(path.join(dir, "coaches.json"), "[]");
   fs.writeFileSync(path.join(dir, "watch.json"), "[]");
+  fs.writeFileSync(path.join(dir, "people.json"), "[]");
+  fs.writeFileSync(path.join(dir, "teams.json"), "[]");
   return spawnSync(process.execPath, [VALIDATE_JS, dir], { encoding: "utf8" });
 }
 

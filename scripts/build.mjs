@@ -30,7 +30,8 @@ const D = {
   people: read("people", []), teams: read("teams", [])
 };
 for (const r of [...D.people, ...D.teams]) if (!ID_RE.test(String(r.id))) throw new Error("ID 형식이 맞지 않습니다: " + r.id);
-// 상세 페이지를 만들 파일이 없으면 한 줄 알린다. 설계상 정상 상태라 빌드는 실패시키지 않는다.
+// 상세 페이지를 만들 파일이 없으면 한 줄 알린다. 배포에서는 CI 가 빌드 앞에 validate.mjs 를 돌려 파일 없음을 오류로 막으므로,
+// 여기서는 로컬의 일부 데이터 빌드(fixture 등)를 위해 실패시키지 않는다.
 if (!fs.existsSync(path.join(ROOT, "data", "people.json")) || !fs.existsSync(path.join(ROOT, "data", "teams.json"))) {
   console.warn("경고  상세 정적 페이지 0개(people/teams 없음)");
 }
