@@ -9,10 +9,10 @@ import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
-import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards } from "../js/model.js";
+import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards, mergeMoves } from "../js/model.js";
 import { rosterHTML } from "../js/views/roster.js";
 import { splitNote, newsRow } from "../js/views/common.js";
-import { parseRoute, filtersOf, queryOf } from "../js/state.js";
+import { parseRoute, filtersOf, queryOf, listAction } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
 import { noteParts } from "../js/note.js";
@@ -340,6 +340,76 @@ t("건의 봇 확인: 방침 두 곳이 hCaptcha 를 밝히고, 확인 관련 �
   }
   assert.match(KO["form.privacyNote"], /hCaptcha/);
   assert.match(EN["form.privacyNote"], /hCaptcha/);
+});
+
+// PR 10: 인물 이름 충돌은 personId 없는 소식 행이 끼면 오류, 인물 명단끼리만이면 경고. 임시 데이터 폴더에서 validate.mjs 를 돌린다.
+const VALIDATE_PATH = fileURLToPath(new URL("./validate.mjs", import.meta.url));
+function runValidate(name, { players = [], coaches = [], people = null, teams = null }) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "vct-pr10-" + name + "-"));
+  const put = (f, v) => fs.writeFileSync(path.join(dir, f + ".json"), JSON.stringify(v));
+  put("sources", { s1: ["VLR", "https://www.vlr.gg/1/x"] });
+  put("transfers", { players: [], coaches: [] });
+  put("players", players);
+  put("coaches", coaches);
+  put("watch", []);
+  if (people) put("people", people);
+  if (teams) put("teams", teams);
+  return spawnSync(process.execPath, [VALIDATE_PATH, dir], { encoding: "utf8" });
+}
+const vrow = (team, name, extra = {}) => ({ region: "EMEA", team, name, status: "FA 진입 예정", date: T, conf: "C", src: "s1", ...extra });
+const vperson = (id, name) => ({ id, name, role: "Duelist", nationality: "Japan" });
+
+t("validate: 소식 행끼리 ZYZZ·zyzz(personId 없음)는 오류 종료 1", () => {
+  const r = runValidate("rows", { players: [vrow("A", "ZYZZ"), vrow("B", "zyzz")] });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /인물 이름 충돌/);
+});
+
+t("validate: 소식 행 ZYZZ(personId 없음)와 인물 명단 zyzz 는 오류", () => {
+  const r = runValidate("row-people", { players: [vrow("A", "ZYZZ")], people: [vperson("zyzz-x", "zyzz")] });
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /인물 이름 충돌/);
+});
+
+t("validate: 인물 명단끼리만 ZYZZ·zyzz 는 경고만(종료 0)", () => {
+  const r = runValidate("people-only", { people: [vperson("zyzz", "ZYZZ"), vperson("zyzz-2", "zyzz")] });
+  assert.equal(r.status, 0);
+  assert.match(r.stderr, /같은 ID 'zyzz'/);
+  assert.doesNotMatch(r.stderr, /인물 이름 충돌/);
+});
+
+t("validate: personId 가 있는 행끼리 같은 철자는 충돌이 아니다", () => {
+  const r = runValidate("ids", { players: [vrow("A", "ZYZZ", { personId: "zyzz-a" }), vrow("B", "zyzz", { personId: "zyzz-b" })] });
+  assert.equal(r.status, 0);
+  assert.doesNotMatch(r.stderr, /같은 ID 'zyzz'/);
+});
+
+t("validate: 팀 이름 Leviatán·LEVIATÁN 은 경고만(종료 0)", () => {
+  const r = runValidate("teams", { players: [vrow("Leviatán", "P1"), vrow("LEVIATÁN", "P2")] });
+  assert.equal(r.status, 0);
+  assert.match(r.stderr, /같은 ID 'leviatan'/);
+});
+
+// PR 9: 이적 병합은 입력을 바꾸지 않고, 목록 주소 처리 결정은 다섯 경우를 가른다(PR 4 버그 경우 포함).
+t("mergeMoves: 입력 배열(LFT 행·이적 행)을 바꾸지 않는다", () => {
+  const P0 = [{ pid: "a", name: "A", date: T, status: "FA 진입 예정" }];
+  const CO0 = [];
+  const T1 = [{ pid: "a", name: "A", date: T - 1, status: "이적", next: "X", signed: T - 1, tidTo: "x" }, { pid: "b", name: "B", date: T - 2, status: "이적", next: "Y", tidTo: "y" }];
+  const T2 = [];
+  const before = structuredClone({ P0, CO0, T1, T2 });
+  mergeMoves(P0, CO0, T1, T2, {});
+  assert.deepEqual({ P0, CO0, T1, T2 }, before);
+});
+
+t("listAction: 상세 복귀·다른 탭은 full, 같은 탭·같은 거르기는 none, 같은 탭·거르기 변경은 refilter, 없는 탭은 none", () => {
+  const cur = { pos: "all", stage: "all", days: "all", top: false };
+  const same = { ...cur };
+  const duel = { ...cur, pos: "Duelist" };
+  assert.equal(listAction("person", "players", "players", true, cur, same), "full");
+  assert.equal(listAction("list", "players", "coaches", true, cur, same), "full");
+  assert.equal(listAction("list", "players", "players", true, cur, same), "none");
+  assert.equal(listAction("list", "players", "players", true, cur, duel), "refilter");
+  assert.equal(listAction("list", "players", "nope", false, cur, same), "none");
 });
 
 // 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.

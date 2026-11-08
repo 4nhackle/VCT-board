@@ -158,30 +158,34 @@ if (hasPeople) {
 
 // ── 같은 ID 가 되는 서로 다른 이름·팀 (경고만). slugOf 는 대소문자·악센트·기호를 지워서 "ZYZZ"와 "zyzz"가 한 ID 가 된다.
 // 같은 글자가 여러 행에 나오는 것은 정상이라 경고하지 않는다. "-" 와 빈 칸은 이름이 없는 것이다.
-function clashes(list, what, tail) {
+// strict 이면 충돌 그룹에 personId 없는 소식 행이 있을 때만 오류로 한다(인물 이름 검사). 인물 명단끼리만의 충돌은 경고다.
+function clashes(list, what, tail, strict) {
   const byId = new Map();
-  for (const { text, where } of list) {
+  for (const { text, where, row } of list) {
     const id = slugOf(text);
-    if (!byId.has(id)) byId.set(id, new Map());
-    const forms = byId.get(id);
-    if (!forms.has(text)) forms.set(text, []);
-    forms.get(text).push(where);
+    if (!byId.has(id)) byId.set(id, { forms: new Map(), row: false });
+    const g = byId.get(id);
+    if (!g.forms.has(text)) g.forms.set(text, []);
+    g.forms.get(text).push(where);
+    if (row) g.row = true;
   }
-  for (const [id, forms] of byId) {
-    if (forms.size < 2) continue;
-    const parts = [...forms].map(([text, wheres]) => `'${text}'(${wheres[0]}${wheres.length > 1 ? ` 외 ${wheres.length - 1}건` : ""})`);
-    warn(what, what + " 충돌", `${what} ${parts.join(", ")}가 같은 ID '${id}'가 됩니다. ${tail}`);
+  for (const [id, g] of byId) {
+    if (g.forms.size < 2) continue;
+    const parts = [...g.forms].map(([text, wheres]) => `'${text}'(${wheres[0]}${wheres.length > 1 ? ` 외 ${wheres.length - 1}건` : ""})`);
+    const msg = `${what} ${parts.join(", ")}가 같은 ID '${id}'가 됩니다. ${tail}`;
+    if (strict && g.row) errors.push(`${what} 충돌: ${msg} 시트의 해당 행에 인물ID를 채우세요`);
+    else warn(what, what + " 충돌", msg);
   }
 }
 const nameOk = (v) => cleanName(v) !== "";
 const nameList = [];
 for (const file of ["players", "coaches", "transfers.players", "transfers.coaches"]) {
-  sets[file].forEach((r, i) => { if (!r.personId && nameOk(r.name)) nameList.push({ text: String(r.name).trim(), where: `${file} ${i + 1}행` }); });
+  sets[file].forEach((r, i) => { if (!r.personId && nameOk(r.name)) nameList.push({ text: String(r.name).trim(), where: `${file} ${i + 1}행`, row: true }); });
 }
 if (hasPeople) {
   for (const p of people) for (const nm of [p.name, ...(Array.isArray(p.aliases) ? p.aliases : [])]) if (nameOk(nm)) nameList.push({ text: String(nm).trim(), where: `people ${p.id}` });
 }
-clashes(nameList, "인물 이름", "같은 사람이면 표기를 맞추고, 다른 사람이면 인물ID를 따로 지정하세요");
+clashes(nameList, "인물 이름", "같은 사람이면 표기를 맞추고, 다른 사람이면 인물ID를 따로 지정하세요", true);
 const teamList = [];
 for (const file of ["players", "coaches"]) {
   sets[file].forEach((r, i) => { if (!r.teamId && nameOk(r.team)) teamList.push({ text: String(r.team).trim(), where: `${file} ${i + 1}행` }); });

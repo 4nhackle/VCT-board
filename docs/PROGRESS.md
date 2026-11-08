@@ -740,6 +740,28 @@ Liquipedia | 8 | 6 | 14
 - 클라이언트 확인만으로는 직접 HTTP 요청을 막지 못한다. 서버 확인은 web3forms 대시보드에서 hCaptcha 를 켜야 한다(사용자 작업).
 - web3forms 문서는 자체 클라이언트 스크립트를 쓰라고 하지만, 지시문대로 hCaptcha API 를 직접 불렀다. 같은 토큰 필드(`h-captcha-response`)를 보낸다.
 - 실제 테스트 메일 전송과 hCaptcha 풀이는 사용자가 한다. 자세한 것은 `docs/sessions/2026-11-08-pr8-form-captcha.md`.
+## 26회차 감사 지적 4·5: 이적 병합 분리, 목록 주소 처리 결정 시험 (PR 9, 2026-11-08)
+
+### 결과
+- `buildTabs` 의 이적 병합 블록을 `mergeMoves(P0, CO0, T1, T2, PEOPLE)` 로 옮겼다(동작 변화 없음, 주석 그대로).
+- 목록 주소 처리 결정을 `listAction(...)` 으로 옮기고 `renderRoute` 가 쓴다. "같은 탭의 거르기 변경" 경우에 시험이 생겼다(PR 4 버그).
+- 시험 145개 통과. 시험이 물고 있는지 확인: `refilter` 분기를 지우면 "'none' !== 'refilter'" 로 실패한다.
+- 빌드 HTML 차이 0(`origin/main` 대비). `js/` 파일 3개만 다르다.
+
+### 열린 결정 · 알아 둘 점
+- 감사 지적 7(색인 두 번 만들기)과 8(안 쓰는 내보내기)은 이 PR 밖이다.
+- 이 PR 은 `refactor/merge-moves-route-test` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr9-merge-moves-route-test.md`.
+
+## 27회차 인물 이름 충돌은 personId 없는 소식 행이 끼면 오류 (PR 10, 2026-11-08)
+
+### 결과
+- `validate.mjs`: 인물 이름이 같은 ID 가 되고, 그 가운데 personId 없는 소식 행(players·coaches·transfers)이 있으면 오류로 멈춘다. 인물 명단끼리만의 충돌과 팀 이름 충돌은 경고 그대로다.
+- 시험 5개 추가(임시 데이터 폴더에서 `validate.mjs` 실행). 현재 data 는 오류 0.
+- 로컬 `docs/instructions/revised/web-publish-daily.txt`(git 에 없음)의 4단계에 같은 규칙을 넣었다. 예약 작업 쪽 반영은 사용자 작업이다.
+
+### 열린 결정 · 알아 둘 점
+- 예약 작업의 안전 검사가 `validate.mjs` 와 맞아야 한다. 맞지 않으면 커밋한 뒤 Actions 가 거부한다(PR 본문의 문구를 붙여 넣는다).
+- 이 PR 은 `fix/person-id-clash` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr10-person-id-clash.md`.
 
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).

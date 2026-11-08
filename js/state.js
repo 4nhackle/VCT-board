@@ -25,6 +25,13 @@ export function queryOf(s) {
   return p.length ? "?" + p.join("&") : "";
 }
 
+// 목록 주소로 왔을 때 할 일: "none"(그대로), "refilter"(같은 탭, 주소의 거르기만 바뀜), "full"(탭 전환·상세에서 복귀).
+export function listAction(view, curTab, nextTab, tabExists, cur, next) {
+  if (view !== "list" || (nextTab !== curTab && tabExists)) return "full";
+  if (nextTab !== curTab) return "none";
+  return Object.keys(next).some(function (k) { return next[k] !== cur[k]; }) ? "refilter" : "none";
+}
+
 try { if (localStorage.getItem("vct-order") === "recent") state.order = "recent"; } catch (e) {}
 
 export function saveOrder(order) {

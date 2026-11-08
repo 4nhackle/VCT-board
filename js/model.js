@@ -38,32 +38,8 @@ export function toItem(r, kind, S) {
 }
 
 // data/*.json 묶음 D 로 탭 목록을 만든다.
-export function buildTabs(D, today) {
-  var td = today == null ? TODAY : today;
-  var PEOPLE = Object.create(null);
-  (D.people || []).forEach(function (p) { PEOPLE[p.id] = p; });
-  // 목록 행의 포지션(코치는 역할)·국적이 비었으면 인물 정보로 채운다. 행에 값이 있으면 행 값을 쓴다.
-  function fillRow(r, kind, p) {
-    var f = Object.assign({}, r);
-    if (kind === "coach") f.role = cleanName(r.role) || cleanName(p.role);
-    if (kind === "player") { f.position = cleanName(r.position) || cleanName(p.role); f.nationality = cleanName(r.nationality) || cleanName(p.nationality); }
-    return f;
-  }
-  // 화면 항목에도 인물·팀 ID 를 붙여, 목록 행을 상세 링크로 만들 수 있게 한다.
-  function items(rows, kind) {
-    return rows.map(function (r) {
-      var ids = idsOf(r, kind), p = own(PEOPLE, ids.pid);
-      // 계약 만료: 행 값이 있으면 그것, 없으면 인물 정보. 목록 행에 "계약 ~…" 으로 보인다.
-      var until = kind === "watch" ? undefined : contractOK(r.contractUntil) ? r.contractUntil : p && contractOK(p.contractUntil) ? p.contractUntil : undefined;
-      return Object.assign(toItem(p && kind !== "t" && kind !== "watch" ? fillRow(r, kind, p) : r, kind, D.sources), ids, until === undefined ? {} : { contract: until });
-    });
-  }
-  var P0 = items(D.players, "player"), CO0 = items(D.coaches, "coach"), W = items(D.watch, "watch");
-  // 지켜볼 팀의 팀 링크는 teams 에 있는 ID 만 건다.
-  var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
-  var TEAM_OBJ = Object.create(null);
-  (D.teams || []).forEach(function (t) { TEAM_OBJ[t.id] = t; });
-  var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
+// LFT 행과 이적 행을 합친다. 반환: { P, CO } (입력 배열은 바꾸지 않는다).
+export function mergeMoves(P0, CO0, T1, T2, PEOPLE) {
   // 인물별 가장 최근 이적: 날짜 최신순, 같은 날이면 공식 발표일(signedDate)이 있는 행.
   var latest = Object.create(null);
   [T1, T2].forEach(function (rows) {
@@ -91,6 +67,36 @@ export function buildTabs(D, today) {
       P.push(Object.assign({}, mv, { sub: [cleanName(pp.role), cleanName(pp.nationality)].filter(Boolean).join(", ") }));
     } else if (!inCO.has(pid)) CO.push(mv);
   });
+  return { P: P, CO: CO };
+}
+
+export function buildTabs(D, today) {
+  var td = today == null ? TODAY : today;
+  var PEOPLE = Object.create(null);
+  (D.people || []).forEach(function (p) { PEOPLE[p.id] = p; });
+  // 목록 행의 포지션(코치는 역할)·국적이 비었으면 인물 정보로 채운다. 행에 값이 있으면 행 값을 쓴다.
+  function fillRow(r, kind, p) {
+    var f = Object.assign({}, r);
+    if (kind === "coach") f.role = cleanName(r.role) || cleanName(p.role);
+    if (kind === "player") { f.position = cleanName(r.position) || cleanName(p.role); f.nationality = cleanName(r.nationality) || cleanName(p.nationality); }
+    return f;
+  }
+  // 화면 항목에도 인물·팀 ID 를 붙여, 목록 행을 상세 링크로 만들 수 있게 한다.
+  function items(rows, kind) {
+    return rows.map(function (r) {
+      var ids = idsOf(r, kind), p = own(PEOPLE, ids.pid);
+      // 계약 만료: 행 값이 있으면 그것, 없으면 인물 정보. 목록 행에 "계약 ~…" 으로 보인다.
+      var until = kind === "watch" ? undefined : contractOK(r.contractUntil) ? r.contractUntil : p && contractOK(p.contractUntil) ? p.contractUntil : undefined;
+      return Object.assign(toItem(p && kind !== "t" && kind !== "watch" ? fillRow(r, kind, p) : r, kind, D.sources), ids, until === undefined ? {} : { contract: until });
+    });
+  }
+  var P0 = items(D.players, "player"), CO0 = items(D.coaches, "coach"), W = items(D.watch, "watch");
+  // 지켜볼 팀의 팀 링크는 teams 에 있는 ID 만 건다.
+  var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
+  var TEAM_OBJ = Object.create(null);
+  (D.teams || []).forEach(function (t) { TEAM_OBJ[t.id] = t; });
+  var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
+  var m = mergeMoves(P0, CO0, T1, T2, PEOPLE), P = m.P, CO = m.CO;
   // 한국 탭: 국적이 South Korea 이거나, 소속 팀(이적이면 도착 팀)의 국가가 South Korea 인 항목.
   function krTeam(it) { return isKorea(it.tid) || (!!it.moved && isKorea(it.tidTo)); }
   function isKorea(id) { var tm = own(TEAM_OBJ, id); return !!tm && tm.country === "South Korea"; }
