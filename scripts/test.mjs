@@ -328,6 +328,20 @@ t("개인정보처리방침: web3forms·Cloudflare 를 한·영 모두 밝히고
   assert.ok(EN["form.privacyNote"], "en 키");
 });
 
+// 건의 봇 확인(PR 8): hCaptcha 를 한·영 방침이 밝히고, 새 안내 키가 ko·en 에 모두 있다.
+t("건의 봇 확인: 방침 두 곳이 hCaptcha 를 밝히고, 확인 관련 키가 ko·en 에 있다", () => {
+  const ko = fs.readFileSync(fileURLToPath(new URL("../privacy/index.html", import.meta.url)), "utf8");
+  const en = fs.readFileSync(fileURLToPath(new URL("../en/privacy/index.html", import.meta.url)), "utf8");
+  assert.match(ko, /hCaptcha/);
+  assert.match(en, /hCaptcha/);
+  for (const key of ["form.captchaNeed", "form.captchaUnavailable", "form.privacyNote"]) {
+    assert.ok(KO[key], "ko " + key);
+    assert.ok(EN[key], "en " + key);
+  }
+  assert.match(KO["form.privacyNote"], /hCaptcha/);
+  assert.match(EN["form.privacyNote"], /hCaptcha/);
+});
+
 // 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.
 t("contractState: 연도만 있는 값은 year(올해 이후) 또는 expired(지난 해), 숫자 값은 그대로", () => {
   setLang("ko");

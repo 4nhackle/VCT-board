@@ -1,0 +1,36 @@
+# 2026-11-08 PR 8: 건의 폼에 hCaptcha 추가 (감사 지적 3)
+
+- 목적: 지시문 `docs/instructions/PR8-form-captcha.md` 대로 건의 보내기에 hCaptcha 를 더한다. 웹 키는 공개 자바스크립트에 그대로 두고, 봇 차단은 hCaptcha 토큰으로 한다.
+- 이 세션이 대체하는 것: 없음. 연결: `docs/PROGRESS.md` 25회차 절.
+- 브랜치: `fix/form-captcha`(origin/main `a58ad6d` 기반). PR 기준 `main`. 병합하지 않았다.
+- 바꾼 파일
+  - `js/views/suggest.js`: 위젯 자리(`#sgCap`, 보내기 버튼 위). 건의 탭을 처음 그릴 때만 hCaptcha 스크립트를 넣는다. 테마는 그릴 때 `prefers-color-scheme` 로 정한다. 토큰이 없으면 보내지 않고 "로봇이 아님을 확인해 주세요." 를 보인다. 보낸 뒤(성공·실패 모두) `hcaptcha.reset`. 스크립트를 못 불러오면 보내기만 끈다(메일·복사는 그대로).
+  - `js/i18n/ko.js`, `js/i18n/en.js`: `form.captchaNeed`, `form.captchaUnavailable` 추가. `form.privacyNote` 에 hCaptcha 를 넣음.
+  - `privacy/index.html`, `en/privacy/index.html`: 2항(보내기)에 hCaptcha 항목(IP·브라우저·기기, 확인 데이터, 쿠키, 만료 뒤 최대 1년 보관, hCaptcha 방침 링크). 4항의 예외 목록에 hCaptcha 를 넣음. 시행일은 2026-11-08 그대로(같은 날 병합 기준).
+  - `scripts/test.mjs`: 시험 1개 추가(두 방침 hCaptcha 언급, 새 키 ko·en 존재, 안내 키 hCaptcha 언급).
+  - CSS 는 바꾸지 않았다. `.sg` 가 세로 flex 와 간격을 가져 위젯 자리에 간격이 생긴다.
+- 벤더 확인
+  - web3forms 무료 요금제 사이트 키: `50b2fe65-b00b-4b9e-ad62-3ba471098be2`(https://docs.web3forms.com/getting-started/customizations/spam-protection/hcaptcha).
+  - **지시문과 다른 점**: 문서는 `https://web3forms.com/client/script.js` 를 `</body>` 앞에 넣으라고 하고, 대시보드에서 hCaptcha 를 켜라고 한다. 지시문대로 hCaptcha API(`js.hcaptcha.com/1/api.js?render=explicit`)를 직접 불렀다. 토큰은 같은 필드 `h-captcha-response` 로 보낸다.
+  - 문서는 서버가 토큰을 자동으로 확인하는지 밝히지 않는다. 대시보드 활성화가 필요하다고만 쓴다.
+  - hCaptcha 방침(https://www.hcaptcha.com/privacy) 인용: 분석 정보에 IP 주소, 브라우저 종류, 인터넷 서비스 제공자, 플랫폼·기기 종류, 운영체제. 확인 데이터에 마우스 움직임, 스크롤 위치, 키 입력, 터치 이벤트. "Yes. … may use cookies". 쿠키 데이터는 "up to one year from expiry of the cookie". 관리자는 Intuition Machines, Inc. IP 주소 보관 기간은 쓰여 있지 않다.
+- 중요한 제한
+  - **클라이언트 확인만으로는 봇을 막지 못한다.** 누구나 HTTP 로 web3forms 에 직접 보낼 수 있다. 서버가 토큰을 확인하게 하려면 대시보드에서 hCaptcha 를 켜야 한다(사용자 작업). 켜기 전까지 감사 지적 3은 해결된 것이 아니다.
+- 확인 결과 (직접 실행)
+  - `node scripts/test.mjs`: 144개 통과(PR 7 의 143 + 새 1). 종료 코드 0.
+  - `node scripts/validate.mjs`: 오류 0. `node scripts/css-check.mjs`: 통과. `node scripts/i18n-report.mjs`: 누락 0. `node scripts/build.mjs _site`: 성공.
+  - 빌드 출력에서 `js.hcaptcha.com` 은 `js/views/suggest.js` 안에만 있다. 다른 페이지 HTML 에는 없다.
+  - 브라우저(개발 서버, 한국어)
+    - 점검 1(다른 탭·페이지가 hcaptcha 에 요청하지 않음): 홈 화면 요청 목록에 hcaptcha 없음. 통과. 다른 탭은 확인하지 않았다.
+    - 점검 2(위젯 표시, 풀지 않고 보내면 안내만): 위젯 iframe 표시, "로봇이 아님을 확인해 주세요." 표시, web3forms 요청 없음. 통과(KR). 390·1280 과 EN 은 확인하지 않았다.
+    - 점검 5(키보드): 링크 입력란에서 Tab 하면 위젯으로 간다. 위젯 안쪽에서 보내기 버튼까지의 순서는 cross-origin iframe 이라 확인할 수 없다. 부분 통과.
+- 확인하지 못한 것
+  - 점검 3(실제 풀이와 실제 테스트 메일): **사용자가 해야 한다.** 제가 captcha 를 풀거나 실제 메일을 보내지 않았다. 보낸 시각을 사용자에게 알린다.
+  - 점검 4(js.hcaptcha.com 차단 후 불러오기 실패 상태): 브라우저 도구로 요청을 막을 수 없어 확인하지 못했다.
+  - 390·1280 레이아웃과 EN 화면, 다크 모드 위젯.
+- 작업 트리의 다른 변경(이 PR에 넣지 않음)
+  - `docs/instructions/PR7·PR8·PR9·PR10` 지시문 파일(미추적), `docs/instructions/README.md` 수정, `docs/디자인`·`docs/인계` 일부 삭제 상태. 건드리지 않았다.
+- 남은 일
+  - 사용자: web3forms 대시보드에서 hCaptcha 켜기, 테스트 메일 보내기(풀이 포함), 보낸 시각 알려 주기.
+  - 점검 3·4 와 나머지 화면 확인.
+  - PR 병합(사용자 확인 뒤). 병합 시각은 예약 작업 시각 앞뒤 30분을 피한다(CLAUDE.md).
