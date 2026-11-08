@@ -718,6 +718,17 @@ Liquipedia | 8 | 6 | 14
 - 데이터의 역할 값(한국어)이 영문 화면에도 그대로 보인다.
 - 이 PR 은 `feature/roster-tab` 에 있고 기준은 `main`. 병합은 하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr6-roster-tab.md`.
 
+## 24회차 개인정보처리방침에 web3forms·Cloudflare 고지 (PR 7, 2026-11-08)
+
+### 결과
+- 방침(한·영)이 건의 "보내기"의 web3forms 전송과 Cloudflare Web Analytics 측정을 밝힌다. 건의 탭 보내기 아래에 안내 줄과 방침 링크를 둔다.
+- Cloudflare 설명은 공식 페이지의 "쿠키·로컬 저장소를 쓰지 않는다"는 문장만 인용했다. 보관 기간과 IP 처리는 벤더 방침을 따른다고 적었다.
+- 비콘은 1359/1360 HTML 페이지에 있다(예외: 구글 확인 파일 하나).
+
+### 열린 결정 · 알아 둘 점
+- web3forms 방침 원문과 DPA 는 403 으로 읽지 못했다. 보관 기간·IP 문장은 사람이 확인해야 한다.
+- 이 PR 은 `docs/privacy-disclosure` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr7-privacy-disclosure.md`.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.

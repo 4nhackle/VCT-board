@@ -1,0 +1,38 @@
+# 2026-11-08 PR 7: 개인정보처리방침에 web3forms·Cloudflare 고지
+
+- 목적: 지시문 `docs/instructions/PR7-privacy-disclosure.md` 대로 방침을 실제 동작과 맞춘다. (1) 건의 "보내기"는 web3forms 로 전송된다. (2) 모든 페이지가 Cloudflare Web Analytics 비콘을 읽는다. 감사(2026-11-08) 지적 1·2 대응. 지적 3(공개 키·약한 봇 검사)은 열어 둔다.
+- 이 세션이 대체하는 것: 없음. 연결: `docs/PROGRESS.md` 24회차 절.
+- 브랜치: `docs/privacy-disclosure`(origin/main `f64df2b` 기반). 옛 로컬 브랜치는 커밋이 없어 다시 만들었다. PR 기준 `main`. 병합하지 않았다.
+- 바꾼 파일
+  - `privacy/index.html`(한국어 원문): 시행일 2026-11-08. 1항에 Cloudflare 항목 추가. 2항을 "보내기(web3forms)"와 "메일 앱으로 보내기"로 나눠 다시 씀. 4항의 예외를 1항·2항 서비스로 넓힘.
+  - `en/privacy/index.html`(영문 요약): 같은 내용.
+  - `js/i18n/ko.js`, `js/i18n/en.js`: `form.privacyNote` 추가(보내기 아래 안내, "개인정보처리방침" 링크).
+  - `js/views/suggest.js`: 안내 줄 한 개 추가(보내기 버튼 아래, 상태 줄 위).
+  - `scripts/test.mjs`: 시험 1개 추가(두 방침이 web3forms·Cloudflare 를 밝히고, 안내 키가 ko·en 에 있음).
+- 결정과 이유
+  - 벤더 사실은 공식 페이지에서 확인한 것만 적었다.
+    - Cloudflare Web Analytics(https://www.cloudflare.com/web-analytics/): "does not use any client-side state, such as cookies or localStorage, to collect usage metrics." 이 문장만 인용했다.
+    - 같은 페이지는 IP 주소 보관과 보관 기간을 밝히지 않는다. 그래서 두 항목은 "Cloudflare 개인정보처리방침을 따릅니다"로 처리했다.
+    - Cloudflare 일반 개인정보처리방침(https://www.cloudflare.com/privacypolicy/)은 Cloudflare 자체 사이트의 쿠키를 설명한다. Web Analytics 쿠키에 대한 내용은 아니다. 위의 제품 페이지 문장과 충돌하지 않는다고 보고, 두 문서를 모두 링크했다.
+    - web3forms 개인정보처리방침(https://web3forms.com/privacy)과 DPA(https://web3forms.com/dpa)는 이 환경에서 403 으로 읽을 수 없었다. 검색 요약에서 보관 기간(3년 기본)과 IP 주소 처리가 나왔지만 자료끼리 엇갈려, 확정 문장으로 쓰지 않았다. 방침에는 "접속 정보와 보관 기간은 web3forms 개인정보처리방침을 따릅니다"라고만 적고 링크했다.
+  - 방침이 밝힌 전송 내용은 코드가 실제로 보내는 항목만이다: 본문, 선택한 근거 링크, 건의 종류, 고정 발신자 이름("VCT 현황 페이지"). 이름과 메일 주소는 입력받지 않는다.
+  - 빌드 결과 모든 HTML 페이지가 비콘을 읽는다(아래). 방침에는 "모든 페이지" 대신 "방문 측정"으로 적고, 비콘이 있는 페이지 수를 PR 본문에 적었다.
+  - 이용약관(`terms/`)은 외부 서비스를 결제 관련으로만 말하고 데이터는 말하지 않는다. 지시문에 따라 바꾸지 않았다.
+- 확인 결과 (직접 실행)
+  - `node scripts/test.mjs`: 143개 통과(PR 6 의 142 + 새 1). 종료 코드 0.
+  - `node scripts/validate.mjs`: 오류 0.
+  - `node scripts/css-check.mjs`: 통과.
+  - `node scripts/i18n-report.mjs`: 누락 0.
+  - `node scripts/build.mjs _site`: 성공.
+  - `grep -rl cloudflareinsights _site | wc -l` → 1359. 전체 HTML 1360 개 중 비콘이 없는 것은 `google41eb36b5d21a9bad.html`(구글 소유 확인 파일) 하나다. 즉 사이트의 모든 페이지가 비콘을 읽는다.
+  - 브라우저(개발 서버): 건의 탭 KR·EN에서 안내 줄이 보내기 버튼 아래에 있고, 링크가 `/VCT-board/privacy/`, `/VCT-board/en/privacy/` 로 이어진다. 두 방침 페이지 390px 가로 넘침 없음. 시행일 2026-11-08 표시.
+- 확인하지 못한 것
+  - web3forms 방침 원문과 DPA 원문(403). 보관 기간과 IP 처리 문장이 맞는지 사람이 확인해야 한다.
+  - 1280px 화면.
+- 작업 트리의 다른 변경(이 PR에 넣지 않음)
+  - `docs/instructions/README.md`: PR 7 지시문 링크 한 줄 추가(이 세션 밖에서 생긴 변경).
+  - `docs/디자인/design-brief.md`, `docs/디자인/design-review-2026-11-01.md`, `docs/디자인/홈페이지-리디자인-방향.md`, `docs/인계/변경내용-요약.md`, `docs/인계/새컴퓨터-설정.md`, `docs/인계/세션-인계.md`: 작업 트리에서 삭제 상태(git 에는 남아 있음). 건드리지 않았다.
+- 남은 일
+  - PR 병합(사용자 확인 뒤). 병합 시각은 예약 작업 시각 앞뒤 30분을 피한다(CLAUDE.md).
+  - web3forms 방침 원문 확인.
+  - CAPTCHA 는 web3forms 대시보드에서 켠다(사용자 작업, 감사 지적 3).

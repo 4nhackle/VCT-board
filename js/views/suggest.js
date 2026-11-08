@@ -11,6 +11,7 @@ export function suggestHTML() {
     '<label for="sgText">' + t("form.text") + '<textarea id="sgText" maxlength="1500" placeholder="' + t("form.textPh") + '"></textarea></label>' +
     '<label for="sgLink">' + t("form.link") + '<input id="sgLink" type="url" placeholder="https://"></label>' +
     '<div class="btns"><button type="submit" class="btn" id="sgPost" aria-disabled="true">' + t("form.post") + '</button><a class="btn alt" id="sgSend" href="#" aria-disabled="true">' + t("form.mail") + '</a><button type="button" class="btn alt" id="sgCopy">' + t("form.copy") + "</button></div>" +
+    '<p class="hint">' + t("form.privacyNote") + "</p>" +
     '<p class="hint" id="sgMsg" role="status"></p>' +
     '<p class="hint">' + t("form.fallbackA") + ' <span class="addr" id="sgAddr">' + MAIL + "</span> " + t("form.fallbackB") + ' <button type="button" class="linkbtn" id="sgCopyAddr">' + t("form.copyAddr") + "</button></p>" +
     "</form>";

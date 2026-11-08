@@ -174,6 +174,7 @@ export var KO = {
   "form.thanks": "전달했습니다. 건의해 주셔서 감사합니다.",
   "form.sendFail": "전송하지 못했습니다. 메일 앱으로 보내거나 내용을 복사해 보내 주세요.",
   "form.mailNotice": "메일 앱이 열리면 보내기를 눌러 주세요. 보내기를 눌러야 전달됩니다.",
+  "form.privacyNote": "보내기는 web3forms 를 거쳐 운영자 메일로 전달됩니다. <a href='privacy/'>개인정보처리방침</a>",
   "form.copyNeedText": "복사할 내용을 먼저 적어 주세요.",
   "form.copied": "내용을 복사했습니다. 메일에 붙여 넣어 보내 주세요.",
   "form.addrCopied": "주소를 복사했습니다.",
