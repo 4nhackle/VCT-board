@@ -21,7 +21,17 @@ export function colsHTML() {
   return '<li class="cols" aria-hidden="true"><span>' + t("col.person") + "</span><span>" + t("col.move") + "</span><span>" + t("col.status") + "</span><span>" + t("col.date") + "</span><span></span></li>";
 }
 
-// 지켜볼 팀 행: 종류 배지와 팀 링크, 확정·확인 날짜, "대상" 라벨, 본문, 출처 줄.
+// 펼침 단추와 영역. 내용이 없으면 단추도 영역도 만들지 않는다. 엔트리 행과 지켜볼 팀 행이 함께 쓴다.
+function foldHTML(detail) {
+  if (!detail) return { btn: "", fold: "" };
+  var id = "row-fold-" + (++FOLD_SEQ), more = t("row.expand"), less = t("row.collapse");
+  return {
+    btn: '<button type="button" class="row-x" aria-expanded="false" aria-controls="' + id + '" aria-label="' + esc(more) + '" data-expand="' + esc(more) + '" data-collapse="' + esc(less) + '"></button>',
+    fold: '<div class="row-fold" id="' + id + '" hidden>' + detail + "</div>"
+  };
+}
+
+// 지켜볼 팀 행: 종류 배지와 팀 링크, 확정·확인 날짜, "대상" 라벨, 첫 조각(보이는 줄), 나머지 조각과 출처 줄(펼침).
 function watchHTML(it, tab) {
   // 대상 팀마다 따로 링크한다. 팀 이름 칸은 " / " 로 나뉘어 있다. teams 에 없는 ID 는 링크 없이 글자만.
   var parts = String(it.team || "").split(" / ");
@@ -31,10 +41,13 @@ function watchHTML(it, tab) {
   }).join(" / ");
   var w = watchMeta(it.note), sp = splitNote(noteText(w.body, true));
   var state = (w.confirmed ? '<span class="ok">' + t("row.confirmed") + "</span>" : "") + (w.checked ? '<span class="chk">' + t("row.checked", { date: esc(w.checked) }) + "</span>" : "");
+  // shortcut: 첫 " / " 조각만 보인다. 긴 조각은 CSS 가 두 줄로 자른다. 캡션 칸이 필요하면 이 자리에서 바꾼다.
+  var cut = sp.body.indexOf(" / "), head = cut < 0 ? sp.body : sp.body.slice(0, cut), rest = cut < 0 ? "" : sp.body.slice(cut + 3);
+  var f = foldHTML((rest ? '<p class="detail">' + textHTML(rest) + "</p>" : "") + srcsHTML(sp, it.src));
   return '<li class="row watch"><div class="main">' + (w.kind ? '<span class="wk ' + w.kind + '">' + esc(w.label) + "</span>" : "") + names + "</div>" +
     (state ? '<div class="state">' + state + "</div>" : "") +
     '<p class="detail"><span class="lbl">' + t("row.target") + "</span>" + termHTML(it.name) + "</p>" +
-    (sp.body ? '<p class="detail">' + textHTML(sp.body) + "</p>" : "") + srcsHTML(sp, it.src) + "</li>";
+    (head ? '<p class="detail head">' + textHTML(head) + "</p>" : "") + f.btn + f.fold + "</li>";
 }
 
 // 행의 칸 순서: 사람(이름·메타) · 이동(경로 또는 팀) · 상태(알약·배지·상태 글) · 날짜 · 펼침 단추. 펼침 영역은 설명·단체 링크·출처 줄.
@@ -62,16 +75,11 @@ export function rowHTML(it, tab, opt) {
   // 요약(caption)이 있으면 설명글로 쓴다. 출처 줄과 보도 시각은 메모 기준 그대로다. 없으면 메모 본문.
   var cap = cleanName(it.caption), body = cap ? noteText(cap) : sp.body;
   var detail = (body ? '<p class="detail">' + textHTML(body) + "</p>" : "") + (opt.more || "") + srcsHTML(sp, it.src);
-  var btn = "", fold = "";
-  if (detail) {
-    var id = "row-fold-" + (++FOLD_SEQ), more = t("row.expand"), less = t("row.collapse");
-    btn = '<button type="button" class="row-x" aria-expanded="false" aria-controls="' + id + '" aria-label="' + esc(more) + '" data-expand="' + esc(more) + '" data-collapse="' + esc(less) + '"></button>';
-    fold = '<div class="row-fold" id="' + id + '" hidden>' + detail + "</div>";
-  }
+  var f = foldHTML(detail);
   return '<li class="row s-' + (p[2] === "reported" ? "reported" : p[0]) + '"><div class="main">' + link("name", it.pid ? personUrl(it.pid) : "", nameHTML(it.name)) +
     (meta ? '<span class="meta">' + meta + "</span>" : "") + "</div>" +
     '<div class="move">' + move + "</div>" +
     '<div class="state">' + pill(p) + badge(it) + (status ? '<span class="lead">' + status + "</span>" : "") + "</div>" +
     '<div class="when"><span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "") + t("pill.reportedMark") + "</span></div>" +
-    btn + fold + "</li>";
+    f.btn + f.fold + "</li>";
 }
