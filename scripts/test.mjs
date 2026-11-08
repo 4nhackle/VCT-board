@@ -328,6 +328,20 @@ t("개인정보처리방침: web3forms·Cloudflare 를 한·영 모두 밝히고
   assert.ok(EN["form.privacyNote"], "en 키");
 });
 
+// 건의 봇 확인(PR 8): hCaptcha 를 한·영 방침이 밝히고, 새 안내 키가 ko·en 에 모두 있다.
+t("건의 봇 확인: 방침 두 곳이 hCaptcha 를 밝히고, 확인 관련 키가 ko·en 에 있다", () => {
+  const ko = fs.readFileSync(fileURLToPath(new URL("../privacy/index.html", import.meta.url)), "utf8");
+  const en = fs.readFileSync(fileURLToPath(new URL("../en/privacy/index.html", import.meta.url)), "utf8");
+  assert.match(ko, /hCaptcha/);
+  assert.match(en, /hCaptcha/);
+  for (const key of ["form.captchaNeed", "form.captchaUnavailable", "form.privacyNote"]) {
+    assert.ok(KO[key], "ko " + key);
+    assert.ok(EN[key], "en " + key);
+  }
+  assert.match(KO["form.privacyNote"], /hCaptcha/);
+  assert.match(EN["form.privacyNote"], /hCaptcha/);
+});
+
 // PR 10: 인물 이름 충돌은 personId 없는 소식 행이 끼면 오류, 인물 명단끼리만이면 경고. 임시 데이터 폴더에서 validate.mjs 를 돌린다.
 const VALIDATE_PATH = fileURLToPath(new URL("./validate.mjs", import.meta.url));
 function runValidate(name, { players = [], coaches = [], people = null, teams = null }) {
