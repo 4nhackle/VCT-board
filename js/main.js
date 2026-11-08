@@ -1,5 +1,5 @@
 import { isNew, esc, withKst, fmtDate } from "./format.js";
-import { REGIONS, regionName, buildTabs, buildIndex, matches, cls } from "./model.js";
+import { REGIONS, regionName, regionShort, buildTabs, buildIndex, matches, cls } from "./model.js";
 import { t, LANG, ledeHTML, setEnTable } from "./i18n.js";
 import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES, listAction, themeOf } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
@@ -60,17 +60,10 @@ function renderView() {
   if (tab.mode === "entry" && state.order === "recent" && total) html = '<p class="hint">' + t("hint.recent") + "</p>" + html;
   $("view").innerHTML = html;
   // 최근 사흘 새 소식 수는 "최근 소식순" 칩에 붙인다. 따로 줄을 두지 않아 첫 화면이 짧아진다.
-  if (tab.mode === "entry" && fresh !== FRESH) { FRESH = fresh; renderOrder(); }
+  if (tab.mode === "entry" && fresh !== FRESH) { FRESH = fresh; syncFilters(tab); }
   jumpList();
 }
 
-// 정렬 칩. 새 소식 수가 바뀔 때도 다시 그린다.
-function renderOrder() {
-  $("order").innerHTML = [["team", t("order.team")], ["recent", t("order.recent")]].map(function (o) {
-    return '<button type="button" class="chip" data-order="' + o[0] + '" aria-pressed="' + (state.order === o[0]) + '">' + o[1] +
-      (o[0] === "recent" && FRESH ? '<span class="n new" title="' + t("order.freshTitle") + '">' + t("order.freshCount", { n: FRESH }) + "</span>" : "") + "</button>";
-  }).join("");
-}
 
 // 바로가기: 목록의 구역 머리(.rh)마다 id 를 붙이고 고르기 상자를 채운다. 구역이 둘 미만이면 고르기 상자를 숨긴다.
 function jumpList() {
@@ -103,11 +96,11 @@ function renderChrome() {
     }).join("");
   }
   $("regions").innerHTML = ["all"].concat(REGIONS).map(function (r) {
-    return '<button type="button" class="chip" data-region="' + r + '" aria-pressed="' + (state.region === r) + '">' + (r === "all" ? t("region.all") : regionName(r)) + "</button>";
+    var full = r === "all" ? t("region.all") : regionName(r);
+    return '<button type="button" class="chip" data-region="' + r + '" aria-pressed="' + (state.region === r) + '" aria-label="' + esc(full) + '">' + (r === "all" ? t("region.short.all") : regionShort(r)) + "</button>";
   }).join("");
-  $("order").hidden = tab.mode !== "entry" || tab.id === "today";
-  renderOrder();
-  renderFilters(tab);
+  buildFilters();
+  syncFilters(tab);
   ["tabs", "regions", "summary"].forEach(function (id) {
     var box = $(id), cur = box.querySelector('[aria-pressed="true"]');
     if (cur && box.scrollWidth > box.clientWidth) box.scrollLeft = cur.offsetLeft - (box.clientWidth - cur.offsetWidth) / 2;
@@ -115,26 +108,69 @@ function renderChrome() {
   document.title = (state.tab === "players" ? "" : tab.label + " · ") + t("title.site");
 }
 
-// 거르기 칩 줄(포지션·확인 단계·기간·상위 팀). 정적 HTML 을 고치지 않으려고 #filters 안에 JS 로 만든다.
-// 포지션 줄은 선수·오늘·한국 탭에서만 보인다(코치·이적·지켜볼 팀은 포지션 칸이 없다).
-function renderFilters(tab) {
+// 거르기 칸(포지션·단계·기간·정렬)과 VCT 파트너팀 단추는 처음 한 번만 만든다(언어는 쪽마다 정해져 있다).
+// 탭을 바꿔도 칸을 새로 그리지 않아 키보드 포커스가 남는다. 쓰지 않는 칸은 자리만 남기고 가린다(줄 높이·위치가 흔들리지 않게).
+var FX = null;
+function fieldBox(key, label, opts) {
+  var box = document.createElement("label");
+  box.className = "fsel";
+  box.dataset.box = key;
+  var sel = document.createElement("select");
+  sel.dataset.f = key;
+  sel.setAttribute("aria-label", label);
+  opts.forEach(function (o) { sel.add(new Option(label + " " + o[1], o[0])); });
+  box.appendChild(sel);
+  return box;
+}
+function buildFilters() {
+  if (FX) return;
+  FX = {
+    pos: fieldBox("pos", t("filter.position"), POS_VALUES.map(function (v) { return [v, v === "all" ? t("status.all") : v]; })),
+    stage: fieldBox("stage", t("filter.stage"), [["all", t("status.all")], ["confirmed", t("stage.confirmed")], ["reported", t("stage.reported")]]),
+    days: fieldBox("days", t("filter.days"), [["all", t("status.all")], ["0", t("days.0")], ["3", t("days.3")], ["7", t("days.7")]]),
+    order: fieldBox("order", t("order.label"), [["team", t("order.team")], ["recent", t("order.recent")]]),
+    partner: document.createElement("button"),
+    fresh: document.createElement("span")
+  };
+  FX.partner.type = "button";
+  FX.partner.className = "chip toggle";
+  FX.partner.dataset.partner = "1";
+  FX.partner.textContent = t("filter.partner");
+  FX.fresh.className = "fresh-badge";
+  var sort = document.createElement("span");
+  sort.className = "fsort";
+  sort.appendChild(FX.order);
+  sort.appendChild(FX.fresh);
   var box = $("fx");
-  if (!box) { box = document.createElement("div"); box.id = "fx"; box.className = "bar b3"; $("filters").appendChild(box); }
-  box.hidden = tab.mode !== "entry";
-  if (box.hidden) { box.innerHTML = ""; return; }
-  function row(key, label, opts, cur) {
-    return '<div class="chips" role="group" aria-label="' + esc(label) + '">' + opts.map(function (o) {
-      return '<button type="button" class="chip" data-' + key + '="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + "</button>";
-    }).join("") + "</div>";
-  }
-  var rows = [];
-  if (tab.id === "players" || tab.id === "today" || tab.id === "korea") {
-    rows.push(row("pos", t("filter.position"), POS_VALUES.map(function (v) { return [v, v === "all" ? t("status.all") : v]; }), state.pos));
-  }
-  rows.push(row("stage", t("filter.stage"), [["all", t("status.all")], ["confirmed", t("stage.confirmed")], ["reported", t("stage.reported")]], state.stage));
-  rows.push(row("days", t("filter.days"), [["all", t("status.all")], ["0", t("days.0")], ["3", t("days.3")], ["7", t("days.7")]], state.days));
-  rows.push('<div class="chips" role="group" aria-label="' + esc(t("filter.top")) + '"><button type="button" class="chip" data-toponly="1" aria-pressed="' + state.top + '">' + t("filter.top") + "</button></div>");
-  box.innerHTML = rows.join("");
+  box.appendChild(FX.pos);
+  box.appendChild(FX.stage);
+  box.appendChild(FX.days);
+  box.appendChild(FX.partner);
+  box.appendChild(sort);
+}
+// 탭마다 값·보임·사용 여부를 맞춘다. 포지션은 선수·오늘·한국 탭만, 나머지 거르기와 파트너 단추는 목록 탭만,
+// 정렬은 오늘 탭을 뺀 목록 탭에서만 쓴다. 새 소식 배지는 정렬을 쓸 때만 보인다.
+function syncFilters(tab) {
+  var entry = tab.mode === "entry";
+  var use = {
+    pos: entry && (tab.id === "players" || tab.id === "today" || tab.id === "korea"),
+    stage: entry, days: entry, order: entry && tab.id !== "today"
+  };
+  var cur = { pos: state.pos, stage: state.stage, days: state.days, order: state.order };
+  var dflt = { pos: "all", stage: "all", days: "all", order: "team" };
+  Object.keys(use).forEach(function (k) {
+    var box = FX[k], sel = box.querySelector("select");
+    sel.value = cur[k];
+    sel.disabled = !use[k];
+    box.classList.toggle("is-off", !use[k]);
+    box.classList.toggle("is-set", cur[k] !== dflt[k]);
+  });
+  FX.partner.disabled = !entry;
+  FX.partner.classList.toggle("is-off", !entry);
+  FX.partner.setAttribute("aria-pressed", String(!!state.top));
+  var showFresh = use.order && !!FRESH;
+  FX.fresh.hidden = !showFresh;
+  if (showFresh) { FX.fresh.textContent = t("order.freshCount", { n: FRESH }); FX.fresh.title = t("order.freshTitle"); }
 }
 
 // 거르기를 바꾸면 주소의 ?…만 고친다(기록을 바꿔 쓴다). 탭 이름은 그대로다.
@@ -205,16 +241,26 @@ document.addEventListener("click", function (e) {
   if (b.dataset.tab) { tabChanged = b.dataset.tab !== state.tab; state.tab = b.dataset.tab; }
   else if (b.dataset.region) state.region = b.dataset.region;
   else if (b.dataset.status) state.status = b.dataset.status;
-  else if (b.dataset.order) saveOrder(b.dataset.order);
-  else if (b.dataset.pos) { state.pos = b.dataset.pos; filterChanged = true; }
-  else if (b.dataset.stage) { state.stage = b.dataset.stage; filterChanged = true; }
-  else if (b.dataset.days) { state.days = b.dataset.days; filterChanged = true; }
-  else if (b.dataset.toponly) { state.top = !state.top; filterChanged = true; }
+  else if (b.dataset.partner) { state.top = !state.top; filterChanged = true; }
   else return;
   renderChrome();
   renderView();
   if (tabChanged) { pushTab(); langLinks(); }
   else if (filterChanged) syncHash();
+});
+
+// 거르기 칸(select)과 정렬: 바뀌면 단추와 같은 길로 다시 그린다. 칸은 그대로 두고 값만 맞춘다(syncFilters).
+document.addEventListener("change", function (e) {
+  var s = e.target, f = s.dataset && s.dataset.f;
+  if (!f) return;
+  if (f === "order") saveOrder(s.value);
+  else if (f === "pos") state.pos = s.value;
+  else if (f === "stage") state.stage = s.value;
+  else if (f === "days") state.days = s.value;
+  else return;
+  renderChrome();
+  renderView();
+  if (f !== "order") syncHash();
 });
 
 // 상세로 가기 전에 목록 상태와 스크롤 위치를 지금 기록(목록 항목)에 적어 둔다. 뒤로 오면 savedList() 로 되살린다.

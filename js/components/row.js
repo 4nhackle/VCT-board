@@ -1,5 +1,5 @@
 import { esc, isNew, isoOf, relDate, stampLabel, textHTML } from "../format.js";
-import { regionName, pillOf, routeOf, slugOf, watchMeta, cleanName, contractOK } from "../model.js";
+import { regionShort, pillOf, routeOf, slugOf, watchMeta, cleanName, contractOK } from "../model.js";
 import { t, trWhole } from "../i18n.js";
 import { splitNote, srcsHTML, termHTML, nameHTML, noteText } from "../views/common.js";
 import { personUrl, teamUrl } from "../state.js";
@@ -47,7 +47,7 @@ export function rowHTML(it, tab, opt) {
   var cap = cleanName(it.caption), body = cap ? noteText(cap) : sp.body;
   return '<li class="row s-' + (p[2] === "reported" ? "reported" : p[0]) + '"><div class="main">' + link("name", it.pid ? personUrl(it.pid) : "", nameHTML(it.name)) +
     (r || opt.noTeam ? "" : link("team", it.tid ? teamUrl(it.tid) : "", textHTML(trWhole(it.team)))) +
-    (opt.region ? '<span class="reg">' + esc(regionName(it.region) || it.region) + "</span>" : "") +
+    (opt.region ? '<span class="reg">' + esc(regionShort(it.region) || it.region) + "</span>" : "") +
     route + (meta ? '<span class="meta">' + meta + "</span>" : "") + "</div>" +
     '<div class="state">' + pill(p) + badge(it) +
     '<span class="date' + (isNew(it) ? " new" : "") + '">' + relDate(it.date) + (stampLabel(it) && !sp.src ? " " + stampLabel(it) : "") + t("pill.reportedMark") + "</span></div>" +

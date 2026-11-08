@@ -5,6 +5,8 @@ import { t, LANG } from "./i18n.js";
 export var REGIONS = ["Americas", "EMEA", "Pacific", "China"];
 // 지역·등급 이름은 쓰는 시점에 사전을 읽는다(setLang 뒤에도 맞게). 모르는 값은 "" 를 돌려준다.
 export function regionName(r) { return REGIONS.indexOf(r) >= 0 ? t("region." + r) : ""; }
+// 짧은 지역 이름(거르기 단추·목록 머리). 네 지역 밖의 값은 빈 글자다.
+export function regionShort(r) { return REGIONS.indexOf(r) >= 0 ? t("region.short." + r) : ""; }
 var TIERS = ["partner", "ascended", "challengers", "academy"];
 export function tierName(tier) { return TIERS.indexOf(tier) >= 0 ? t("team." + tier) : ""; }
 
@@ -495,11 +497,11 @@ export function matches(it, tab, state, today) {
   if (state.days && state.days !== "all") {
     if (!(typeof it.date === "number" && td - it.date <= +state.days)) return false;
   }
-  // 상위 팀만: 소속 팀(이적이면 도착 팀)이 partner 또는 ascended 이다.
+  // VCT 파트너팀만: 소속 팀(이적이면 도착 팀)이 partner 이다. ascended 는 빠진다. 로스터 탭의 범위와는 따로 본다.
   if (state.top && tab.teamObj) {
     var top = [it.tid, it.tidTo].some(function (id) {
       var tm = id ? tab.teamObj[id] : null;
-      return !!tm && (tm.tier === "partner" || tm.tier === "ascended");
+      return !!tm && tm.tier === "partner";
     });
     if (!top) return false;
   }
