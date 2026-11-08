@@ -1,0 +1,32 @@
+# 2026-11-08 PR 9: 이적 병합 분리 + 목록 주소 처리 결정 시험 (감사 지적 4·5)
+
+- 목적: 지시문 `docs/instructions/PR9-merge-moves-and-route-test.md` 대로. (4) `buildTabs` 의 이적 병합을 `mergeMoves` 로 옮긴다. (5) 목록 다시 그리기 결정을 `listAction` 으로 옮기고 시험한다. 동작은 바뀌지 않는다.
+- 이 세션이 대체하는 것: 없음. 연결: `docs/PROGRESS.md` 26회차 절.
+- 브랜치: `refactor/merge-moves-route-test`(origin/main `a58ad6d` 기반). PR 기준 `main`. 병합하지 않았다.
+- 바꾼 파일
+  - `js/model.js`: `mergeMoves(P0, CO0, T1, T2, PEOPLE)`(내보냄)를 `buildTabs` 앞에 두었다. 블록(최근 이적 집계, `mergeMove`, 이적만 있는 인물 추가)을 그대로 옮겼고 주석도 그대로다. `buildTabs` 는 `var m = mergeMoves(...), P = m.P, CO = m.CO;` 한 줄로 바뀌었다.
+  - `js/state.js`: `listAction(view, curTab, nextTab, tabExists, cur, next)`(내보냄).
+  - `js/main.js`: `renderRoute` 가 `listAction` 결과로 나뉜다. `"none"` 은 그대로, `"refilter"` 는 거르기만 바꿔 다시 그림, `"full"` 은 기존 경로. 기존 주석은 유지.
+  - `scripts/test.mjs`: 시험 2개 추가(`mergeMoves` 입력 불변, `listAction` 다섯 경우).
+- 결정과 이유
+  - `listAction` 의 `cur` 는 `state` 전체를 받는다. 비교는 `next` 의 키(pos, stage, days, top)만 한다. 그래서 지역·검색 값이 달라도 거르기가 같으면 `"none"` 이다. 기존 코드와 같은 규칙이다.
+  - `mergeMoves` 는 입력 배열을 바꾸지 않는다. `P0.map` 과 새 배열 `P`, `CO` 에만 넣는다. 시험으로 확인했다.
+  - `main.js` 의 `Object.assign(state, filtersOf(location))`(전체 경로)는 그대로 두었다. 같은 값을 한 번 더 읽지만 동작은 같다.
+- 확인 결과 (직접 실행)
+  - `node scripts/test.mjs`: 145개 통과(origin/main 의 143 + 새 2). 종료 코드 0. 기존 `buildTabs` 시험은 바꾸지 않고 통과했다.
+  - **시험이 물고 있는지 확인**: `js/state.js` 에서 `refilter` 분기를 `"none"` 으로 바꾸고 실행하면 종료 코드 1, `AssertionError: 'none' !== 'refilter'`(네 번째 경우). 원래 코드로 복원한 뒤 145개 모두 통과.
+  - `node scripts/validate.mjs`: 오류 0, 경고 606(변화 없음).
+  - `node scripts/build.mjs _site` 두 번(`origin/main` 임시 워크트리와 이 브랜치): HTML 차이 **0**. `js/` 파일 차이 3개(`model.js`, `main.js`, `state.js`). 임시 워크트리는 지웠다.
+  - 브라우저(개발 서버, 한국어):
+    - 선수 탭에서 주소 `#players?pos=Duelist` 를 손으로 입력: 156행 → 20행으로 다시 그림, Duelist 칩 눌림.
+    - 코치 탭으로 전환: 주소 `#coaches?pos=Duelist`, 48행. 선수 탭으로 돌아오면 거르기 유지.
+    - 선수 탭을 스크롤 800px 한 뒤 인물 상세(`p/oxy/`) → 뒤로: 목록 복원, 거르기 유지, 스크롤 800px.
+    - 탭 간 뒤로·앞으로: 코치 → 뒤로 → 선수(거르기 유지, 20행) → 앞으로 → 코치.
+- 확인하지 못한 것
+  - 390·1280 레이아웃: 이 PR 은 화면 모양을 바꾸지 않는다. 확인하지 않았다.
+  - EN 화면 확인은 하지 않았다. 번역 키는 바꾸지 않았다.
+- 작업 트리의 다른 변경(이 PR에 넣지 않음)
+  - `docs/디자인`·`docs/인계` 일부 삭제 상태, `docs/instructions/README.md` 수정, `docs/instructions/PR7~PR10` 미추적 파일. 건드리지 않았다.
+- 남은 일
+  - 감사 지적 7(색인을 두 번 만들기)과 8(안 쓰는 내보내기)은 다른 PR.
+  - PR 병합(사용자 확인 뒤). 병합 시각은 예약 작업 시각 앞뒤 30분을 피한다(CLAUDE.md).

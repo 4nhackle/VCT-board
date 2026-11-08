@@ -1,7 +1,7 @@
 import { isNew, esc, withKst, fmtDate } from "./format.js";
 import { REGIONS, regionName, buildTabs, buildIndex, matches, cls } from "./model.js";
 import { t, LANG, ledeHTML, setEnTable } from "./i18n.js";
-import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES } from "./state.js";
+import { state, saveOrder, pushTab, go, BASE, ROUTE_BASE, parseRoute, filtersOf, queryOf, POS_VALUES, listAction } from "./state.js";
 import { regionsHTML } from "./views/regions.js";
 import { recentHTML } from "./views/recent.js";
 import { scheduleHTML } from "./views/schedule.js";
@@ -216,15 +216,13 @@ function renderRoute() {
   var r = parseRoute(location, ROUTE_BASE), notes = document.querySelector(".notes");
   if (r.view === "list") {
     var h = r.tab || "players", saved = savedList();
-    // 목록 안에서 같은 탭이면 다시 그리지 않는다(기존 동작).
-    if (VIEW === "list" && (h === state.tab || !tabById(h))) {
-      // 같은 탭에서 주소의 거르기만 바뀌면(직접 고친 주소) 그 값으로 다시 그린다.
-      var nf = filtersOf(location);
-      if (h === state.tab && Object.keys(nf).some(function (k) { return nf[k] !== state[k]; })) {
-        Object.assign(state, nf);
-        renderChrome();
-        renderView();
-      }
+    // 목록 안에서 같은 탭이면 다시 그리지 않는다(기존 동작). 같은 탭에서 주소의 거르기만 바뀌면 그 값으로 다시 그린다.
+    var nf = filtersOf(location), act = listAction(VIEW, state.tab, h, !!tabById(h), state, nf);
+    if (act === "none") return;
+    if (act === "refilter") {
+      Object.assign(state, nf);
+      renderChrome();
+      renderView();
       return;
     }
     if (saved) {

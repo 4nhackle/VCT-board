@@ -9,10 +9,10 @@ import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
-import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards } from "../js/model.js";
+import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards, mergeMoves } from "../js/model.js";
 import { rosterHTML } from "../js/views/roster.js";
 import { splitNote, newsRow } from "../js/views/common.js";
-import { parseRoute, filtersOf, queryOf } from "../js/state.js";
+import { parseRoute, filtersOf, queryOf, listAction } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
 import { noteParts } from "../js/note.js";
@@ -374,6 +374,28 @@ t("validate: 팀 이름 Leviatán·LEVIATÁN 은 경고만(종료 0)", () => {
   const r = runValidate("teams", { players: [vrow("Leviatán", "P1"), vrow("LEVIATÁN", "P2")] });
   assert.equal(r.status, 0);
   assert.match(r.stderr, /같은 ID 'leviatan'/);
+});
+
+// PR 9: 이적 병합은 입력을 바꾸지 않고, 목록 주소 처리 결정은 다섯 경우를 가른다(PR 4 버그 경우 포함).
+t("mergeMoves: 입력 배열(LFT 행·이적 행)을 바꾸지 않는다", () => {
+  const P0 = [{ pid: "a", name: "A", date: T, status: "FA 진입 예정" }];
+  const CO0 = [];
+  const T1 = [{ pid: "a", name: "A", date: T - 1, status: "이적", next: "X", signed: T - 1, tidTo: "x" }, { pid: "b", name: "B", date: T - 2, status: "이적", next: "Y", tidTo: "y" }];
+  const T2 = [];
+  const before = structuredClone({ P0, CO0, T1, T2 });
+  mergeMoves(P0, CO0, T1, T2, {});
+  assert.deepEqual({ P0, CO0, T1, T2 }, before);
+});
+
+t("listAction: 상세 복귀·다른 탭은 full, 같은 탭·같은 거르기는 none, 같은 탭·거르기 변경은 refilter, 없는 탭은 none", () => {
+  const cur = { pos: "all", stage: "all", days: "all", top: false };
+  const same = { ...cur };
+  const duel = { ...cur, pos: "Duelist" };
+  assert.equal(listAction("person", "players", "players", true, cur, same), "full");
+  assert.equal(listAction("list", "players", "coaches", true, cur, same), "full");
+  assert.equal(listAction("list", "players", "players", true, cur, same), "none");
+  assert.equal(listAction("list", "players", "players", true, cur, duel), "refilter");
+  assert.equal(listAction("list", "players", "nope", false, cur, same), "none");
 });
 
 // 계약 연도(PR 2): 연도만 있는 값, 시트 일련번호 값, 검증 스크립트 시험용 임시 데이터.
