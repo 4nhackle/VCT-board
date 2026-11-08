@@ -143,7 +143,7 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 .seg > .chip:last-child { border-radius: 0 var(--radius-pill) var(--radius-pill) 0; }
 .seg > .chip:only-child { border-radius: var(--radius-pill); }
 .seg > .chip[aria-pressed="true"] { position: relative; z-index: 1; }
-/* 거르기 칸(단계·기간·포지션·정렬)과 파트너 단추. 칸 높이는 모두 --control-h. 쓰지 않는 칸은 자리만 남기고 가린다. */
+/* 거르기 칸(포지션·기간)과 파트너 단추. 칸 높이는 모두 --control-h. 쓰지 않는 칸은 자리만 남기고 가린다. */
 .fx { flex: 1 1 auto; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s); min-width: 0; }
 .fsel { --fsel-pad: var(--space-m); --chev: 6px; position: relative; display: inline-flex; min-height: var(--control-h); }
 .fsel select { appearance: none; -webkit-appearance: none; min-height: var(--control-h); box-sizing: border-box; max-width: 12rem; padding: 0 var(--space-xl) 0 var(--fsel-pad); background: var(--surface); color: var(--color-ink); border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); font-size: var(--text-small); }
@@ -151,10 +151,8 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 /* 거르기를 쓰고 있을 때는 테두리를 짙게, 글자를 굵게 한다(색만으로 알리지 않는다). */
 .fsel.is-set select { border-color: var(--color-ink); font-weight: 700; }
 .fsel.is-off, .chip.toggle.is-off { visibility: hidden; }
-.fsort { margin-left: auto; display: inline-flex; align-items: center; gap: var(--space-s); }
 .chip.toggle::before { content: ""; display: inline-block; width: var(--space-m); height: var(--space-m); box-sizing: border-box; border: 2px solid currentColor; border-radius: var(--radius-pill); }
 .chip.toggle[aria-pressed="true"]::before { background: currentColor; }
-.fresh-badge { --fb-pad: var(--space-s); display: inline-flex; align-items: center; min-height: var(--control-h); padding: 0 var(--fb-pad); border-radius: var(--radius-pill); background: var(--color-accent); color: var(--color-on-accent); font-size: var(--text-meta); font-weight: 700; white-space: nowrap; }
 .sum::before { font-size: var(--text-meta); }
 .sum.open::before { content: "○"; content: "○" / ""; color: var(--status-open-fg); }
 .sum.signed::before { content: "✓"; content: "✓" / ""; color: var(--status-signed-fg); }

@@ -1,17 +1,16 @@
-// 화면 상태, #탭 주소, 정렬 기억(localStorage "vct-order").
+// 화면 상태, #탭 주소.
 import { ID_RE } from "./model.js";
 import { LANG } from "./i18n.js";
 
-export var state = { tab: "players", region: "all", status: "all", q: "", order: "team", pos: "all", stage: "all", days: "all", top: false };
+export var state = { tab: "players", region: "all", status: "all", q: "", pos: "all", days: "all", top: false };
 
-// 새 거르기(포지션·확인 단계·기간·VCT 파트너팀). 주소의 ?pos=…&stage=…&days=…&vct=1 로 쓰고, 값이 기본이면 쓰지 않는다.
+// 새 거르기(포지션·기간·VCT 파트너팀). 주소의 ?pos=…&days=…&vct=1 로 쓰고, 값이 기본이면 쓰지 않는다.
+// 옛 주소의 stage=… 는 읽지 않아 무시되고, 거르기를 바꾸면 syncHash 가 주소에서 지운다.
 export var POS_VALUES = ["all", "Duelist", "Initiator", "Controller", "Sentinel", "Flex", "IGL"];
-export var STAGE_VALUES = ["all", "confirmed", "reported"];
 export var DAY_VALUES = ["all", "0", "3", "7"];
 export function filtersOf(loc) {
-  var q = new URLSearchParams(String((loc.hash || "").split("?")[1] || "")), f = { pos: "all", stage: "all", days: "all", top: false };
+  var q = new URLSearchParams(String((loc.hash || "").split("?")[1] || "")), f = { pos: "all", days: "all", top: false };
   if (POS_VALUES.indexOf(q.get("pos")) >= 0) f.pos = q.get("pos");
-  if (STAGE_VALUES.indexOf(q.get("stage")) >= 0) f.stage = q.get("stage");
   if (DAY_VALUES.indexOf(q.get("days")) >= 0) f.days = q.get("days");
   f.top = q.get("vct") === "1" || q.get("top") === "1"; // 옛 주소 top=1 도 받는다(VCT 파트너팀)
   return f;
@@ -19,7 +18,6 @@ export function filtersOf(loc) {
 export function queryOf(s) {
   var p = [];
   if (s.pos && s.pos !== "all") p.push("pos=" + encodeURIComponent(s.pos));
-  if (s.stage && s.stage !== "all") p.push("stage=" + s.stage);
   if (s.days && s.days !== "all") p.push("days=" + s.days);
   if (s.top) p.push("vct=1");
   return p.length ? "?" + p.join("&") : "";
@@ -42,15 +40,8 @@ export function clickAction(target) {
   return b ? { kind: "button", el: b } : null;
 }
 
-try { if (localStorage.getItem("vct-order") === "recent") state.order = "recent"; } catch (e) {}
-
 // 화면 테마 저장값("light"·"dark"·"system")을 세 값 중 하나로. 그 밖의 값과 없음은 시스템으로 본다.
 export function themeOf(stored) { return stored === "light" || stored === "dark" ? stored : "system"; }
-
-export function saveOrder(order) {
-  state.order = order;
-  try { localStorage.setItem("vct-order", order); } catch (e) {}
-}
 
 // 사이트 루트 경로(이 파일 js/state.js 기준). 배포는 "/VCT-board/", 루트로 열면 "/".
 // 상세 주소로 pushState 하면 상대 경로의 기준이 바뀌므로 사이트 안 주소는 항상 BASE 로 시작하는 절대 경로로 만든다.

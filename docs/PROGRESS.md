@@ -870,6 +870,19 @@ Liquipedia | 8 | 6 | 14
 ### 열린 결정 · 알아 둘 점
 - 견본 화면과 콘솔 오류는 브라우저로 확인하지 못했다. Obscura 가 `127.0.0.1` 을 막는다.
 
+## PR 16 툴바 정리: 정렬·단계 칸 제거, 기간·포지션 이름 바꿈 (2026-11-08)
+
+### 결과
+- 브랜치 `feat/toolbar-trim` (기준 `origin/main` 966623f). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr16-toolbar-trim.md`.
+- 정렬 칸, "새 N" 배지, 단계 칸, 정렬 안내 문구를 지웠다. `vct-order` 는 읽지 않는다(지우지도 않는다).
+- 기간·포지션 칸: 기본값은 칸 이름, 고른 값은 값 글자만 보인다(KR·EN).
+- 옛 주소 `?stage=…` 는 무시되고, 거르기를 바꾸면 주소에서 빠진다.
+- 확인: 시험 161 → 160(단계 `matches` 시험 블록 삭제), validate 오류 0, css-check·빌드 통과. 내장 브라우저로 KR·EN·375 폭 확인.
+
+### 열린 결정 · 알아 둘 점
+- `.chip .n.new` 규칙은 죽은 코드지만 범위 밖이라 두었다.
+- Obscura 가 `localhost` 를 막아 내장 브라우저로 확인했다. 1280 폭 고정 확인은 하지 않았다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
