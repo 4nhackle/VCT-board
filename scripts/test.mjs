@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards, mergeMoves, regionShort } from "../js/model.js";
 import { rosterHTML } from "../js/views/roster.js";
 import { splitNote, newsRow } from "../js/views/common.js";
-import { parseRoute, filtersOf, queryOf, listAction, themeOf } from "../js/state.js";
+import { parseRoute, filtersOf, queryOf, listAction, themeOf, clickAction } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
 import { mailParts } from "../js/views/suggest.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
@@ -655,6 +655,40 @@ t("mailParts: 제목은 접두어+유형, 본문은 글·근거 링크·바닥�
   const bare = mailParts("정보 오류", "본문", "");
   assert.equal(bare.body, "본문\n\n" + KO["form.footer"]);
   assert.ok(!bare.body.includes(KO["form.linkLabel"]));
+});
+
+// 가짜 요소: clickAction 이 쓰는 선택자(a[href], li.row, .row-x, button, select, input, .row-fold, :scope > .row-x)만 안다.
+const fakeEl = (tag, cls = [], parent = null, attrs = {}) => {
+  const el = { tag, cls, attrs, parent, kids: [] };
+  if (parent) parent.kids.push(el);
+  const match = (n, s) => { const m = /^([a-z]*)(?:\.([\w-]+))?(?:\[(\w+)\])?$/.exec(s); return !!m && (!m[1] || n.tag === m[1]) && (!m[2] || n.cls.includes(m[2])) && (!m[3] || m[3] in n.attrs); };
+  el.closest = (sels) => { for (let n = el; n; n = n.parent) if (sels.split(",").some((s) => match(n, s.trim()))) return n; return null; };
+  el.querySelector = (s) => el.kids.find((k) => match(k, s.replace(":scope > ", ""))) || null;
+  return el;
+};
+
+t("clickAction: 행 안의 링크는 링크, 행의 빈 곳·펼침 단추는 펼침, 펼침 영역의 단추는 단추, 나머지는 기존대로", () => {
+  const row = fakeEl("li", ["row"]);
+  const rowX = fakeEl("button", ["row-x"], row);
+  const name = fakeEl("a", [], row, { href: "/p/x/" });
+  const sel = fakeEl("select", [], row);
+  const plain = fakeEl("div", [], row);
+  const fold = fakeEl("div", ["row-fold"], row);
+  const foldBtn = fakeEl("button", [], fold);
+  const rowNoX = fakeEl("li", ["row"]);
+  const rowNoXText = fakeEl("div", [], rowNoX);
+  const tab = fakeEl("button", ["tab"]);
+  const text = fakeEl("span", []);
+  const kind = (el) => { const r = clickAction(el); return r ? r.kind : null; };
+  assert.equal(kind(name), "link", "행 안의 링크는 링크(행 펼침 아님)");
+  assert.equal(kind(plain), "row", "펼침 단추가 있는 행의 빈 곳은 펼침");
+  assert.equal(kind(rowX), "row", "펼침 단추 자체는 펼침(단추 아님)");
+  assert.equal(kind(foldBtn), "button", "펼침 영역 안의 단추는 단추");
+  assert.equal(kind(sel), null, "행 안의 선택 칸은 아무 것도 아님");
+  assert.equal(kind(rowNoXText), null, "펼침 단추가 없는 행의 빈 곳은 아무 것도 아님");
+  assert.equal(kind(tab), "button", "행 밖의 탭 단추는 단추");
+  assert.equal(kind(text), null, "행 밖 글자는 아무 것도 아님");
+  assert.equal(clickAction(name).el, name, "고른 요소를 그대로 돌려준다");
 });
 
 t("parseRoute: 목록·인물·팀·끝 슬래시 없음·잘못된 ID", () => {

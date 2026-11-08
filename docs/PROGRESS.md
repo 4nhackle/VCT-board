@@ -847,6 +847,17 @@ Liquipedia | 8 | 6 | 14
 ### 열린 결정 · 알아 둘 점
 - 사용자 답 없이 권장안(문서화)을 따랐다.
 
+## PR 14 문서 클릭 처리 결정 시험 (2026-11-08)
+
+### 결과
+- 브랜치 `test/click-action` (기준 `origin/main` b9b4b78). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr14-click-action-test.md`.
+- `js/state.js`: `clickAction(target)` 을 더했다. 링크 → 행 펼침 → 단추 순서를 그대로 옮긴 순수 함수다.
+- `js/main.js`: 처리기가 `kind` 로 나뉜다. 분기 본문과 주석은 그대로다.
+- 시험 1개 추가(가짜 요소, 여덟 경우). 확인: 시험 160개 통과(전 159), validate 오류 0·경고 644(전후 같음), css-check·빌드 통과.
+
+### 열린 결정 · 알아 둘 점
+- 브라우저 클릭 확인은 하지 못했다. Obscura 가 `127.0.0.1` 을 막는다. 내장 브라우저는 허락 없이 쓰지 않았다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
