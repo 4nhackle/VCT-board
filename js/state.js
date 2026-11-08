@@ -4,7 +4,7 @@ import { LANG } from "./i18n.js";
 
 export var state = { tab: "players", region: "all", status: "all", q: "", order: "team", pos: "all", stage: "all", days: "all", top: false };
 
-// 새 거르기(포지션·확인 단계·기간·상위 팀). 주소의 ?pos=…&stage=…&days=…&top=1 로 쓰고, 값이 기본이면 쓰지 않는다.
+// 새 거르기(포지션·확인 단계·기간·VCT 파트너팀). 주소의 ?pos=…&stage=…&days=…&vct=1 로 쓰고, 값이 기본이면 쓰지 않는다.
 export var POS_VALUES = ["all", "Duelist", "Initiator", "Controller", "Sentinel", "Flex", "IGL"];
 export var STAGE_VALUES = ["all", "confirmed", "reported"];
 export var DAY_VALUES = ["all", "0", "3", "7"];
@@ -13,7 +13,7 @@ export function filtersOf(loc) {
   if (POS_VALUES.indexOf(q.get("pos")) >= 0) f.pos = q.get("pos");
   if (STAGE_VALUES.indexOf(q.get("stage")) >= 0) f.stage = q.get("stage");
   if (DAY_VALUES.indexOf(q.get("days")) >= 0) f.days = q.get("days");
-  f.top = q.get("top") === "1";
+  f.top = q.get("vct") === "1" || q.get("top") === "1"; // 옛 주소 top=1 도 받는다(VCT 파트너팀)
   return f;
 }
 export function queryOf(s) {
@@ -21,7 +21,7 @@ export function queryOf(s) {
   if (s.pos && s.pos !== "all") p.push("pos=" + encodeURIComponent(s.pos));
   if (s.stage && s.stage !== "all") p.push("stage=" + s.stage);
   if (s.days && s.days !== "all") p.push("days=" + s.days);
-  if (s.top) p.push("top=1");
+  if (s.top) p.push("vct=1");
   return p.length ? "?" + p.join("&") : "";
 }
 

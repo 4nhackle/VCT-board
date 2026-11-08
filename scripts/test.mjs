@@ -9,7 +9,7 @@ import vm from "node:vm";
 import { inlineScript, checkSitePath } from "./inline-script.mjs";
 import { checkCss } from "./css-check.mjs";
 import { fileURLToPath } from "node:url";
-import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards, mergeMoves } from "../js/model.js";
+import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards, mergeMoves, regionShort } from "../js/model.js";
 import { rosterHTML } from "../js/views/roster.js";
 import { splitNote, newsRow } from "../js/views/common.js";
 import { parseRoute, filtersOf, queryOf, listAction, themeOf } from "../js/state.js";
@@ -127,7 +127,7 @@ t("buildTabs: 한국 탭은 국적 또는 한국 팀 기준(코치 국적은 인
 
 // 오늘 탭·거르기(PR 4). 기준일은 T, 탭 묶음은 MD.
 const ST = (o) => ({ region: "all", status: "all", q: "", pos: "all", stage: "all", days: "all", top: false, ...o });
-const PLAIN = { id: "players", status: true, teamObj: { t1: { tier: "partner" }, t2: { tier: "academy" } } };
+const PLAIN = { id: "players", status: true, teamObj: { t1: { tier: "partner" }, t2: { tier: "academy" }, t3: { tier: "ascended" } } };
 // 선수 항목 한 줄. over 의 tid·tidTo 는 항목에, 나머지는 시트 행에 덮는다.
 const pRow = (over = {}) => {
   const { tid = "t2", tidTo, ...row } = over;
@@ -172,6 +172,16 @@ t("matches: 상위 팀만은 소속 팀 또는 이적 도착 팀이 partner·asc
   assert.equal(matches(pRow({ tid: "t2" }), PLAIN, ST({ top: true })), false);
   assert.equal(matches(pRow({ tid: "t2", tidTo: "t1" }), PLAIN, ST({ top: true })), true, "도착 팀이 상위");
   assert.equal(matches(pRow({ tid: "t2" }), PLAIN, ST({ top: false })), true, "끄면 거르지 않는다");
+  assert.equal(matches(pRow({ tid: "t3" }), PLAIN, ST({ top: true })), false, "승격 팀은 파트너팀이 아니라 빠진다");
+  assert.equal(matches(pRow({ tid: "t3", tidTo: "t1" }), PLAIN, ST({ top: true })), true, "승격 팀에서 파트너팀으로 가면 든다");
+});
+
+t("regionShort: 네 지역은 짧은 이름, 그 밖의 값은 빈 글자", () => {
+  assert.equal(regionShort("Americas"), "AMER");
+  assert.equal(regionShort("EMEA"), "EMEA");
+  assert.equal(regionShort("Pacific"), "PACIFIC");
+  assert.equal(regionShort("China"), "CN");
+  assert.equal(regionShort("Bogus"), "");
 });
 
 t("buildTabs: 오늘 탭은 오늘 날짜 인물만 넣고, 없으면 가장 최근 날짜를 쓰며 fallbackDate 를 준다", () => {
@@ -196,7 +206,11 @@ t("주소: 거르기 값은 ?뒤에서 읽고, 잘못된 값은 기본으로 돌
   assert.deepEqual(filtersOf({ hash: "#today?pos=Bogus&stage=x&days=5&top=0" }), { pos: "all", stage: "all", days: "all", top: false });
   assert.deepEqual(filtersOf({ hash: "#players" }), { pos: "all", stage: "all", days: "all", top: false });
   assert.equal(queryOf({ pos: "all", stage: "all", days: "all", top: false }), "");
-  assert.equal(queryOf({ pos: "Flex", stage: "reported", days: "0", top: true }), "?pos=Flex&stage=reported&days=0&top=1");
+  assert.equal(queryOf({ pos: "Flex", stage: "reported", days: "0", top: true }), "?pos=Flex&stage=reported&days=0&vct=1");
+  assert.deepEqual(filtersOf({ hash: "#players?vct=1" }), { pos: "all", stage: "all", days: "all", top: true });
+  assert.deepEqual(filtersOf({ hash: "#players?top=1&days=3" }), { pos: "all", stage: "all", days: "3", top: true }, "옛 주소 top=1 도 켠다");
+  assert.deepEqual(filtersOf({ hash: "#players?vct=0&top=junk" }), { pos: "all", stage: "all", days: "all", top: false }, "엉뚱한 값은 무시");
+  assert.equal(queryOf({ pos: "all", stage: "all", days: "all", top: true }), "?vct=1", "top=1 은 쓰지 않는다");
 });
 
 // 팀 소식·계약 칸(PR 5). 기준일 T. 로스터 인물은 t1 소속(2026-01 부터 진행 중).
