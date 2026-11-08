@@ -1,6 +1,6 @@
 // 견본 안쪽(styleguide.html?frame=1): 실제 CSS 와 실제 렌더 함수로 샘플을 그린다.
 // 샘플은 scripts/fixtures 에서 온다(dev-server 가 dev/fixtures/ 로 연다). data/ 는 읽지 않는다.
-import { setLang } from "../js/i18n.js";
+import { setLang, t } from "../js/i18n.js";
 import { buildTabs, buildIndex, routeOf } from "../js/model.js";
 import { regionsHTML } from "../js/views/regions.js";
 import { recentHTML } from "../js/views/recent.js";
@@ -88,6 +88,11 @@ const tabs = '<nav class="tabs" aria-label="보기 선택">' + TABS.filter((t) =
 ).join("") + "</nav>";
 const dock = '<div class="dock"><div class="jump"><select aria-label="지역 바로가기"><option>Americas</option><option>Korea</option></select></div><button type="button" class="totop" aria-label="맨 위로">▲</button></div>';
 
+// 테마 전환(실제 헤더와 같은 마크업)과 경고 배지: 라이트·다크 어느 쪽에서도 ⚠ 가 붙는지 본다.
+const themeSwitch = '<div class="theme-switch" role="group" aria-label="' + t("theme.label") + '">' +
+  ["system", "light", "dark"].map((v) => '<button type="button" data-theme-set="' + v + '" aria-pressed="' + (v === "system") + '">' + t("theme." + v) + "</button>").join("") + "</div>";
+const warnSample = '<p><span class="wk withdraw">철회</span> <span class="dp-off">탈퇴</span></p><p class="dp-box">경고 상자 견본</p>';
+
 const section = (title, body) => '<section class="sg-sec"><h2 class="sg-h">' + title + "</h2>" + body + "</section>";
 document.querySelector("#sg-root") || document.body.insertAdjacentHTML("beforeend", '<main id="sg-root" class="page"></main>');
 document.getElementById("sg-root").innerHTML = [
@@ -98,5 +103,7 @@ document.getElementById("sg-root").innerHTML = [
   section("지켜볼 팀", '<div id="view">' + listWatch + "</div>"),
   section("날짜 머리(최근 소식순)", '<div id="view">' + recent + "</div>"),
   section("상세 머리, 정보 칸, 이번 이동", '<div class="detail-page">' + detail + moveCard + "</div>"),
+  section("화면 테마 전환", '<div class="top-prefs">' + themeSwitch + "</div>"),
+  section("경고 배지", warnSample),
   section("고정 막대", dock)
 ].join("");

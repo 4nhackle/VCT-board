@@ -1,7 +1,7 @@
 :root{color-scheme:light} [hidden]{display:none!important} img{max-width:100%}
-/* 방향: 이적 원장(ledger). 종이빛 바탕에 짙은 잉크, 강조는 기존 초록 하나. 장식 대신 굵기 차이와 상태 띠·기호로 훑어 읽게 한다.
+/* 방향: 이적 원장(ledger). 종이빛 바탕에 짙은 잉크, 강조는 코랄 하나. 장식 대신 굵기 차이와 상태 띠·기호로 훑어 읽게 한다.
    토큰 3층(16회차 D-1): 1층 기본값(:root 와 다크 블록: 글자·간격·모서리·터치·원색) → 2층 의미(:root 에서 한 번만: --text-*, --space-*, --radius-*, --color-*, --status-*) → 3층 컴포넌트(규칙 맨 위의 --name 선언).
-   :root 와 테마 블록 밖에서는 2층·3층 토큰만 쓴다. 자세한 규칙은 docs/디자인/design-brief.md "토큰". */
+   :root 와 테마 블록 밖에서는 2층·3층 토큰만 쓴다. 새 팔레트·테마 규칙은 docs/디자인-설계-2026-11.md. */
 :root {
   /* 1층 기본값: 글자 크기, 간격, 모서리, 터치 크기, 원색(라이트). 테마에 따라 바뀌는 값은 아래 다크 블록이 다시 쓴다. */
   --fs-1: 13px; --fs-2: 14px; --fs-3: 15px; --fs-4: 17px; --fs-5: 22px; --fs-6: 28px;
@@ -9,13 +9,14 @@
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
   --r-1: 4px; --r-2: 8px; --r-pill: 999px;
   --tap: 36px;
-  --neutral-0: #FFFFFF; --neutral-50: #F7F6F2; --neutral-200: #DEDAD1; --neutral-600: #575D66; --neutral-900: #16181D;
-  --neutral-float: #FFFFFF; --neutral-mono: #16181D; --neutral-mono-fg: #F7F6F2;
-  --green-600: #0E6B4E; --green-on: #FFFFFF; --green-100: #D5EFE2; --green-900: #0A5A3A;
-  --amber-100: #FCEBC4; --amber-900: #6B4300; --amber-600: #C08400;
-  --slate-100: #E4E7EB; --slate-800: #3C4A53; --slate-400: #7B8794;
-  --red-100: #FBE3DD; --red-900: #8A2A12;
-  --shadow-float-prim: 0 2px 8px rgba(22, 24, 29, .14);
+  --neutral-0: #FFFFFF; --neutral-50: #F4F5F7; --neutral-200: #DDE1E6; --neutral-600: #5A6270; --neutral-900: #14171C;
+  --neutral-float: #FFFFFF; --neutral-mono: #14171C; --neutral-mono-fg: #F4F5F7;
+  --coral-600: #C42F3B; --coral-on: #FFFFFF;
+  --green-100: #D9F2E4; --green-600: #1E8A5A; --green-900: #0F5B39;
+  --amber-100: #FDECC8; --amber-900: #7A4A00; --amber-600: #C08400;
+  --slate-100: #E6E9EE; --slate-800: #3B4652; --slate-400: #7B8794;
+  --plum-100: #F3E3F0; --plum-900: #7A1F5C;
+  --shadow-float-prim: 0 2px 8px rgba(20, 23, 28, .14);
   /* 고정 요소의 높이·위치. 구역 머리는 탭 바 바로 밑에 붙인다: 틈이 생기면 행이 비쳐 보이므로 탭 높이와 같게 둔다. */
   --tab-h: 44px; --tabs-h: var(--tab-h);
   --dock-h: var(--tap);
@@ -36,35 +37,37 @@
   --control-h: var(--tap); --link-underline-offset: 3px;
   --color-bg: var(--neutral-50); --surface: var(--neutral-0); --surface-float: var(--neutral-float);
   --color-ink: var(--neutral-900); --color-mute: var(--neutral-600); --color-line: var(--neutral-200); --color-line-strong: var(--neutral-600);
-  --color-accent: var(--green-600); --color-on-accent: var(--green-on);
+  --color-accent: var(--coral-600); --color-on-accent: var(--coral-on);
   --color-mono-bg: var(--neutral-mono); --color-mono-fg: var(--neutral-mono-fg);
   --status-open-bg: var(--amber-100); --status-open-fg: var(--amber-900); --status-open-rail: var(--amber-600);
   --status-signed-bg: var(--green-100); --status-signed-fg: var(--green-900); --status-signed-rail: var(--green-600);
   --status-left-bg: var(--slate-100); --status-left-fg: var(--slate-800); --status-left-rail: var(--slate-400);
-  --status-warn-bg: var(--red-100); --status-warn-fg: var(--red-900);
+  --status-warn-bg: var(--plum-100); --status-warn-fg: var(--plum-900);
   /* 떠 있는 컨트롤(막대): 테두리는 본문 글자색 수준, 면은 바탕보다 살짝 밝게, 그림자는 라이트에서만 */
   --shadow-float: var(--shadow-float-prim);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --neutral-0: #1A1E1C; --neutral-50: #111413; --neutral-200: #2E3531; --neutral-600: #A3ABA6; --neutral-900: #E9ECEA;
-    --neutral-float: #252B28; --neutral-mono: #252B28; --neutral-mono-fg: #E9ECEA;
-    --green-600: #5FD3A6; --green-on: #0B1F17; --green-100: #123B2B; --green-900: #7ADBAE;
-    --amber-100: #3B2D0C; --amber-900: #F4C873; --amber-600: #E0A93A;
-    --slate-100: #262E35; --slate-800: #B8C6CF; --slate-400: #8796A3;
-    --red-100: #43201A; --red-900: #F7B4A3;
+    --neutral-0: #181D24; --neutral-50: #0F1318; --neutral-200: #2A313B; --neutral-600: #9AA4B1; --neutral-900: #ECEFF3;
+    --neutral-float: #222831; --neutral-mono: #222831; --neutral-mono-fg: #ECEFF3;
+    --coral-600: #FF6B73; --coral-on: #1A0507;
+    --green-100: #123426; --green-600: #4CC08E; --green-900: #7ADBAE;
+    --amber-100: #3A2C0E; --amber-900: #F4C873; --amber-600: #E0A93A;
+    --slate-100: #252C35; --slate-800: #B8C4CF; --slate-400: #8796A3;
+    --plum-100: #3A1730; --plum-900: #F0A6D8;
     --shadow-float-prim: none;
     color-scheme: dark;
   }
 }
 /* 강제 다크: 위 블록과 같은 1층 값이다. CSS 는 두 조건(OS 다크, data-theme)을 한 규칙으로 묶지 못해 값을 두 번 쓴다. */
 :root[data-theme="dark"] {
-  --neutral-0: #1A1E1C; --neutral-50: #111413; --neutral-200: #2E3531; --neutral-600: #A3ABA6; --neutral-900: #E9ECEA;
-  --neutral-float: #252B28; --neutral-mono: #252B28; --neutral-mono-fg: #E9ECEA;
-  --green-600: #5FD3A6; --green-on: #0B1F17; --green-100: #123B2B; --green-900: #7ADBAE;
-  --amber-100: #3B2D0C; --amber-900: #F4C873; --amber-600: #E0A93A;
-  --slate-100: #262E35; --slate-800: #B8C6CF; --slate-400: #8796A3;
-  --red-100: #43201A; --red-900: #F7B4A3;
+  --neutral-0: #181D24; --neutral-50: #0F1318; --neutral-200: #2A313B; --neutral-600: #9AA4B1; --neutral-900: #ECEFF3;
+  --neutral-float: #222831; --neutral-mono: #222831; --neutral-mono-fg: #ECEFF3;
+  --coral-600: #FF6B73; --coral-on: #1A0507;
+  --green-100: #123426; --green-600: #4CC08E; --green-900: #7ADBAE;
+  --amber-100: #3A2C0E; --amber-900: #F4C873; --amber-600: #E0A93A;
+  --slate-100: #252C35; --slate-800: #B8C4CF; --slate-400: #8796A3;
+  --plum-100: #3A1730; --plum-900: #F0A6D8;
   --shadow-float-prim: none;
   color-scheme: dark;
 }
@@ -93,8 +96,9 @@ time { font-variant-numeric: tabular-nums; }
 /* ── 머리: 사이트 제목 한 줄과 기준 시각 */
 .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-s) var(--space-l); }
 .top-text { display: flex; flex-direction: column; gap: var(--space-xs); min-width: 0; }
-/* 오른쪽 칸: EN/KR 전환 위, 후원 메뉴 아래. 두 칸 모두 오른쪽 정렬이다. */
+/* 오른쪽 칸: 테마 전환과 EN/KR 한 줄, 후원 메뉴 아래. 두 칸 모두 오른쪽 정렬이다. */
 .top-side { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-m); }
+.top-prefs { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--space-s); }
 .site { margin: 0; font-size: var(--text-title); font-weight: 800; line-height: 1.3; letter-spacing: -0.02em; }
 p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute); letter-spacing: 0; }
 .lede { margin: 0; color: var(--color-mute); font-size: var(--text-small); }
@@ -106,10 +110,11 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 .support-menu a:hover { border-color: var(--color-mute); text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
 /* EN/KR 전환: 현재 언어는 굵기와 밑줄로도 보인다(색만으로 구분하지 않는다). */
 /* 전환 버튼은 내용 폭을 지킨다: 부모 flex 가 늘이거나 줄이지 못하게 한다. */
-.lang-switch { display: inline-flex; flex: 0 0 auto; width: auto; max-width: max-content; align-items: center; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); overflow: hidden; font-size: var(--text-small); }
-.lang-switch a { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: var(--control-h); padding: 0 var(--space-m); color: var(--color-mute); text-decoration: none; }
-.lang-switch a:hover { color: var(--color-ink); text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
-.lang-switch a[aria-current="true"] { color: var(--color-ink); font-weight: 700; text-decoration: underline; text-underline-offset: var(--link-underline-offset); background: var(--surface); }
+/* 테마 전환(시스템·라이트·다크)은 EN/KR 과 같은 알약 묶음을 쓴다. 고른 칸은 굵기와 밑줄로도 보인다. */
+.lang-switch, .theme-switch { display: inline-flex; flex: 0 0 auto; width: auto; max-width: max-content; align-items: center; border: 1px solid var(--color-line-strong); border-radius: var(--radius-pill); overflow: hidden; font-size: var(--text-small); }
+.lang-switch a, .theme-switch button { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: var(--control-h); padding: 0 var(--space-m); border: 0; background: none; color: var(--color-mute); text-decoration: none; }
+.lang-switch a:hover, .theme-switch button:hover { color: var(--color-ink); text-decoration: underline; text-underline-offset: var(--link-underline-offset); }
+.lang-switch a[aria-current="true"], .theme-switch button[aria-pressed="true"] { color: var(--color-ink); font-weight: 700; text-decoration: underline; text-underline-offset: var(--link-underline-offset); background: var(--surface); }
 /* 원문 표시: 영문 화면의 한국어 글. KR 표시는 글자 크기를 줄여 테두리 칸으로 둔다. */
 .kr-tag { --kr-pad: 5px; --kr-shift: 1px; display: inline-block; margin-left: var(--space-xs); padding: 0 var(--kr-pad); border: 1px solid var(--color-line); border-radius: var(--radius-s); font-size: var(--text-meta); line-height: 1.5; color: var(--color-mute); vertical-align: var(--kr-shift); }
 
@@ -316,6 +321,8 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 .dp-team > a { font-weight: 700; }
 .dp-facts-inline { --facts-gap: 6px; margin-left: var(--facts-gap); color: var(--color-mute); font-size: var(--text-small); }
 .dp-off { display: inline-block; padding: 0 var(--space-s); border-radius: var(--radius-s); font-size: var(--text-meta); font-weight: 700; background: var(--status-warn-bg); color: var(--status-warn-fg); }
+/* 경고색(자주색 계열)은 색만으로 알리지 않는다: 앞에 ⚠ 를 붙인다. */
+.wk.withdraw::before, .dp-box::before, .dp-off::before { margin-right: var(--space-xs); content: "⚠"; content: "⚠" / ""; }
 /* 경력: 진행 중 칸은 면 배경, 강조 점, "진행 중" 라벨 */
 .dp-career { list-style: none; margin: 0; padding: 0 0 0 var(--space-xl); border-left: 2px solid var(--color-line); display: flex; flex-direction: column; gap: var(--space-s); }
 .dp-cr { --cr-gap-y: 2px; --cr-dot: 10px; --cr-dot-x: -31px; --cr-dot-x-now: -19px; position: relative; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--cr-gap-y) var(--space-m); padding: var(--space-xs) 0; }
@@ -338,9 +345,9 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   .site { font-size: var(--text-site); }
   .top { grid-template-columns: minmax(0, 1fr); gap: var(--space-s); }
   .top-text { gap: var(--space-s); }
-  /* 600px 이하: 후원 메뉴는 왼쪽, EN/KR 은 오른쪽, 좁으면 줄을 바꾼다. */
+  /* 600px 이하: 후원 메뉴는 왼쪽, 테마와 EN/KR 은 오른쪽, 좁으면 줄을 바꾼다. */
   .top-side { flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-s); width: 100%; }
-  .top-side .lang-switch { order: 2; margin-left: auto; align-self: center; }
+  .top-prefs { order: 2; margin-left: auto; align-self: center; }
   .support-menu { flex-wrap: wrap; }
   .lede .intro { display: none; }
   .lede { font-size: var(--text-meta); }

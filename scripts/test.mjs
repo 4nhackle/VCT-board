@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { cleanName, teamNameOf, ageOf, contractState, careerOf, slugOf, ID_RE, buildIndex, teamMoves, toItem, watchMeta, pillOf, pillText, cls, noteSegments, sharedTails, ownPart, routeOf, idsOf, matches, newestFirst, buildTabs, teamNews, rosterCards, mergeMoves } from "../js/model.js";
 import { rosterHTML } from "../js/views/roster.js";
 import { splitNote, newsRow } from "../js/views/common.js";
-import { parseRoute, filtersOf, queryOf, listAction } from "../js/state.js";
+import { parseRoute, filtersOf, queryOf, listAction, themeOf } from "../js/state.js";
 import { sortSchedule } from "../js/views/schedule.js";
 import { withKst, stampOf, stampLabel, parseStamp, fmtDate, dayWord, dateWord, dateLong, clockText } from "../js/format.js";
 import { noteParts } from "../js/note.js";
@@ -558,6 +558,16 @@ t("slugOf: 악센트, 공백, 빈 이름, 한자", () => {
 t("ID_RE: 허용과 거부", () => {
   for (const ok of ["oxy", "x-1a2b", "a-b-9"]) assert.ok(ID_RE.test(ok), ok);
   for (const bad of ["OXY", "a b", "a/b", "", "é", "a_b", "../x"]) assert.ok(!ID_RE.test(bad), bad);
+});
+
+t("themeOf: 라이트·다크·시스템은 그대로, 그 밖의 값과 없음은 시스템", () => {
+  assert.equal(themeOf("light"), "light");
+  assert.equal(themeOf("dark"), "dark");
+  assert.equal(themeOf("system"), "system");
+  assert.equal(themeOf("Dark"), "system");
+  assert.equal(themeOf(""), "system");
+  assert.equal(themeOf(null), "system");
+  assert.equal(themeOf(undefined), "system");
 });
 
 t("parseRoute: 목록·인물·팀·끝 슬래시 없음·잘못된 ID", () => {
@@ -1277,6 +1287,23 @@ t("validate: 비고의 없는 날짜(2/30)는 '없는 날짜' 경고", () => {
   const r = spawnSync(process.execPath, [VALIDATE, dir], { encoding: "utf8" });
   assert.match(r.stderr, /보도 시각 2\/30 는 없는 날짜입니다/);
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+t("화면 테마 스크립트(index.html 인라인): 저장된 라이트·다크만 data-theme 로 두고, 그 밖의 값과 저장소 오류는 시스템", () => {
+  const code = inlineScript(fs.readFileSync(new URL("../index.html", import.meta.url), "utf8"));
+  const run = (stored) => {
+    const attrs = [];
+    const doc = { documentElement: { setAttribute: (k, v) => attrs.push([k, v]) }, addEventListener: () => {} };
+    const storage = { getItem: () => { if (stored === "THROW") throw new Error("denied"); return stored; } };
+    vm.runInNewContext(code, { location: { pathname: "/VCT-board/", search: "", hash: "", replace: () => {} }, localStorage: storage, document: doc });
+    return attrs;
+  };
+  assert.deepEqual(run("dark"), [["data-theme", "dark"]]);
+  assert.deepEqual(run("light"), [["data-theme", "light"]]);
+  assert.deepEqual(run("system"), []);
+  assert.deepEqual(run("Dark"), []);
+  assert.deepEqual(run(null), []);
+  assert.deepEqual(run("THROW"), []);
 });
 
 t("언어 이동 스크립트(index.html 인라인): 저장값·주소별 이동, ?stay·영문 주소 그대로, 저장소 예외는 아무것도 안 함", () => {

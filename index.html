@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><script>(function(){try{var s=localStorage.getItem("vct-lang");if(s!=="en"&&s!=="ko")return;if(/(^|[?&])stay(&|=|$)/.test(location.search))return;var B="/VCT-board/",p=location.pathname;if(p.indexOf(B)!==0)return;var r=p.slice(B.length),isEn=r==="en"||r.indexOf("en/")===0;if(s==="en"&&!isEn)location.replace(B+"en/"+r+location.search+location.hash);else if(s==="ko"&&isEn)location.replace(B+r.slice(3)+location.search+location.hash);}catch(e){}})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="2026 시즌이 끝나고 팀을 떠나거나 새 팀을 찾는 발로란트 VCT 선수와 코치를 지역별로 정리했습니다. 출처 링크와 함께 매일 갱신합니다.">
+<!doctype html><html lang="ko"><head><script>try{var v=localStorage.getItem("vct-theme");v=v==="light"||v==="dark"?v:"system";if(v!=="system")document.documentElement.setAttribute("data-theme",v);document.addEventListener("DOMContentLoaded",function(){if(v!=="system")document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.content=v==="dark"?"#0F1318":"#F4F5F7"})})}catch(e){}(function(){try{var s=localStorage.getItem("vct-lang");if(s!=="en"&&s!=="ko")return;if(/(^|[?&])stay(&|=|$)/.test(location.search))return;var B="/VCT-board/",p=location.pathname;if(p.indexOf(B)!==0)return;var r=p.slice(B.length),isEn=r==="en"||r.indexOf("en/")===0;if(s==="en"&&!isEn)location.replace(B+"en/"+r+location.search+location.hash);else if(s==="ko"&&isEn)location.replace(B+r.slice(3)+location.search+location.hash);}catch(e){}})();</script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="2026 시즌이 끝나고 팀을 떠나거나 새 팀을 찾는 발로란트 VCT 선수와 코치를 지역별로 정리했습니다. 출처 링크와 함께 매일 갱신합니다.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="VCT LFT·FA 현황">
 <meta property="og:title" content="발로란트 VCT 선수 이적 현황">
@@ -9,10 +9,10 @@
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#F7F6F2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111413" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F4F5F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1318" media="(prefers-color-scheme: dark)">
 <link rel="canonical" href="https://4nhackle.github.io/VCT-board/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230E6B4E'/%3E%3Cpath d='M8 9l8 15 8-15' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23C42F3B'/%3E%3Cpath d='M8 9l8 15 8-15' fill='none' stroke='white' stroke-width='4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
 <title>VCT LFT·FA 현황</title>
 <link rel="stylesheet" href="css/style.css">
 
@@ -23,10 +23,17 @@
       <p class="lede"><span class="intro">2026 시즌이 끝나면서 팀을 떠나거나 새 팀을 찾는 선수와 코치를 정리했습니다.</span> <span class="more">LFT와 FA는 둘 다 새 팀을 찾는 중이라는 뜻입니다.</span> 2026-11-08 03:21 기준입니다.</p>
     </div>
     <div class="top-side">
+    <div class="top-prefs">
+    <div class="theme-switch" role="group" aria-label="화면 테마" data-i18n-attr="aria-label:theme.label">
+      <button type="button" data-theme-set="system" aria-pressed="true" data-i18n="theme.system">시스템</button>
+      <button type="button" data-theme-set="light" aria-pressed="false" data-i18n="theme.light">라이트</button>
+      <button type="button" data-theme-set="dark" aria-pressed="false" data-i18n="theme.dark">다크</button>
+    </div>
     <nav class="lang-switch" aria-label="Language / 언어" data-i18n-attr="aria-label:lang.label">
       <a href="./" hreflang="ko" lang="ko" data-lang="ko" aria-current="true">KR</a>
       <a href="en/" hreflang="en" lang="en" data-lang="en">EN</a>
     </nav>
+    </div>
     <nav class="support-menu" aria-labelledby="support-label">
       <span class="support-label" id="support-label" data-i18n="support.label">개발자 커피 사주기</span>
       <a href="https://ko-fi.com/4nhackle" rel="noopener noreferrer" aria-label="Ko-fi로 후원" data-i18n-attr="aria-label:support.kofi.label">Ko-fi</a>

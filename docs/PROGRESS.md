@@ -763,6 +763,20 @@ Liquipedia | 8 | 6 | 14
 - 예약 작업의 안전 검사가 `validate.mjs` 와 맞아야 한다. 맞지 않으면 커밋한 뒤 Actions 가 거부한다(PR 본문의 문구를 붙여 넣는다).
 - 이 PR 은 `fix/person-id-clash` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr10-person-id-clash.md`.
 
+## 28회차 Ink·Coral 팔레트, 경고색, 화면 테마 전환, 머리 정리 (D1, 2026-11-08)
+
+### 결과
+- 브랜치 `design/d1-palette-theme` (기준 `origin/main`). 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-D1-팔레트-테마.md`.
+- 팔레트: 라이트·다크를 설계 문서 4.1 값으로 바꿨다. 강조는 코랄(라이트 `#C42F3B`, 다크 `#FF6B73`), 경고는 자주색 계열(라이트 `#F3E3F0`/`#7A1F5C`, 다크 `#3A1730`/`#F0A6D8`). 1층 이름 `--green-on`·`--red-*` 은 `--coral-*`·`--plum-*` 로 바꿨고, 2층 이름은 그대로다.
+- 경고 세 곳(`.wk.withdraw`, `.dp-box`, `.dp-off`)에 `⚠` 를 `::before` 로 붙였다(대체 글은 비움).
+- 화면 테마: 머리에 시스템·라이트·다크 전환(`.theme-switch`). 저장값은 `localStorage["vct-theme"]`, 첫 인라인 스크립트에서 적용해 깜빡임이 없다. 목록·인물·팀·404 에 전환이 있고, 개인정보·이용약관은 저장된 테마만 따른다.
+- 머리: 데스크톱은 `[테마][KR|EN]` 한 줄, 600px 이하는 후원 메뉴 왼쪽·테마/언어 오른쪽(좁으면 줄바꿈).
+- 확인: `node scripts/test.mjs` 153개 통과(새 시험 2개: `themeOf`, 머리 스크립트의 테마 적용), `node scripts/css-check.mjs` 통과, `node scripts/validate.mjs` 오류 0, `node scripts/build.mjs` 통과.
+
+### 열린 결정 · 알아 둘 점
+- `css/style.css` 주석은 `docs/디자인-설계-2026-11.md` 를 가리킨다. 이 문서는 메인 폴더에만 있고 아직 커밋되지 않아 이 PR 에는 없다.
+- 스크린샷은 파일로 저장하지 않았다. 개발 서버 브라우저 창에서 1280·375, 라이트·다크를 확인했다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.

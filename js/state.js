@@ -34,6 +34,9 @@ export function listAction(view, curTab, nextTab, tabExists, cur, next) {
 
 try { if (localStorage.getItem("vct-order") === "recent") state.order = "recent"; } catch (e) {}
 
+// 화면 테마 저장값("light"·"dark"·"system")을 세 값 중 하나로. 그 밖의 값과 없음은 시스템으로 본다.
+export function themeOf(stored) { return stored === "light" || stored === "dark" ? stored : "system"; }
+
 export function saveOrder(order) {
   state.order = order;
   try { localStorage.setItem("vct-order", order); } catch (e) {}
