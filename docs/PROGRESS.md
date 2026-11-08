@@ -729,6 +729,18 @@ Liquipedia | 8 | 6 | 14
 - web3forms 방침 원문과 DPA 는 403 으로 읽지 못했다. 보관 기간·IP 문장은 사람이 확인해야 한다.
 - 이 PR 은 `docs/privacy-disclosure` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr7-privacy-disclosure.md`.
 
+## 26회차 감사 지적 4·5: 이적 병합 분리, 목록 주소 처리 결정 시험 (PR 9, 2026-11-08)
+
+### 결과
+- `buildTabs` 의 이적 병합 블록을 `mergeMoves(P0, CO0, T1, T2, PEOPLE)` 로 옮겼다(동작 변화 없음, 주석 그대로).
+- 목록 주소 처리 결정을 `listAction(...)` 으로 옮기고 `renderRoute` 가 쓴다. "같은 탭의 거르기 변경" 경우에 시험이 생겼다(PR 4 버그).
+- 시험 145개 통과. 시험이 물고 있는지 확인: `refilter` 분기를 지우면 "'none' !== 'refilter'" 로 실패한다.
+- 빌드 HTML 차이 0(`origin/main` 대비). `js/` 파일 3개만 다르다.
+
+### 열린 결정 · 알아 둘 점
+- 감사 지적 7(색인 두 번 만들기)과 8(안 쓰는 내보내기)은 이 PR 밖이다.
+- 이 PR 은 `refactor/merge-moves-route-test` 에 있고 기준은 `main`. 병합하지 않았다. 자세한 것은 `docs/sessions/2026-11-08-pr9-merge-moves-route-test.md`.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
