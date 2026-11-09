@@ -47,7 +47,8 @@ function renderView() {
     html = scheduleHTML(D.schedule);
   } else {
     // 오늘 탭은 날짜순(최근 소식순)으로, 나머지 목록 탭은 팀별로 그린다.
-    var total = 0, recent = tab.id === "today" && tab.mode === "entry";
+    // 오늘 탭과, 정렬을 최근 소식순으로 켠 목록 탭(선수·코치·한국·이적)은 날짜순, 나머지 목록 탭은 팀별로 그린다.
+    var total = 0, recent = tab.mode === "entry" && (tab.id === "today" || state.order === "recent");
     tab.groups.forEach(function (g) {
       var items = g.items.filter(function (it) { return matches(it, tab, state); });
       total += items.length;
@@ -134,10 +135,16 @@ function buildFilters() {
   FX.partner.className = "chip toggle";
   FX.partner.dataset.partner = "1";
   FX.partner.textContent = t("filter.partner");
+  FX.order = document.createElement("button");
+  FX.order.type = "button";
+  FX.order.className = "chip toggle";
+  FX.order.dataset.order = "1";
+  FX.order.textContent = t("order.recent");
   var box = $("fx");
   box.appendChild(FX.pos);
   box.appendChild(FX.days);
   box.appendChild(FX.partner);
+  box.appendChild(FX.order);
 }
 // 탭마다 값·보임·사용 여부를 맞춘다. 포지션은 선수·오늘·한국·이적 탭만, 기간과 파트너 단추는 목록 탭만 쓴다.
 function syncFilters(tab) {
@@ -158,6 +165,11 @@ function syncFilters(tab) {
   FX.partner.disabled = !entry;
   FX.partner.classList.toggle("is-off", !entry);
   FX.partner.setAttribute("aria-pressed", String(!!state.top));
+  // 최근 소식순 단추: 선수·코치·한국·이적 목록 탭에서만. 오늘 탭은 늘 날짜순이라 단추가 없다(자리만 남긴다).
+  var orderUse = entry && tab.id !== "today";
+  FX.order.disabled = !orderUse;
+  FX.order.classList.toggle("is-off", !orderUse);
+  FX.order.setAttribute("aria-pressed", String(state.order === "recent"));
 }
 
 // 거르기를 바꾸면 주소의 ?…만 고친다(기록을 바꿔 쓴다). 탭 이름은 그대로다.
@@ -224,6 +236,7 @@ document.addEventListener("click", function (e) {
   else if (b.dataset.region) state.region = b.dataset.region;
   else if (b.dataset.status) state.status = b.dataset.status;
   else if (b.dataset.partner) { state.top = !state.top; filterChanged = true; }
+  else if (b.dataset.order) { state.order = state.order === "recent" ? "team" : "recent"; filterChanged = true; }
   else return;
   renderChrome();
   renderView();

@@ -214,17 +214,23 @@ t("buildTabs: 오늘 탭은 오늘 날짜 인물만 넣고, 없으면 가장 최
 t("주소: 거르기 값은 ?뒤에서 읽고, 잘못된 값은 기본으로 돌아가며, 기본값은 주소에 쓰지 않는다", () => {
   const B = "/VCT-board/";
   assert.deepEqual(parseRoute({ pathname: B, hash: "#today?pos=Duelist&days=3" }, B), { view: "list", tab: "today" });
-  assert.deepEqual(filtersOf({ hash: "#today?pos=Duelist&days=3&top=1" }), { pos: "Duelist", days: "3", top: true });
-  assert.deepEqual(filtersOf({ hash: "#today?pos=Bogus&days=5&top=0" }), { pos: "all", days: "all", top: false });
-  assert.deepEqual(filtersOf({ hash: "#players" }), { pos: "all", days: "all", top: false });
+  assert.deepEqual(filtersOf({ hash: "#today?pos=Duelist&days=3&top=1" }), { pos: "Duelist", days: "3", top: true, order: "team" });
+  assert.deepEqual(filtersOf({ hash: "#today?pos=Bogus&days=5&top=0" }), { pos: "all", days: "all", top: false, order: "team" });
+  assert.deepEqual(filtersOf({ hash: "#players" }), { pos: "all", days: "all", top: false, order: "team" });
   assert.equal(queryOf({ pos: "all", days: "all", top: false }), "");
   assert.equal(queryOf({ pos: "Flex", days: "0", top: true }), "?pos=Flex&days=0&vct=1");
-  assert.deepEqual(filtersOf({ hash: "#players?vct=1" }), { pos: "all", days: "all", top: true });
-  assert.deepEqual(filtersOf({ hash: "#players?top=1&days=3" }), { pos: "all", days: "3", top: true }, "옛 주소 top=1 도 켠다");
-  assert.deepEqual(filtersOf({ hash: "#players?vct=0&top=junk" }), { pos: "all", days: "all", top: false }, "엉뚱한 값은 무시");
+  assert.deepEqual(filtersOf({ hash: "#players?vct=1" }), { pos: "all", days: "all", top: true, order: "team" });
+  assert.deepEqual(filtersOf({ hash: "#players?top=1&days=3" }), { pos: "all", days: "3", top: true, order: "team" }, "옛 주소 top=1 도 켠다");
+  assert.deepEqual(filtersOf({ hash: "#players?vct=0&top=junk" }), { pos: "all", days: "all", top: false, order: "team" }, "엉뚱한 값은 무시");
   assert.equal(queryOf({ pos: "all", days: "all", top: true }), "?vct=1", "top=1 은 쓰지 않는다");
-  assert.deepEqual(filtersOf({ hash: "#players?stage=confirmed&days=3" }), { pos: "all", days: "3", top: false }, "옛 stage 주소는 무시");
+  assert.deepEqual(filtersOf({ hash: "#players?stage=confirmed&days=3" }), { pos: "all", days: "3", top: false, order: "team" }, "옛 stage 주소는 무시");
   assert.equal(queryOf({ pos: "all", days: "all", top: false, stage: "confirmed" }), "", "stage 는 주소에 쓰지 않는다");
+  // 최근 소식순(sort=recent): 주소에 있으면 recent, 그 밖은 team. 쓸 때는 vct 뒤에 붙고, team 이면 붙지 않는다.
+  assert.equal(filtersOf({ hash: "#players?sort=recent" }).order, "recent");
+  assert.equal(filtersOf({ hash: "#players?sort=junk" }).order, "team", "엉뚱한 값은 팀별");
+  assert.equal(queryOf({ pos: "all", days: "all", top: false, order: "recent" }), "?sort=recent");
+  assert.equal(queryOf({ pos: "Flex", days: "3", top: true, order: "recent" }), "?pos=Flex&days=3&vct=1&sort=recent");
+  assert.equal(queryOf({ pos: "all", days: "all", top: false, order: "team" }), "", "팀별은 주소에 쓰지 않는다");
 });
 
 // 팀 소식·계약 칸(PR 5). 기준일 T. 로스터 인물은 t1 소속(2026-01 부터 진행 중).
@@ -471,6 +477,7 @@ t("listAction: 상세 복귀·다른 탭은 full, 같은 탭·같은 거르기�
   assert.equal(listAction("list", "players", "coaches", true, cur, same), "full");
   assert.equal(listAction("list", "players", "players", true, cur, same), "none");
   assert.equal(listAction("list", "players", "players", true, cur, duel), "refilter");
+  assert.equal(listAction("list", "players", "players", true, { ...cur, order: "team" }, { ...cur, order: "recent" }), "refilter", "정렬만 바뀌어도 다시 그린다");
   assert.equal(listAction("list", "players", "nope", false, cur, same), "none");
 });
 
