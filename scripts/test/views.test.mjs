@@ -31,7 +31,7 @@ t("rosterHTML: 지역 거르기는 카드를 거르고, 5명 미만은 일부 �
   const cards = rosterCards(buildIndex(RT), T);
   const all = rosterHTML(cards, { region: "all" });
   assert.match(all, /로스터 정보 일부/);
-  assert.match(all, /\+0 \/ −0/);
+  assert.match(all, /<span class="in">\+0<\/span> <span class="out">−0<\/span>/, "팀 머리 +i −o 는 색 칸(.in·.out)");
   const emea = rosterHTML(cards, { region: "EMEA" });
   assert.match(emea, /Mid/);
   assert.doesNotMatch(emea, /Alpha/);
@@ -55,7 +55,7 @@ t("rosterHTML 검색: 팀 이름은 팀 전체, 인물 이름·실명은 그 인
   setLang("ko");
   const team = rosterHTML(SR, { region: "all", q: "alpha esports" });
   assert.match(team, /Yolo/, "팀이 맞으면 전체 로스터");
-  assert.match(team, /\+1 \/ −2/, "인원 수는 팀 기준");
+  assert.match(team, /<span class="in">\+1<\/span> <span class="out">−2<\/span>/, "인원 수는 팀 기준");
   assert.doesNotMatch(team, /Beta Team/);
   const person = rosterHTML(SR, { region: "all", q: "zed" });
   assert.match(person, /Zed/);
