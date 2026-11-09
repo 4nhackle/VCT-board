@@ -139,11 +139,11 @@ function buildFilters() {
   box.appendChild(FX.days);
   box.appendChild(FX.partner);
 }
-// 탭마다 값·보임·사용 여부를 맞춘다. 포지션은 선수·오늘·한국 탭만, 기간과 파트너 단추는 목록 탭만 쓴다.
+// 탭마다 값·보임·사용 여부를 맞춘다. 포지션은 선수·오늘·한국·이적 탭만, 기간과 파트너 단추는 목록 탭만 쓴다.
 function syncFilters(tab) {
   var entry = tab.mode === "entry";
   var use = {
-    pos: entry && (tab.id === "players" || tab.id === "today" || tab.id === "korea"),
+    pos: entry && (tab.id === "players" || tab.id === "today" || tab.id === "korea" || tab.id === "transfers"),
     days: entry
   };
   var cur = { pos: state.pos, days: state.days };

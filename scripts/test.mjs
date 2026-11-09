@@ -128,6 +128,27 @@ t("buildTabs: 한국 탭은 국적 또는 한국 팀 기준(코치 국적은 인
 
 // 오늘 탭·거르기(PR 4). 기준일은 T, 탭 묶음은 MD.
 const ST = (o) => ({ region: "all", status: "all", q: "", pos: "all", days: "all", top: false, ...o });
+
+t("이적 탭 포지션: 선수 이적은 인물 role 로 채워 거르고, 인물이 없으면 포지션 거르기에서 빠진다", () => {
+  setLang("ko");
+  const D = { ...MD,
+    people: [...MD.people, { id: "dz", name: "DZ", role: "Duelist", nationality: "Japan" }],
+    transfers: { players: [
+      { region: "EMEA", name: "DZ", from: "A", to: "B", type: "이적", date: T - 1, conf: "C", personId: "dz", fromTeam: "a", toTeam: "b", signedDate: T - 1 },
+      { region: "EMEA", name: "Nobody", from: "A", to: "B", type: "이적", date: T - 1, conf: "C", personId: "nobody", fromTeam: "a", toTeam: "b", signedDate: T - 1 }
+    ], coaches: [] } };
+  const tabs = buildTabs(D);
+  const tr = tabs.find((x) => x.id === "transfers");
+  const it = tr.groups[0].items.find((x) => x.pid === "dz");
+  assert.ok(it, "이적 탭에 든다");
+  assert.match(it.sub, /^Duelist/);
+  assert.equal(matches(it, tr, ST({ pos: "Duelist" }), T), true);
+  assert.equal(matches(it, tr, ST({ pos: "Sentinel" }), T), false);
+  const nobody = tr.groups[0].items.find((x) => x.pid === "nobody");
+  assert.equal(nobody.sub, "");
+  assert.equal(matches(nobody, tr, ST({ pos: "Duelist" }), T), false, "인물 정보가 없으면 빠진다");
+  assert.equal(tabs.find((x) => x.id === "players").groups[0].items.filter((x) => x.pid === "dz").length, 1, "선수 탭에 한 번만 든다");
+});
 const PLAIN = { id: "players", status: true, teamObj: { t1: { tier: "partner" }, t2: { tier: "academy" }, t3: { tier: "ascended" } } };
 // 선수 항목 한 줄. over 의 tid·tidTo 는 항목에, 나머지는 시트 행에 덮는다.
 const pRow = (over = {}) => {
@@ -143,7 +164,8 @@ t("matches: 포지션은 sub 의 첫 칸에서 대소문자 무시로 찾고, �
   assert.equal(matches(it, PLAIN, ST({ pos: "Initiator" })), false);
   assert.equal(matches(pRow({ position: "Duelist/Flex" }), PLAIN, ST({ pos: "Flex" })), true, "슬래시 조합은 부분 일치");
   assert.equal(matches(it, { ...PLAIN, id: "coaches" }, ST({ pos: "Initiator" })), true);
-  assert.equal(matches(it, { ...PLAIN, id: "transfers" }, ST({ pos: "Initiator" })), true);
+  assert.equal(matches(it, { ...PLAIN, id: "transfers" }, ST({ pos: "Initiator" })), false, "이적 탭도 포지션으로 거른다");
+  assert.equal(matches(it, { ...PLAIN, id: "transfers" }, ST({ pos: "Duelist" })), true);
 });
 
 t("matches: 기간은 오늘(인자)과 보도 날짜의 차이, 날짜 숫자가 없으면 빠진다", () => {

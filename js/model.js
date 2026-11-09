@@ -97,7 +97,8 @@ export function buildTabs(D, today) {
   var TS = new Set((D.teams || []).map(function (t) { return t.id; }));
   var TEAM_OBJ = Object.create(null);
   (D.teams || []).forEach(function (t) { TEAM_OBJ[t.id] = t; });
-  var T1 = items(D.transfers.players, "t"), T2 = items(D.transfers.coaches, "t");
+  // 선수 이적 행에는 포지션·국적 칸이 없어 인물 정보로 채운다(이적 탭 포지션 거르기·표시). mergeMoves 가 이 배열의 같은 객체를 찾으므로 먼저 바꾼다.
+  var T1 = items(D.transfers.players, "t").map(function (it) { var pp = own(PEOPLE, it.pid) || {}; return Object.assign({}, it, { sub: [cleanName(pp.role), cleanName(pp.nationality)].filter(Boolean).join(", ") }); }), T2 = items(D.transfers.coaches, "t");
   var m = mergeMoves(P0, CO0, T1, T2, PEOPLE), P = m.P, CO = m.CO;
   // 한국 탭: 국적이 South Korea 이거나, 소속 팀(이적이면 도착 팀)의 국가가 South Korea 인 항목.
   function krTeam(it) { return isKorea(it.tid) || (!!it.moved && isKorea(it.tidTo)); }
@@ -479,7 +480,7 @@ export function ownItem(it, shared) {
 }
 
 // 목록 거르기. 순수 함수: 오늘 날짜(today, 기본 TODAY)는 인자로 받는다.
-// 포지션은 sub 의 첫 칸(포지션)에서 찾는다. 코치 탭·지켜볼 팀·이적 탭은 포지션 칸이 없어 거르지 않는다.
+// 포지션은 sub 의 첫 칸(포지션)에서 찾는다. 이적 탭은 인물 정보로 채운 포지션으로 거른다(선수 이적만). 코치 탭·지켜볼 팀은 포지션 칸이 없어 거르지 않는다.
 export function matches(it, tab, state, today) {
   var td = today == null ? TODAY : today;
   if (state.region !== "all" && it.region !== state.region) return false;
@@ -488,7 +489,7 @@ export function matches(it, tab, state, today) {
     var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, regionName(it.region)].join(" ").toLowerCase();
     if (hay.indexOf(state.q.toLowerCase()) < 0) return false;
   }
-  if (state.pos && state.pos !== "all" && tab.id !== "coaches" && tab.id !== "watch" && tab.id !== "transfers") {
+  if (state.pos && state.pos !== "all" && tab.id !== "coaches" && tab.id !== "watch") {
     var head = String(it.sub || "").split(", ")[0].toLowerCase();
     if (head.indexOf(String(state.pos).toLowerCase()) < 0) return false;
   }

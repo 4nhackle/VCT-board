@@ -915,6 +915,16 @@ Liquipedia | 8 | 6 | 14
 ### 열린 결정 · 알아 둘 점
 - 화면 확인 안 함: sticky 머리, 375px, 밝은·어두운 테마, EN 의 KR 표시, `.hint + .list` 테두리. 내장 브라우저(Obscura)가 localhost 를 막아 열 수 없었다.
 
+## PR 20 이적 완료 탭 포지션 거르기 (2026-11-09)
+
+### 결과
+- 브랜치 `feat/transfers-position-filter` (기준 `origin/main` 363f1d3), 커밋 전. 자세한 것은 `docs/sessions/2026-11-09-pr20-transfers-position-filter.md`.
+- 이적 완료 탭이 포지션 칸으로 거른다. 선수 이적 행은 인물 정보의 역할·국적을 메타 줄로 보인다. 코치 이적 그룹은 포지션을 고르면 빠진다.
+- 확인: 시험 161 통과, validate 오류 0, 빌드 통과. 내장 브라우저 1024 폭에서 `#transfers?pos=Duelist` 행 15개, 코치 그룹 없음.
+
+### 열린 결정 · 알아 둘 점
+- 지역·파트너 거르기와의 조합, 375 폭은 직접 보지 않았다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
