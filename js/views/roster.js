@@ -26,7 +26,7 @@ export function rosterHTML(cards, state) {
     out += '<div class="rh"><h2>' + esc(reg === "기타" ? t("region.other") : regionShort(reg) || reg) + '</h2><span class="en">' + (regionName(reg) && regionName(reg) !== regionShort(reg) ? regionName(reg) : "") + '</span><span class="n">' + t("count.teams", { n: inReg.length }) + "</span></div>";
     inReg.forEach(function (c) {
       var tm = c.team;
-      out += '<h3 class="th"><a href="' + esc(teamUrl(tm.id)) + '">' + textHTML(tm.name || tm.id) + '</a><span class="n">' + esc(t("roster.inout", { i: c.inCount, o: c.outCount })) + "</span></h3>";
+      out += '<h3 class="th"><a href="' + esc(teamUrl(tm.id)) + '">' + textHTML(tm.name || tm.id) + '</a><span class="n"><span class="in">+' + c.inCount + '</span> <span class="out">−' + c.outCount + "</span></span></h3>";
       if (c.partial) out += '<p class="hint">' + t("roster.partial") + "</p>";
       if (!c.roster.length) { out += '<p class="hint">' + t(tm.active === false ? "msg.teamClosed" : "msg.rosterPending") + "</p>"; return; }
       out += '<ul class="list">' + c.roster.map(function (p) {

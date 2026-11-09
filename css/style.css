@@ -176,6 +176,8 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 .th a { color: var(--color-ink); text-decoration: none; }
 .th a:hover, .th a:focus-visible { text-decoration: underline; }
 .th .n { font-weight: 400; font-size: var(--text-meta); color: var(--color-mute); font-variant-numeric: tabular-nums; }
+.th .in { color: var(--status-signed-fg); font-weight: 700; }
+.th .out { color: var(--status-left-fg); font-weight: 700; }
 /* 팀 공통 배경: 팀 머리 아래 한 번. 왼쪽 선으로 묶고 본문은 --text-small 로 줄인다. */
 .tnote { max-width: 72ch; margin: 0 0 var(--space-s); padding-left: var(--space-m); border-left: 2px solid var(--color-line); color: var(--color-mute); font-size: var(--text-small); }
 .tnote .detail { margin: 0; font-size: var(--text-small); line-height: 1.6; }
@@ -199,8 +201,9 @@ p.site { font-size: var(--text-small); font-weight: 700; color: var(--color-mute
 .list { --col-person: minmax(0, 2.2fr); --col-move: minmax(0, 2fr); --col-status: minmax(0, 1.6fr); --col-when: 7.5rem; --col-x: var(--control-h); list-style: none; margin: 0; padding: 0; }
 /* 목록 머리 행: 데스크톱에서만 보인다. 칸 순서는 행과 같다. */
 .cols { display: grid; grid-template-columns: var(--col-person) var(--col-move) var(--col-status) var(--col-when) var(--col-x); column-gap: var(--space-l); padding: var(--space-xs) 0 var(--space-xs) var(--space-l); font-size: var(--text-meta); color: var(--color-mute); border-bottom: 1px solid var(--color-line-strong); }
-.move { min-width: 0; color: var(--color-mute); font-size: var(--text-small); overflow-wrap: anywhere; }
-.move .team { margin-left: 0; font-size: var(--text-small); }
+.move { min-width: 0; color: var(--color-mute); font-size: var(--text-body); overflow-wrap: anywhere; }
+.move .team { margin-left: 0; font-size: var(--text-body); }
+.move .route { font-size: inherit; }
 .move .none { color: var(--color-mute); }
 .when { min-width: 0; }
 .lead { flex-basis: 100%; color: var(--color-mute); font-size: var(--text-meta); line-height: 1.5; }
