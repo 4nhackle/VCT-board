@@ -2,17 +2,18 @@
 import { ID_RE } from "./model.js";
 import { LANG } from "./i18n.js";
 
-export var state = { tab: "players", region: "all", status: "all", q: "", pos: "all", days: "all", top: false };
+export var state = { tab: "players", region: "all", status: "all", q: "", pos: "all", days: "all", top: false, order: "team" };
 
-// 새 거르기(포지션·기간·VCT 파트너팀). 주소의 ?pos=…&days=…&vct=1 로 쓰고, 값이 기본이면 쓰지 않는다.
+// 새 거르기(포지션·기간·VCT 파트너팀)와 정렬. 주소의 ?pos=…&days=…&vct=1&sort=recent 로 쓰고, 값이 기본이면 쓰지 않는다.
 // 옛 주소의 stage=… 는 읽지 않아 무시되고, 거르기를 바꾸면 syncHash 가 주소에서 지운다.
 export var POS_VALUES = ["all", "Duelist", "Initiator", "Controller", "Sentinel", "Flex", "IGL"];
 export var DAY_VALUES = ["all", "0", "3", "7"];
 export function filtersOf(loc) {
-  var q = new URLSearchParams(String((loc.hash || "").split("?")[1] || "")), f = { pos: "all", days: "all", top: false };
+  var q = new URLSearchParams(String((loc.hash || "").split("?")[1] || "")), f = { pos: "all", days: "all", top: false, order: "team" };
   if (POS_VALUES.indexOf(q.get("pos")) >= 0) f.pos = q.get("pos");
   if (DAY_VALUES.indexOf(q.get("days")) >= 0) f.days = q.get("days");
   f.top = q.get("vct") === "1" || q.get("top") === "1"; // 옛 주소 top=1 도 받는다(VCT 파트너팀)
+  f.order = q.get("sort") === "recent" ? "recent" : "team"; // 최근 소식순(sort=recent). 그 밖의 값은 팀별
   return f;
 }
 export function queryOf(s) {
@@ -20,6 +21,7 @@ export function queryOf(s) {
   if (s.pos && s.pos !== "all") p.push("pos=" + encodeURIComponent(s.pos));
   if (s.days && s.days !== "all") p.push("days=" + s.days);
   if (s.top) p.push("vct=1");
+  if (s.order === "recent") p.push("sort=recent");
   return p.length ? "?" + p.join("&") : "";
 }
 

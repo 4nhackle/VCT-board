@@ -18,6 +18,7 @@ export var KO = {
   "filter.position": "포지션",
   "filter.days": "기간",
   "filter.partner": "VCT 파트너팀",
+  "order.recent": "최근 소식순",
   "days.0": "오늘",
   "days.3": "3일 이내",
   "days.7": "7일 이내",

@@ -17,6 +17,7 @@ export var EN = {
   "filter.position": "Position",
   "filter.days": "Period",
   "filter.partner": "VCT partner teams",
+  "order.recent": "Latest news",
   "days.0": "Today",
   "days.3": "Last 3 days",
   "days.7": "Last 7 days",
