@@ -11,6 +11,7 @@
 | 4 | [PR4-today-filters.md](PR4-today-filters.md) | 사이트 코드 | PR 1 병합 |
 | 5 | [PR5-team-news.md](PR5-team-news.md) | 사이트 코드 | PR 2 병합 |
 | 6 | [PR6-roster-tab.md](PR6-roster-tab.md) | 사이트 코드 | PR 1 병합, 시트 로스터 채우기(F) |
+| 19 | [PR19-roster-list-design.md](PR19-roster-list-design.md) | 사이트 코드 | PR 6 병합 |
 
 - 예약 작업 변경을 한 번에 시키려면 [schedule-change-prompt.md](schedule-change-prompt.md) 를 붙여 넣는다(위 두 schedule 파일을 합친 완결판, PR 5 병합 기준).
 - PR 6 전에 [roster-backfill-once.md](roster-backfill-once.md)(팀 등급 2027 정리 + 로스터 채우기, 일회성)를 실행한다. 정기 지시문 변경점은 [roster-backfill-changes.md](roster-backfill-changes.md).

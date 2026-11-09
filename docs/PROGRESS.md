@@ -905,6 +905,16 @@ Liquipedia | 8 | 6 | 14
 - 팀 링크 클릭과 키보드 조작은 자동 시험이 없고 직접 확인하지 않았다.
 - EN 행 첫 조각 중 잘 읽히지 않는 것은 보고만 하고 데이터는 고치지 않았다.
 
+## PR 19 로스터 탭: 목록 디자인 (2026-11-09)
+
+### 결과
+- 브랜치 `feat/roster-list-design` (기준 `origin/main` 66855fe), 커밋 전. 자세한 것은 `docs/sessions/2026-11-09-pr19-roster-list-design.md`.
+- 로스터 탭이 선수 탭과 같은 `.rh` / `.th` / `ul.list > li.row` 모양을 쓴다. `hint.roster` 가 다시 보이고, 바로가기 상자가 지역 머리로 채워진다.
+- 확인: 시험 160 통과, validate 오류 0, 빌드 통과.
+
+### 열린 결정 · 알아 둘 점
+- 화면 확인 안 함: sticky 머리, 375px, 밝은·어두운 테마, EN 의 KR 표시, `.hint + .list` 테두리. 내장 브라우저(Obscura)가 localhost 를 막아 열 수 없었다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
