@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { REGIONS, toItem, pillOf, idsOf, ID_RE, slugOf, cleanName, contractOK } from "../js/model.js";
+import { REGIONS, TIERS, toItem, pillOf, idsOf, ID_RE, slugOf, cleanName, contractOK } from "../js/model.js";
 import { stampOf, daysIn } from "../js/format.js";
 import { setEnTable, trEn } from "../js/i18n.js";
 import { collectTargets } from "./i18n-targets.mjs";
@@ -41,6 +41,7 @@ for (const [key, [label, url]] of Object.entries(sources)) {
 }
 for (const [url, keys] of urlKeys) if (keys.length >= 2) warn("sources", "출처 중복", `같은 주소가 출처 ${keys.join(", ")} 에 있습니다 (${url})`);
 
+const nameOk = (v) => cleanName(v) !== "";
 for (const [file, rows] of Object.entries(sets)) {
   const seen = new Map();
   rows.forEach((r, i) => {
@@ -48,7 +49,11 @@ for (const [file, rows] of Object.entries(sets)) {
     if (!REGIONS.includes(r.region)) errors.push(`${at}: 지역 "${r.region}" 이(가) REGIONS에 없습니다`);
     if (!Object.prototype.hasOwnProperty.call(sources, r.src)) errors.push(`${at}: 출처 키 "${r.src}" 이(가) sources.json에 없습니다`);
     else used.add(r.src);
-    if ("date" in r && typeof r.date !== "number") warn(file, "날짜 형식", `${at}: 날짜가 숫자(시트 일련번호)가 아닙니다`);
+    if ("date" in r && typeof r.date !== "number") errors.push(`${at}: 날짜가 숫자(시트 일련번호)가 아닙니다. 시트의 날짜 칸을 날짜 형식으로 바꾸세요`);
+    if (file === "players" || file === "coaches") {
+      if (!nameOk(r.name)) errors.push(`${at}: 이름이 비어 있습니다`);
+      if (typeof r.status !== "string" || !r.status.trim()) errors.push(`${at}: 상태가 비어 있습니다. 시트의 상태 칸을 채우세요`);
+    }
     if ("conf" in r && !["C", "R"].includes(r.conf)) errors.push(`${at}: conf "${r.conf}" 은(는) C나 R이어야 합니다`);
     if (kindOf[file]) {
       const it = toItem(r, kindOf[file], sources);
@@ -94,6 +99,8 @@ function checkDefs(label, rows, set) {
   });
 }
 if (hasTeams) checkDefs("teams", teams, tIds);
+// 등급: 없으면 괜찮다. "other" 는 운영 종료 팀이고 이름표가 없으니 따로 허용한다.
+if (hasTeams) for (const r of teams) if (r.tier !== undefined && r.tier !== "other" && !TIERS.includes(r.tier)) errors.push(`teams ${r.id}: 등급 "${r.tier}" 을(를) 알 수 없습니다 (partner·ascended·challengers·academy·other 중 하나)`);
 if (hasPeople) checkDefs("people", people, pIds);
 
 // 참조 값: 형식은 항상, 존재 여부는 그 파일이 있을 때만 본다.
@@ -179,7 +186,6 @@ function clashes(list, what, tail, strict) {
     else warn(what, what + " 충돌", msg);
   }
 }
-const nameOk = (v) => cleanName(v) !== "";
 const nameList = [];
 for (const file of ["players", "coaches", "transfers.players", "transfers.coaches"]) {
   sets[file].forEach((r, i) => { if (!r.personId && nameOk(r.name)) nameList.push({ text: String(r.name).trim(), where: `${file} ${i + 1}행`, row: true }); });

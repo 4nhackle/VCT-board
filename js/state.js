@@ -4,10 +4,27 @@ import { LANG } from "./i18n.js";
 
 export var state = { tab: "players", region: "all", status: "all", q: "", pos: "all", days: "all", top: false, order: "team" };
 
+// 데이터와 화면 기록(main·render·chrome 이 함께 쓴다). 지금 화면(list, person, team, notfound)과, 상세로 오기 직전이 목록이었는지.
+export var app = { D: {}, TABS: [], IDX: { people: Object.create(null), teams: Object.create(null), byPerson: Object.create(null), byTeam: Object.create(null) }, view: "", fromList: false };
+export function tabById(id) { return app.TABS.filter(function (t) { return t.id === id; })[0]; }
+
+// 버튼 한 번이 상태를 바꾸는 규칙(화면은 그리지 않는다). 바꾼 뒤 { tabChanged, filterChanged }, 상태 단추가 아니면 null.
+// data 는 버튼의 dataset. data.top(맨 위로)은 화면 쪽에서 처리하므로 여기서 다루지 않는다.
+export function applyButton(state, data) {
+  var tabChanged = false, filterChanged = false;
+  if (data.tab) { tabChanged = data.tab !== state.tab; state.tab = data.tab; }
+  else if (data.region) state.region = data.region;
+  else if (data.status) state.status = data.status;
+  else if (data.partner) { state.top = !state.top; filterChanged = true; }
+  else if (data.order) { state.order = state.order === "recent" ? "team" : "recent"; filterChanged = true; }
+  else return null;
+  return { tabChanged: tabChanged, filterChanged: filterChanged };
+}
+
 // 새 거르기(포지션·기간·VCT 파트너팀)와 정렬. 주소의 ?pos=…&days=…&vct=1&sort=recent 로 쓰고, 값이 기본이면 쓰지 않는다.
 // 옛 주소의 stage=… 는 읽지 않아 무시되고, 거르기를 바꾸면 syncHash 가 주소에서 지운다.
 export var POS_VALUES = ["all", "Duelist", "Initiator", "Controller", "Sentinel", "Flex", "IGL"];
-export var DAY_VALUES = ["all", "0", "3", "7"];
+var DAY_VALUES = ["all", "0", "3", "7"];
 export function filtersOf(loc) {
   var q = new URLSearchParams(String((loc.hash || "").split("?")[1] || "")), f = { pos: "all", days: "all", top: false, order: "team" };
   if (POS_VALUES.indexOf(q.get("pos")) >= 0) f.pos = q.get("pos");

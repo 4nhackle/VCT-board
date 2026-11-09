@@ -2,8 +2,7 @@
 // 바꾸는 것: <html lang>, title·description·og 글, data-i18n(글자)·data-i18n-html(글자 HTML)·data-i18n-attr(속성),
 // 머리말 문장(<p class="lede">), EN/KR 표시(aria-current), KR 안내 줄. lang 이 ko 면 입력을 그대로 돌려준다.
 import { tIn, ledeHTML } from "../js/i18n.js";
-
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+import { esc } from "../js/format.js";
 
 export function toLang(html, lang) {
   if (lang !== "en") return html;

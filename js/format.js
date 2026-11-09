@@ -25,8 +25,11 @@ export function clockText(h, mm, lang = LANG) {
   var h12 = h % 12 || 12, mmS = (mm < 10 ? "0" : "") + mm, ampm = tIn(lang, h < 12 ? "time.am" : "time.pm");
   return lang === "en" ? h12 + ":" + mmS + " " + ampm : ampm + " " + h12 + ":" + mmS;
 }
-// 오늘(한국 시간)을 시트와 같은 날짜 일련번호로. 최근 사흘(오늘·어제·그제) 보도를 새 소식으로 본다.
-export var TODAY = Math.floor((Date.now() + 9 * 36e5) / 864e5) + 25569;
+// 오늘(한국 시간)을 시트와 같은 날짜 일련번호로. 자정을 넘겨 열어 둔 탭도 맞도록 그릴 때마다 refreshToday() 로 다시 계산한다.
+export var TODAY;
+export function refreshToday(now = Date.now()) { return (TODAY = Math.floor((now + 9 * 36e5) / 864e5) + 25569); }
+refreshToday();
+// 최근 사흘(오늘·어제·그제) 보도를 새 소식으로 본다.
 export function isNew(it) { return typeof it.date === "number" && TODAY - it.date >= 0 && TODAY - it.date <= 2; }
 export function isoOf(n) { return new Date(Date.UTC(1899, 11, 30) + n * 864e5).toISOString().slice(0, 10); }
 // 머리말 시각 뒤에 시간대(KST)를 붙인다. 이미 KST 가 있으면 그대로 둔다(예약 작업이 직접 써도 두 번 붙지 않는다).
