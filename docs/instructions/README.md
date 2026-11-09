@@ -17,6 +17,12 @@
 | 22 | [PR22-roster-search.md](PR22-roster-search.md) | 사이트 코드 | PR 19 병합 |
 
 | 23 | [PR23-roster-follows-transfers.md](PR23-roster-follows-transfers.md) | 사이트 코드 | PR 22 병합 |
+| 24 | [PR24-test-split.md](PR24-test-split.md) | 시험 코드 | PR 23 병합 |
+| 25 | [PR25-model-split.md](PR25-model-split.md) | 사이트 코드 | PR 24 병합 |
+| 26 | [PR26-main-split.md](PR26-main-split.md) | 사이트 코드 | PR 25 병합 |
+| 27 | [PR27-validate-row-rules.md](PR27-validate-row-rules.md) | 검증 코드 | PR 26 병합 · 완료 |
+| 28 | [PR28-today-refresh.md](PR28-today-refresh.md) | 사이트 코드 | PR 26 병합 · 완료 |
+| 29 | [PR29-small-cleanup.md](PR29-small-cleanup.md) | 정리 | PR 26 병합 · 완료 |
 
 - 예약 작업 변경을 한 번에 시키려면 [schedule-change-prompt.md](schedule-change-prompt.md) 를 붙여 넣는다(위 두 schedule 파일을 합친 완결판, PR 5 병합 기준).
 - PR 6 전에 [roster-backfill-once.md](roster-backfill-once.md)(팀 등급 2027 정리 + 로스터 채우기, 일회성)를 실행한다. 정기 지시문 변경점은 [roster-backfill-changes.md](roster-backfill-changes.md).

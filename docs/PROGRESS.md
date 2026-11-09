@@ -997,3 +997,30 @@ Liquipedia | 8 | 6 | 14
 - buildIndex 는 데이터 로드 뒤 main.js 에서 한 번 만들어 IDX 에 둔다(2회차부터).
 - 임시 팀 ID `sentinels` 충돌(TenZ 행)은 위 "결정·변경" 참고.
 - docs/ 의 docx 4개와 지시문 .md 파일들은 커밋하지 않았다(S4-02).
+
+## PR 24 시험 파일 나눔 (2026-11-09)
+
+- `scripts/test.mjs` 를 실행기로 줄이고, 시험 169개를 `scripts/test/` 의 모듈별 파일(format·model·state·views·i18n·tools)로 옮겼다. 공용 값은 `scripts/test/helpers.mjs`. 시험 내용은 그대로다.
+- 확인: 실행 전후 `ok` 줄 169개 동일, 종료 코드 0, 여섯 파일 각각 실패 시험을 넣으면 종료 코드 1. validate·build 통과.
+- 기록: `docs/sessions/2026-11-09-pr24-test-split.md`. 커밋은 하지 않았다(브랜치 `refactor/test-split`).
+
+## PR 25·26 js 나눔 (2026-11-09)
+
+- PR 25: `js/model.js` 를 `js/model/` 여섯 파일로 나누고, `js/model.js` 는 공개 이름 32개를 다시 내보내는 입구로 남겼다. 순환을 막으려고 `toItem` 을 `ids.js` 로 내리고 `people.js` 를 `tabs.js` 앞에 두었다. 공개 이름 목록·정적 빌드 출력은 나누기 전과 같다.
+- PR 26: `js/main.js` 를 `chrome.js`(틀)·`render.js`(#view 그리기)·`main.js`(시작·이벤트)로 나누고, 상태(`app`)와 `tabById`·`applyButton` 을 `state.js` 로 옮겼다. `applyButton` 시험 네 개 추가(전체 173).
+- 확인: 시험 173 통과, validate·css-check·build 통과, 두 빌드를 브라우저에서 아홉 탭·칩·상세·되돌아가기로 비교해 같음.
+- 기록: `docs/sessions/2026-11-09-pr25-model-split.md`, `docs/sessions/2026-11-09-pr26-main-split.md`. 커밋은 하지 않았다(작업 트리 `refactor/test-split` 에 PR 24–26 이 함께 있다).
+
+## 점검 결과 수정 지시문 PR 27–29 (2026-11-09)
+
+- 2026-11-09 전체 점검의 수정 항목을 지시문 세 개로 나눴다: PR 27(validate 행 규칙 4가지), PR 28(`TODAY` 를 그릴 때마다 다시 계산), PR 29(`esc` 하나로, `DAY_VALUES` 비공개).
+- 뺀 항목과 이유(renderRoute 순수 함수, read 합치기, 시험 속도, `_st` 캐시)는 세션 기록에 있다.
+- 기록: `docs/sessions/2026-11-09-audit-fix-instructions.md`. 코드는 바꾸지 않았다.
+
+## PR 27·28·29 (2026-11-10)
+
+- PR 27: validate 가 글자 날짜, 모르는 팀 등급, 이름 없는 선수·코치, 상태 없는 선수·코치를 오류로 막는다(TIERS 를 labels·배럴에서 내보냄). 현재 data·fixtures 통과. 시험 4개 추가.
+- PR 28: 날짜를 그릴 때마다 다시 잡는다(refreshToday). 날짜가 바뀌면 탭 목록을 다시 만든다(freshDay), 오늘 탭 목록은 부팅 때 정해져 지시문만으로는 바뀌지 않았다. 시험 1개 추가.
+- PR 29: i18n-html 의 esc 를 format.js 것으로 바꾸고 DAY_VALUES 를 비공개로. 빌드 출력 바뀌지 않음.
+- 확인: 시험 178 통과, validate(data·fixtures)·css-check·build 통과.
+- 기록: `docs/sessions/2026-11-10-pr27-validate-row-rules.md`, `…-pr28-today-refresh.md`, `…-pr29-small-cleanup.md`. 커밋 없음(작업 트리 `refactor/test-split`, PR 24–29 함께).

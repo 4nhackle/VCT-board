@@ -19,6 +19,8 @@ node scripts/css-check.mjs
 node scripts/build.mjs _site
 ```
 
+- 단위 시험 파일: `scripts/test.mjs` 는 실행기다. 시험은 `scripts/test/` 에 모듈별로 있다(format·model·state·views·i18n·tools `.test.mjs`). 여러 파일이 쓰는 값과 `t()` 는 `scripts/test/helpers.mjs` 에 있다. 새 시험은 해당 모듈 파일에 `t(...)` 로 적고, 실행기가 읽는 파일 목록은 `scripts/test.mjs` 에서 고친다.
+
 - 화면 불변 확인 스냅숏(수동, Playwright 필요. 설치: `npm i -D playwright && npx playwright install chromium`): `node scripts/style-snapshot.mjs out.json` 로 저장하고, `--compare before.json` 을 붙이면 다른 값만 보인다.
 - 샘플 사이트(수동, 배포하지 않음): `scripts/fixtures/` 의 샘플 데이터로 저장소 밖 폴더에 사이트를 만든다(인물·팀 상세 페이지 포함). `node scripts/fixture-site.mjs "$TEMP/vct-fixture"`, 이어서 `node scripts/dev-server.mjs 8705 "$TEMP/vct-fixture/_site"` 로 열면 http://127.0.0.1:8705/VCT-board/p/fx-one/ 가 보인다. 자세한 내용은 `docs/PROGRESS.md` 의 "샘플 사이트로 시험하는 법".
 - 번역 현황표(수동): 대상 필드별 원문·번역·누락 수를 출력한다. `node scripts/i18n-report.mjs`. 예약 작업 점검과 같은 기준이다.
