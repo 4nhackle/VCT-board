@@ -87,6 +87,7 @@ export var EN = {
   "count.people": "{n} players",
   "count.person": "1 player",
   "count.cases": "{n} items",
+  "count.teams": "{n} teams",
   "weekday.0": "Sun",
   "weekday.1": "Mon",
   "weekday.2": "Tue",

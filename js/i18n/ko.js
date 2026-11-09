@@ -88,6 +88,7 @@ export var KO = {
   "count.people": "{n}명",
   "count.person": "1명",
   "count.cases": "{n}건",
+  "count.teams": "{n}팀",
   "weekday.0": "일",
   "weekday.1": "월",
   "weekday.2": "화",

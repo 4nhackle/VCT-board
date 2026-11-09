@@ -278,6 +278,10 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
 .row.sch .when .dd { display: table; }
 .row.sch.past .when, .row.sch.past .detail { opacity: .65; }
 
+/* 로스터: 상태 레일 없이 이름·역할과 선수/코치 표시만 둔다 */
+.row.roster { grid-template-columns: minmax(0, 1fr) auto; padding-left: 0; align-items: baseline; }
+.row.roster::before { display: none; }
+
 .empty { margin-top: var(--space-xl); padding-top: var(--space-m); border-top: 2px solid var(--color-ink); color: var(--color-mute); }
 .notes { border-top: 1px solid var(--color-line); padding-top: var(--space-m); color: var(--color-mute); font-size: var(--text-small); }
 .notes ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: var(--space-xs); }
@@ -406,6 +410,7 @@ a.name:hover, a.team:hover { text-decoration: underline; text-underline-offset: 
   /* 한 열: DOM 순서(이름, 상태, 본문, 출처 줄) 그대로 쌓는다 */
   /* 두 줄 요약: 첫 줄은 이름과 상태, 둘째 줄은 이동, 셋째 줄은 날짜와 펼침 단추(오른쪽 끝). 펼침 영역은 그 아래 전체 폭. */
   .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "main state" "move move" "when x"; align-items: center; gap: var(--row-gap-y) var(--space-s); }
+  .row.roster { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "main state"; }
   .row > .main { grid-area: main; }
   .row > .move { grid-area: move; }
   .row > .state { grid-area: state; }

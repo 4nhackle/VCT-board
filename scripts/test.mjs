@@ -322,6 +322,14 @@ t("rosterHTML: 지역 거르기는 카드를 거르고, 5명 미만은 일부 �
   const emea = rosterHTML(cards, { region: "EMEA" });
   assert.match(emea, /Mid/);
   assert.doesNotMatch(emea, /Alpha/);
+  // 목록 모양(rh·th·row roster)을 쓰고 상세 블록(dp-sec)은 쓰지 않는다.
+  assert.match(all, /class="rh"/);
+  assert.match(all, /class="th"/);
+  assert.match(all, /class="row roster"/);
+  assert.doesNotMatch(all, /dp-sec/);
+  // REGIONS 밖 지역은 "기타" 머리 아래에 모인다.
+  const other = rosterHTML([{ team: { id: "x1", name: "Xteam", region: "Mars" }, roster: [], inCount: 0, outCount: 0, partial: false }], { region: "all" });
+  assert.match(other, /<h2>기타<\/h2>/);
 });
 
 // 개인정보처리방침(PR 7): 실제로 쓰는 외부 서비스(web3forms, Cloudflare)를 한·영 방침이 모두 밝힌다.

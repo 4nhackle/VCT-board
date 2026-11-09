@@ -37,7 +37,9 @@ function renderView() {
   }
   if (tab.mode === "roster") {
     // 로스터 탭은 지역 거르기만 쓴다. 상태·거르기 칩은 숨겨져 있다(renderChrome).
-    $("view").innerHTML = rosterHTML(tab.cards, state);
+    html = rosterHTML(tab.cards, state);
+    if (tab.hint) html = '<p class="hint">' + tab.hint + "</p>" + html;
+    $("view").innerHTML = html;
     jumpList();
     return;
   }
