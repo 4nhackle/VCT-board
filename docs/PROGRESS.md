@@ -936,6 +936,17 @@ Liquipedia | 8 | 6 | 14
 - 설계 문서 `docs/툴바-정리-설계-2026-11.md` 가 저장소에 없어 한 줄을 넣지 못했다.
 - 375 폭: `#fx` 줄이 원래도 넓어 단추는 `bar b2` 안에서 가로로 민다. 눌러 보는 확인은 안 했다.
 
+## PR 23 로스터가 이적 소식을 따른다 (2026-11-09)
+
+### 결과
+- 브랜치 `feat/roster-follows-transfers` (기준 `origin/main` 0ae65f9), 커밋 전. 자세한 것은 `docs/sessions/2026-11-09-pr23-roster-follows-transfers.md`.
+- 로스터는 가장 최근 이적의 도착 팀을 따른다. 보도(발표 전) 이적도 같다. 이적 행이 없으면 경력 칸 규칙 그대로다.
+- 확인: 시험 168 통과, validate 오류 0, 빌드 통과. 실제 데이터에서 Sentinels·keiko, NRG·eeiu, LOUD·artzin, T1·TenZ 확인. 팀 페이지와 로스터 일치.
+
+### 열린 결정 · 알아 둘 점
+- PR 22(#55)와 `scripts/test.mjs` 가 같은 자리에서 만난다. PR 22 를 먼저 병합하고, 충돌이 나면 시험 블록 순서만 맞춘다.
+- `partial`(5명 미만) 판정이 도착을 세므로 일부 표시 팀이 줄어든다. 의도한 변화다.
+
 ## 배포 기록
 - Pages 설정: Source 를 GitHub Actions 로 전환(build_type `workflow`). 전환 전에 병합 때문에 legacy(main 루트) 배포가 한 번 나가, 라이브에 새 앱 코드가 잠깐 올라가 있었다(p/ 404).
 - 첫 배포: run `41205403369` (main, pages.yml) 성공. build·deploy 모두 success.
