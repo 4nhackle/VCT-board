@@ -800,6 +800,52 @@ t("teamMoves: 로스터는 진행 중인 칸만, 예정 칸은 제외(R-04)", ()
   assert.deepEqual(teamMoves("t1", IDX, T).roster.map(p => p.id), ["now"]);
 });
 
+// 로스터가 이적 소식을 따른다(PR 23): 가장 최근 이적의 도착 팀이 현재 소속. 보도(발표 전)도 같다. 경력은 이적이 없을 때만 본다.
+const mvRow = (pid, from, to, date, signedDate) => ({ region: "Americas", name: pid, from, to, type: "이적", date, conf: "C", src: "s", fromTeam: from, toTeam: to, personId: pid, ...(signedDate == null ? {} : { signedDate }) });
+const rosterOf = (teamId, rows, career = {}) => {
+  const IDX = buildIndex({ sources: SRC, players: [], coaches: [], transfers: { players: rows, coaches: [] }, watch: [] });
+  IDX.people = Object.fromEntries(Object.keys(career).map(pid => [pid, { id: pid, name: pid, kind: "player", career: career[pid] }]));
+  return teamMoves(teamId, IDX, T).roster.map(p => p.id);
+};
+t("teamMoves: 확정 이적(a→b)은 도착 팀 로스터에 들고 옛 팀에서 빠진다", () => {
+  const rows = [mvRow("p1", "a", "b", T - 2, T - 1)];
+  assert.deepEqual(rosterOf("b", rows, { p1: [{ team: "a", from: "2026-01", to: null }] }), ["p1"]);
+  assert.deepEqual(rosterOf("a", rows, { p1: [{ team: "a", from: "2026-01", to: null }] }), []);
+});
+t("teamMoves: 보도(발표 전) 이적도 도착 팀 로스터에 든다", () => {
+  const rows = [mvRow("p1", "a", "b", T - 2)];
+  assert.deepEqual(rosterOf("b", rows, { p1: [{ team: "a", from: "2026-01", to: null }] }), ["p1"]);
+  assert.deepEqual(rosterOf("a", rows, { p1: [{ team: "a", from: "2026-01", to: null }] }), []);
+});
+t("teamMoves: 두 번 이적(a→b, 뒤에 b→c)은 최신 도착 팀 c 에만 든다", () => {
+  const rows = [mvRow("p1", "a", "b", T - 5, T - 4), mvRow("p1", "b", "c", T - 2, T - 1)];
+  const career = { p1: [{ team: "a", from: "2026-01", to: null }] };
+  assert.deepEqual(rosterOf("c", rows, career), ["p1"]);
+  assert.deepEqual(rosterOf("b", rows, career), []);
+  assert.deepEqual(rosterOf("a", rows, career), []);
+});
+t("teamMoves: 같은 날 이적은 발표(signed)가 있는 행이 이긴다", () => {
+  const career = { p1: [{ team: "a", from: "2026-01", to: null }] };
+  assert.deepEqual(rosterOf("b", [mvRow("p1", "a", "c", T - 2), mvRow("p1", "a", "b", T - 2, T - 1)], career), ["p1"]);
+  assert.deepEqual(rosterOf("b", [mvRow("p1", "a", "b", T - 2, T - 1), mvRow("p1", "a", "c", T - 2)], career), ["p1"]);
+  assert.deepEqual(rosterOf("c", [mvRow("p1", "a", "b", T - 2, T - 1), mvRow("p1", "a", "c", T - 2)], career), []);
+});
+t("teamMoves: 도착 팀이 비면(이적 나감, 행선지 없음) 어느 로스터에도 없다", () => {
+  const rows = [mvRow("p1", "a", "", T - 2, T - 1)];
+  const career = { p1: [{ team: "a", from: "2026-01", to: null }] };
+  assert.deepEqual(rosterOf("a", rows, career), []);
+  assert.deepEqual(rosterOf("b", rows, career), []);
+});
+t("teamMoves: 이적 행이 없는 인물은 경력 칸 규칙 그대로", () => {
+  assert.deepEqual(rosterOf("c", [], { p1: [{ team: "c", from: "2026-01", to: null }] }), ["p1"]);
+  assert.deepEqual(rosterOf("d", [], { p1: [{ team: "c", from: "2026-01", to: null }] }), []);
+});
+t("rosterHTML: 로스터 행에는 보도(pill·reported) 표시가 없다", () => {
+  setLang("ko");
+  const html = rosterHTML([{ team: { id: "b", name: "B", region: "EMEA", active: true }, roster: [{ id: "p1", name: "P1", kind: "player", role: "Duelist" }], inCount: 1, outCount: 0, partial: true }], { region: "all" });
+  assert.doesNotMatch(html, /pill|보도|reported/);
+});
+
 t("out-dir: 저장소 루트·상위·안쪽 폴더 거부, _site 만 예외(R-01, 판정만, 파일은 안 건드림)", () => {
   const R = "C:/Users/KDB/Coding/VCT-board";
   assert.equal(refuseReason(R, R), "저장소 루트");

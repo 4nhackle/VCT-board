@@ -237,6 +237,17 @@ function arrivalsOf(id, IDX) {
   return out;
 }
 
+// 인물의 가장 최근 이적 행(없으면 null). 날짜 최신순, 같은 날은 발표일(signed)이 있는 행. mergeMoves 와 같은 기준.
+function latestMove(pid, IDX) {
+  var best = null;
+  (own(IDX.byPerson, pid) || []).forEach(function (e) {
+    if (e.kind !== "t") return;
+    var d = dayOf(e.item.date), bd = best ? dayOf(best.item.date) : -2;
+    if (!best || d > bd || (d === bd && typeof e.item.signed === "number" && typeof best.item.signed !== "number")) best = e;
+  });
+  return best;
+}
+
 // 팀 화면용: 현재 로스터, 들어온 인물, 나간 인물(이전 팀 이적 + 이 팀 소속 LFT·FA), 관련 소식(watch 포함).
 // 로스터는 진행 중 경력 칸이 이 팀인 인물에서 (i) 이 팀에 대한 가장 최근 소식이 방출·결별·이탈이거나 이 팀에서 나간 이적인 인물,
 // (ii) 팀이 운영 종료(active:false)면 전원을 뺀다. closed 는 (ii) 여부.
@@ -259,8 +270,15 @@ export function teamMoves(id, IDX, today) {
     if (e.kind !== "t" && /방출|결별|이탈/.test(e.item.status || "")) return true;
     return mine.some(function (x) { return x.kind === "t" && x.item.date === e.item.date && x.item.tidFrom === id && x.item.tidTo !== id; });
   }
+  // 현재 소속: 이적 행이 있으면 가장 최근 이적의 도착 팀(잔류는 옛 팀, 도착 팀이 비면 소속 없음), 없으면 경력 칸.
+  // shortcut: latest transfer beats people.json career; if career gets a newer move that is missing from transfers, career should win — compare dates then.
+  function onTeam(p) {
+    var mv = latestMove(p.id, IDX);
+    if (mv) return mv.item.tidTo === id;
+    return careerOf(p, today).some(function (c) { return c.current && c.team === id; });
+  }
   var roster = closed ? [] : Object.keys(IDX.people).map(function (k) { return IDX.people[k]; }).filter(function (p) {
-    return careerOf(p, today).some(function (c) { return c.current && c.team === id; }) && !gone(p.id);
+    return onTeam(p) && !gone(p.id);
   }).sort(function (a, b) {
     var ca = a.kind === "coach" ? 1 : 0, cb = b.kind === "coach" ? 1 : 0;
     if (ca !== cb) return ca - cb;
