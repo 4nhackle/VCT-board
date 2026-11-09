@@ -14,6 +14,8 @@
 | 19 | [PR19-roster-list-design.md](PR19-roster-list-design.md) | 사이트 코드 | PR 6 병합 |
 | 20 | [PR20-transfers-position-filter.md](PR20-transfers-position-filter.md) | 사이트 코드 | PR 19 병합 |
 | 21 | [PR21-recent-order-toggle.md](PR21-recent-order-toggle.md) | 사이트 코드 | PR 20 병합 |
+| 22 | [PR22-roster-search.md](PR22-roster-search.md) | 사이트 코드 | PR 19 병합 |
+
 | 23 | [PR23-roster-follows-transfers.md](PR23-roster-follows-transfers.md) | 사이트 코드 | PR 22 병합 |
 
 - 예약 작업 변경을 한 번에 시키려면 [schedule-change-prompt.md](schedule-change-prompt.md) 를 붙여 넣는다(위 두 schedule 파일을 합친 완결판, PR 5 병합 기준).
