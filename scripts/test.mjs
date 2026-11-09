@@ -360,6 +360,30 @@ t("rosterHTML: 지역 거르기는 카드를 거르고, 5명 미만은 일부 �
   assert.match(other, /<h2>기타<\/h2>/);
 });
 
+// 로스터 검색(PR 22): 팀 이름이면 팀 전체, 인물 이름·실명이면 그 인물만, 없으면 빈 문구, 대소문자 무관.
+const SR = [
+  { team: { id: "t-a", name: "Alpha Esports", short: "AE", region: "EMEA", active: true }, roster: [{ id: "p1", name: "Zed", realName: "Kim Min", role: "Duelist", kind: "player" }, { id: "p2", name: "Yolo", role: "Sentinel", kind: "player" }], inCount: 1, outCount: 2, partial: true },
+  { team: { id: "t-b", name: "Beta Team", region: "EMEA", active: true }, roster: [{ id: "p3", name: "Quinn", role: "Initiator", kind: "player" }], inCount: 0, outCount: 0, partial: true },
+];
+t("rosterHTML 검색: 팀 이름은 팀 전체, 인물 이름·실명은 그 인물만, 없으면 빈 문구, 대소문자 무관", () => {
+  setLang("ko");
+  const team = rosterHTML(SR, { region: "all", q: "alpha esports" });
+  assert.match(team, /Yolo/, "팀이 맞으면 전체 로스터");
+  assert.match(team, /\+1 \/ −2/, "인원 수는 팀 기준");
+  assert.doesNotMatch(team, /Beta Team/);
+  const person = rosterHTML(SR, { region: "all", q: "zed" });
+  assert.match(person, /Zed/);
+  assert.doesNotMatch(person, /Yolo/, "인물 검색은 그 인물만");
+  assert.doesNotMatch(person, /Beta Team/);
+  assert.match(rosterHTML(SR, { region: "all", q: "KIM MIN" }), /Zed/, "실명으로도 찾고 대소문자 무관");
+  assert.match(rosterHTML(SR, { region: "all", q: "ZED" }), /Zed/);
+  const none = rosterHTML(SR, { region: "all", q: "nobody-here" });
+  assert.match(none, /class="empty"/);
+  assert.doesNotMatch(none, /class="rh"/);
+  assert.match(rosterHTML(SR, { region: "all", q: "zed" }), /<span class="n">1팀<\/span>/, "지역 머리 개수는 거른 카드 기준");
+  assert.equal(rosterHTML(SR, { region: "all", q: "" }), rosterHTML(SR, { region: "all" }), "빈 검색은 거르지 않는다");
+});
+
 // 개인정보처리방침(PR 7): 실제로 쓰는 외부 서비스(web3forms, Cloudflare)를 한·영 방침이 모두 밝힌다.
 t("개인정보처리방침: web3forms·Cloudflare 를 한·영 모두 밝히고, 건의 안내 키가 ko·en 에 있다", () => {
   const ko = fs.readFileSync(fileURLToPath(new URL("../privacy/index.html", import.meta.url)), "utf8");
