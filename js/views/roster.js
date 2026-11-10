@@ -7,7 +7,7 @@ import { nameHTML } from "./common.js";
 // 검색: 팀 이름·짧은 이름·ID 가 맞으면 팀 전체, 아니면 이름·실명·역할이 맞는 인물만 남긴다. 원래 카드는 바꾸지 않는다(inCount·outCount·partial 은 팀 기준).
 function searchCard(c, q) {
   var tm = c.team, has = function (s) { return String(s || "").toLowerCase().indexOf(q) >= 0; };
-  if (has(tm.name) || has(tm.short) || has(tm.id)) return c;
+  if ([tm.name, tm.short, tm.id].concat(tm.aliases || []).some(has)) return c;
   var hits = c.roster.filter(function (p) { return has(p.name) || has(p.realName) || has(p.role); });
   return hits.length ? Object.assign({}, c, { roster: hits }) : null;
 }

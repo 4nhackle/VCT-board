@@ -1024,3 +1024,9 @@ Liquipedia | 8 | 6 | 14
 - PR 29: i18n-html 의 esc 를 format.js 것으로 바꾸고 DAY_VALUES 를 비공개로. 빌드 출력 바뀌지 않음.
 - 확인: 시험 178 통과, validate(data·fixtures)·css-check·build 통과.
 - 기록: `docs/sessions/2026-11-10-pr27-validate-row-rules.md`, `…-pr28-today-refresh.md`, `…-pr29-small-cleanup.md`. 커밋 없음(작업 트리 `refactor/test-split`, PR 24–29 함께).
+
+## PR 30 (2026-11-10)
+
+- 팀 검색이 팀 ID 로 이름·짧은 이름·별칭을 찾는다(`matches` 의 `teamWords`, 로스터 `searchCard` 에 별칭). 도착 팀은 `moved` 일 때만, 떠난 팀은 항상 찾는다.
+- 확인: 시험 180 통과, validate 오류 0(경고는 main 과 같음), build 통과. 브라우저: `cloud9`·`sentinels`·`FNC` 확인.
+- 남은 일: `short` 없는 팀 39개를 시트나 예약 작업 지시문에 채워야 `c9` 같은 검색이 된다. 기록: `docs/sessions/2026-11-10-pr30-search-current-team.md`. 브랜치 `feat/search-current-team` 에 커밋·푸시했다.

@@ -638,6 +638,24 @@ t("matches: 검색은 대소문자를 무시하고 팀 이름으로도 찾는다
   assert.equal(matches({ name: "Jóhn", region: "EMEA", status: "구직 중" }, tab, { ...all, q: "john" }), false);
 });
 
+t("matches: 팀 검색은 팀 ID 로 이름·짧은 이름·별칭을 찾는다. 이적 도착 팀은 moved 일 때만, 떠난 팀은 항상", () => {
+  const TEAMS = { cloud9: { id: "cloud9", name: "Cloud9", short: "C9", aliases: ["Cloud 9"] }, sentinels: { id: "sentinels", name: "Sentinels", short: "SEN" }, envy: { id: "envy", name: "ENVY" } };
+  const tab = { id: "players", status: true, teamObj: TEAMS };
+  const q = (s) => ST({ q: s });
+  const moved = { name: "GLYPH", tid: "envy", tidTo: "cloud9", moved: true, team: "ENVY", next: "Cloud9", region: "Americas", status: "구직 중" };
+  assert.equal(matches(moved, tab, q("c9")), true, "도착 팀의 짧은 이름");
+  assert.equal(matches(moved, tab, q("cloud 9")), true, "도착 팀의 별칭");
+  assert.equal(matches(moved, tab, q("envy")), true, "떠난 팀도 그대로");
+  const left = { name: "Jackk", tid: "cloud9", tidTo: "sentinels", moved: true, team: "Cloud9", next: "Sentinels", region: "Americas", status: "구직 중" };
+  assert.equal(matches(left, tab, q("c9")), true, "떠난 팀의 짧은 이름도 찾는다");
+  const notMoved = { name: "Ann", tid: "envy", tidTo: "cloud9", team: "ENVY", region: "Americas", status: "구직 중" };
+  assert.equal(matches(notMoved, tab, q("c9")), false, "moved 가 아니면 도착 팀 ID 로 찾지 않는다");
+  const watch = { status: false };
+  const w = { name: "x", team: "Cloud9", tid: "cloud9", region: "Americas", status: "구직 중" };
+  assert.equal(matches(w, watch, q("c9")), false, "지켜볼 팀(teamObj 없음)은 팀 ID 로 찾지 않는다");
+  assert.equal(matches(w, watch, q("cloud")), true, "지켜볼 팀은 기존 자유 글자 검색 그대로");
+});
+
 t("matches: 지역과 상태 필터", () => {
   const it = { name: "A", team: "T", region: "Americas", status: "구직 중" }, tab = { status: true };
   assert.equal(matches(it, tab, { region: "EMEA", status: "all", q: "" }), false);

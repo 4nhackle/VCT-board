@@ -70,6 +70,14 @@ t("rosterHTML 검색: 팀 이름은 팀 전체, 인물 이름·실명은 그 인
   assert.equal(rosterHTML(SR, { region: "all", q: "" }), rosterHTML(SR, { region: "all" }), "빈 검색은 거르지 않는다");
 });
 
+t("rosterHTML 검색: 팀 별칭으로 찾으면 팀 전체", () => {
+  setLang("ko");
+  const card = { team: { id: "c9", name: "Cloud9", short: "", region: "Americas", aliases: ["Cloud 9"] }, roster: [{ id: "a", name: "Alpha", kind: "player", role: "Duelist" }, { id: "b", name: "Bravo", kind: "player", role: "Sentinel" }], inCount: 0, outCount: 0, partial: false };
+  const html = rosterHTML([card], { region: "all", q: "cloud 9" });
+  assert.match(html, /Alpha/, "별칭이 맞으면 전체 로스터");
+  assert.match(html, /Bravo/);
+});
+
 t("rowHTML(D3): 펼침 단추의 aria-controls 는 영역 id 와 같고, 상태 글은 영역 밖, 출처 링크는 영역 안", () => {
   setLang("ko");
   const tab = { mode: "entry", teamObj: {}, shared: new Map() };
