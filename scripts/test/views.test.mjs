@@ -51,6 +51,21 @@ const SR = [
   { team: { id: "t-b", name: "Beta Team", region: "EMEA", active: true }, roster: [{ id: "p3", name: "Quinn", role: "Initiator", kind: "player" }], inCount: 0, outCount: 0, partial: true },
 ];
 
+t("rosterHTML 검색: 악센트를 무시한다(인물 이름, 팀 별칭), 악센트 있는 검색어도 찾는다", () => {
+  setLang("ko");
+  const AC = [{ team: { id: "t-c", name: "Gamma", short: "GM", aliases: ["Équipe Nord"], region: "EMEA", active: true }, roster: [{ id: "p4", name: "Jóhn", role: "Duelist", kind: "player" }, { id: "p5", name: "Ola", role: "Sentinel", kind: "player" }], inCount: 0, outCount: 0, partial: false }];
+  assert.match(rosterHTML(AC, { region: "all", q: "john" }), /Jóhn/, "악센트 뺀 검색어로 인물을 찾는다");
+  assert.doesNotMatch(rosterHTML(AC, { region: "all", q: "john" }), /Ola/, "인물 검색은 그 인물만");
+  assert.match(rosterHTML(AC, { region: "all", q: "EQUIPE" }), /Ola/, "팀 별칭도 악센트 무시");
+  assert.match(rosterHTML(AC, { region: "all", q: "JÓHN" }), /Jóhn/, "악센트 있는 검색어도 찾는다");
+});
+
+t("rosterHTML 검색: 역할(포지션)로는 안 찾는다", () => {
+  setLang("ko");
+  assert.doesNotMatch(rosterHTML(SR, { region: "all", q: "sentinel" }), /Yolo/, "역할 Sentinel 은 검색 대상이 아니다");
+  assert.match(rosterHTML(SR, { region: "all", q: "alpha" }), /Yolo/, "팀 이름이 맞으면 팀 전체");
+});
+
 t("rosterHTML 검색: 팀 이름은 팀 전체, 인물 이름·실명은 그 인물만, 없으면 빈 문구, 대소문자 무관", () => {
   setLang("ko");
   const team = rosterHTML(SR, { region: "all", q: "alpha esports" });
@@ -68,6 +83,14 @@ t("rosterHTML 검색: 팀 이름은 팀 전체, 인물 이름·실명은 그 인
   assert.doesNotMatch(none, /class="rh"/);
   assert.match(rosterHTML(SR, { region: "all", q: "zed" }), /<span class="n">1팀<\/span>/, "지역 머리 개수는 거른 카드 기준");
   assert.equal(rosterHTML(SR, { region: "all", q: "" }), rosterHTML(SR, { region: "all" }), "빈 검색은 거르지 않는다");
+});
+
+t("rosterHTML 검색: 팀 별칭으로 찾으면 팀 전체", () => {
+  setLang("ko");
+  const card = { team: { id: "c9", name: "Cloud9", short: "", region: "Americas", aliases: ["Cloud 9"] }, roster: [{ id: "a", name: "Alpha", kind: "player", role: "Duelist" }, { id: "b", name: "Bravo", kind: "player", role: "Sentinel" }], inCount: 0, outCount: 0, partial: false };
+  const html = rosterHTML([card], { region: "all", q: "cloud 9" });
+  assert.match(html, /Alpha/, "별칭이 맞으면 전체 로스터");
+  assert.match(html, /Bravo/);
 });
 
 t("rowHTML(D3): 펼침 단추의 aria-controls 는 영역 id 와 같고, 상태 글은 영역 밖, 출처 링크는 영역 안", () => {

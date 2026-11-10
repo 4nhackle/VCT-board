@@ -1024,3 +1024,11 @@ Liquipedia | 8 | 6 | 14
 - PR 29: i18n-html 의 esc 를 format.js 것으로 바꾸고 DAY_VALUES 를 비공개로. 빌드 출력 바뀌지 않음.
 - 확인: 시험 178 통과, validate(data·fixtures)·css-check·build 통과.
 - 기록: `docs/sessions/2026-11-10-pr27-validate-row-rules.md`, `…-pr28-today-refresh.md`, `…-pr29-small-cleanup.md`. 커밋 없음(작업 트리 `refactor/test-split`, PR 24–29 함께).
+
+## PR 30 (2026-11-10)
+
+- 팀 검색이 팀 ID 로 이름·짧은 이름·별칭을 찾는다(`matches` 의 `teamWords`, 로스터 `searchCard` 에 별칭). 도착 팀은 `moved` 일 때만, 떠난 팀은 항상 찾는다.
+- 확인: 시험 180 통과, validate 오류 0(경고는 main 과 같음), build 통과. 브라우저: `cloud9`·`sentinels`·`FNC` 확인.
+- 남은 일: `short` 없는 팀 39개를 시트나 예약 작업 지시문에 채워야 `c9` 같은 검색이 된다. 기록: `docs/sessions/2026-11-10-pr30-search-current-team.md`. 브랜치 `feat/search-current-team` 에 커밋·푸시했다.
+- 악센트 무시(PR 30 후속): 목록 검색(`matches`)과 로스터 검색(`searchCard`)이 `fold()` 로 검색어와 글을 같이 맞춘다(소문자, 악센트 제거, 한글은 NFC 로 다시 붙임). `ı`·`ł` 는 따로 바꾼다(시트 데이터에 있는 글자만). 기록: `docs/sessions/2026-11-10-pr30-accent-fold.md`. 커밋 전.
+- PR 31(검색은 인물 이름과 팀만): 목록 검색은 이름·소속 팀·도착 팀(`next`)·팀 ID·짧은 이름·별칭만 보고, 로스터 검색은 이름·실명만 본다. 포지션·국적·상태·비고·지역 글자로는 안 찾는다. 악센트 무시는 그대로 유지. `sen` 선수 탭 21 → 11, `pac` 49 → 0, `kor` 23 → 0. 시험 183 통과. 기록: `docs/sessions/2026-11-10-pr31-search-name-team-only.md`. 커밋 전.
