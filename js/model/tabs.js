@@ -1,8 +1,7 @@
 // 이적 합치기, 탭 목록 만들기, 목록 거르기.
 import { TODAY } from "../format.js";
 import { t } from "../i18n.js";
-import { regionName } from "./labels.js";
-import { dayOf, own, toItem, idsOf, cleanName } from "./ids.js";
+import { dayOf, own, toItem, idsOf, cleanName, fold } from "./ids.js";
 import { cls } from "./status.js";
 import { sharedTails } from "./notes.js";
 import { contractOK, rosterCards, buildIndex } from "./people.js";
@@ -102,7 +101,7 @@ export function buildTabs(D, today) {
   return TABS;
 }
 
-// 목록 거르기. 순수 함수: 오늘 날짜(today, 기본 TODAY)는 인자로 받는다.
+// 목록 거르기. 순수 함수: 오늘 날짜(today, 기본 TODAY)는 인자로 받는다. 검색은 인물 이름과 팀만 본다(포지션·국적·상태·비고·지역은 안 본다). 대소문자·악센트는 무시한다.
 // 포지션은 sub 의 첫 칸(포지션)에서 찾는다. 이적 탭은 인물 정보로 채운 포지션으로 거른다(선수 이적만). 코치 탭·지켜볼 팀은 포지션 칸이 없어 거르지 않는다.
 // 팀 검색어: 소속 팀(이적이면 도착 팀)의 ID·이름·짧은 이름·별칭. 팀 ID 로 찾으므로 도착한 인물도 잡힌다.
 function teamWords(tab, it) {
@@ -117,8 +116,8 @@ export function matches(it, tab, state, today) {
   if (state.region !== "all" && it.region !== state.region) return false;
   if (tab.status && state.status !== "all" && cls(it) !== state.status) return false;
   if (state.q) {
-    var hay = [it.name, it.team, it.sub, it.status, it.next, it.note, it.region, regionName(it.region), teamWords(tab, it)].join(" ").toLowerCase();
-    if (hay.indexOf(state.q.toLowerCase()) < 0) return false;
+    var hay = fold([it.name, it.team, it.next, teamWords(tab, it)].join(" "));
+    if (hay.indexOf(fold(state.q)) < 0) return false;
   }
   if (state.pos && state.pos !== "all" && tab.id !== "coaches" && tab.id !== "watch") {
     var head = String(it.sub || "").split(", ")[0].toLowerCase();

@@ -51,6 +51,21 @@ const SR = [
   { team: { id: "t-b", name: "Beta Team", region: "EMEA", active: true }, roster: [{ id: "p3", name: "Quinn", role: "Initiator", kind: "player" }], inCount: 0, outCount: 0, partial: true },
 ];
 
+t("rosterHTML 검색: 악센트를 무시한다(인물 이름, 팀 별칭), 악센트 있는 검색어도 찾는다", () => {
+  setLang("ko");
+  const AC = [{ team: { id: "t-c", name: "Gamma", short: "GM", aliases: ["Équipe Nord"], region: "EMEA", active: true }, roster: [{ id: "p4", name: "Jóhn", role: "Duelist", kind: "player" }, { id: "p5", name: "Ola", role: "Sentinel", kind: "player" }], inCount: 0, outCount: 0, partial: false }];
+  assert.match(rosterHTML(AC, { region: "all", q: "john" }), /Jóhn/, "악센트 뺀 검색어로 인물을 찾는다");
+  assert.doesNotMatch(rosterHTML(AC, { region: "all", q: "john" }), /Ola/, "인물 검색은 그 인물만");
+  assert.match(rosterHTML(AC, { region: "all", q: "EQUIPE" }), /Ola/, "팀 별칭도 악센트 무시");
+  assert.match(rosterHTML(AC, { region: "all", q: "JÓHN" }), /Jóhn/, "악센트 있는 검색어도 찾는다");
+});
+
+t("rosterHTML 검색: 역할(포지션)로는 안 찾는다", () => {
+  setLang("ko");
+  assert.doesNotMatch(rosterHTML(SR, { region: "all", q: "sentinel" }), /Yolo/, "역할 Sentinel 은 검색 대상이 아니다");
+  assert.match(rosterHTML(SR, { region: "all", q: "alpha" }), /Yolo/, "팀 이름이 맞으면 팀 전체");
+});
+
 t("rosterHTML 검색: 팀 이름은 팀 전체, 인물 이름·실명은 그 인물만, 없으면 빈 문구, 대소문자 무관", () => {
   setLang("ko");
   const team = rosterHTML(SR, { region: "all", q: "alpha esports" });

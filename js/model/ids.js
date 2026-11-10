@@ -51,6 +51,12 @@ export function idsOf(r, kind) {
   return o;
 }
 
+// 검색용 글자 맞춤: 소문자, 악센트 제거(Ü→u, é→e). 한글은 NFD 로 쪼갰다가 NFC 로 다시 붙여 음절을 그대로 둔다.
+// ı·ł 는 분해되지 않아 따로 바꾼다(시트 데이터에 있는 글자만).
+export function fold(s) {
+  return String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").normalize("NFC").replace(/[ıł]/g, function (c) { return c === "ı" ? "i" : "l"; });
+}
+
 // 빈 칸과 "-" 는 이름이 없다.
 // 빈 칸 판단은 이 함수 한 곳에서 한다. 앞뒤 공백을 떼고, 빈 글이나 "-" 이면 "" 를 돌려준다. val·validate 도 이것을 쓴다.
 export function cleanName(v) { var s = v == null ? "" : String(v).trim(); return s === "-" ? "" : s; }

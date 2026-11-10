@@ -630,12 +630,31 @@ t("idsOf: 지켜볼 팀은 \" / \" 로 나누고 빈 칸을 거른다. teamIds �
   assert.deepEqual(idsOf({ teamIds: "raw-id" }, "watch").tids, ["raw-id"]);
 });
 
-t("matches: 검색은 대소문자를 무시하고 팀 이름으로도 찾는다. 악센트는 무시하지 않는다(현재 동작)", () => {
+t("matches: 검색은 대소문자와 악센트를 무시하고 팀 이름으로도 찾는다. 한글 음절은 낱자로 쪼개지 않는다", () => {
   const tab = { status: true }, all = { region: "all", status: "all", q: "" };
   const it = { name: "TenZ", team: "Sentinels", region: "Americas", status: "구직 중" };
   assert.equal(matches(it, tab, { ...all, q: "tenz" }), true);
   assert.equal(matches(it, tab, { ...all, q: "sentinels" }), true);
-  assert.equal(matches({ name: "Jóhn", region: "EMEA", status: "구직 중" }, tab, { ...all, q: "john" }), false);
+  const jo = { name: "Jóhn", region: "EMEA", status: "구직 중" };
+  assert.equal(matches(jo, tab, { ...all, q: "john" }), true, "악센트 뺀 검색어로 찾는다");
+  assert.equal(matches(jo, tab, { ...all, q: "JÓHN" }), true, "악센트 있는 검색어로 찾는다");
+  assert.equal(matches({ name: "Łukasz", region: "EMEA", status: "구직 중" }, tab, { ...all, q: "lukasz" }), true, "ł 는 l 로");
+  assert.equal(matches({ name: "Işık", region: "EMEA", status: "구직 중" }, tab, { ...all, q: "isik" }), true, "ı 는 i 로");
+  assert.equal(matches({ name: "각", region: "EMEA", status: "구직 중" }, tab, { ...all, q: "가" }), false, "가 는 각 에 안 맞는다");
+  assert.equal(matches({ name: "간", region: "EMEA", status: "구직 중" }, tab, { ...all, q: "간" }), true, "한글 음절 그대로 찾는다");
+});
+
+t("matches: 검색은 인물 이름과 팀만 본다. 포지션·국적·상태·비고·지역 글자로는 안 찾는다", () => {
+  const tab = { status: true }, all = { region: "all", status: "all", q: "" };
+  const spear = { name: "Spear", team: "Gen.G", sub: "Sentinel, South Korea", status: "구직 중", note: "Sentinels 관심", region: "Pacific" };
+  for (const q of ["sen", "kor", "pac", "구직", "sentinel"]) assert.equal(matches(spear, tab, { ...all, q }), false, `${q} 로는 안 맞는다`);
+  assert.equal(matches(spear, tab, { ...all, q: "spear" }), true, "인물 이름");
+  assert.equal(matches(spear, tab, { ...all, q: "gen.g" }), true, "팀 이름");
+  const TEAMS = { sentinels: { id: "sentinels", name: "Sentinels", short: "SEN" } };
+  const p = { name: "x", tid: "sentinels", team: "Sentinels" };
+  assert.equal(matches(p, { id: "players", status: true, teamObj: TEAMS }, { ...all, q: "sen" }), true, "팀 짧은 이름");
+  const moved = { name: "y", team: "Cloud9", next: "Sentinels", moved: true };
+  assert.equal(matches(moved, tab, { ...all, q: "sentinels" }), true, "이적 도착 팀 표시 이름(next)");
 });
 
 t("matches: 팀 검색은 팀 ID 로 이름·짧은 이름·별칭을 찾는다. 이적 도착 팀은 moved 일 때만, 떠난 팀은 항상", () => {
