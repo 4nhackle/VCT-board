@@ -334,5 +334,6 @@
   {"id":"natz","name":"natz","kind":"player","realName":"Jonathan Adiputra","career":[{"team":"boom-esports","from":"2026-11","to":null}],"src":"s367"},
   {"id":"kellys","name":"kellyS","kind":"player","realName":"Kelly Sedillo","career":[{"team":"boom-esports","from":"2026-11","to":null}],"src":"s367"},
   {"id":"iceyyy","name":"Iceyyy","kind":"player","realName":"Lionel Tay Zi","career":[{"team":"boom-esports","from":"2026-11","to":null}],"src":"s367"},
-  {"id":"meow","name":"Meow","kind":"coach","realName":"Ji Dong-jun","role":"코치","career":[{"team":"team-secret","from":"2025-01","to":"2025-12"},{"team":"weibo-gaming","from":"2026-04","to":"2026-10"},{"team":"boom-esports","from":"2026-11","to":null}],"links":{"vlr":"https://www.vlr.gg/player/9805/ji-dong-jun"},"src":"s369"}
+  {"id":"meow","name":"Meow","kind":"coach","realName":"Ji Dong-jun","role":"코치","career":[{"team":"team-secret","from":"2025-01","to":"2025-12"},{"team":"weibo-gaming","from":"2026-04","to":"2026-10"},{"team":"boom-esports","from":"2026-11","to":null}],"links":{"vlr":"https://www.vlr.gg/player/9805/ji-dong-jun"},"src":"s369"},
+  {"id":"anaks","name":"Anaks","kind":"coach","realName":"Ye Sang-jun (예상준)","role":"헤드 코치","nationality":"South Korea","career":[{"team":"titan-esports-club","from":"2026-11","to":null}],"src":"s372"}
 ]
