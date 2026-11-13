@@ -224,7 +224,7 @@
   {"id": "incognito", "name": "Incognito", "region": "", "active": true},
   {"id": "inside-games", "name": "Inside Games", "region": "", "active": true},
   {"id": "irregulars", "name": "IRREGULARS", "region": "", "active": true},
-  {"id": "jadeite", "name": "Jadeite", "region": "", "active": true},
+  {"id": "jadeite", "name": "Jadeite", "region": "", "active": false},
   {"id": "keyd-stars", "name": "Keyd Stars", "region": "", "active": true},
   {"id": "kizuna-esports", "name": "Kizuna Esports", "region": "", "active": true},
   {"id": "kpi-gaming", "name": "KPI Gaming", "region": "", "active": true},
