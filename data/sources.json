@@ -1,354 +1,1438 @@
 {
-  "s3": ["VLR", "https://www.vlr.gg/777970/cloud9-allows-v1c-to-explore-options"],
-  "s4": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-oxy-set-to-join-sentinels-for-vct-americas-2027/en"],
-  "s5": ["VLR", "https://www.vlr.gg/769367/ion-enters-restricted-free-agency"],
-  "s6": ["Pley.gg", "https://pley.gg/valorant/riot-confirm-all-32-vct-partners-for-2027-as-t1-and-paper-rex-stay-in-and-drx-miss-out/"],
-  "s9": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-valyn-set-to-join-fnatic-for-the-2027-season/en"],
-  "s11": ["VLR", "https://www.vlr.gg/777472/kyu-enters-free-agency-after-second-run-with-m80"],
-  "s12": ["EGamersWorld", "https://egamersworld.com/blog/valorant-roster-changes-after-champions-2026-bL_BRlux42"],
-  "s13": ["ShwN (X)", "https://x.com/20shwn/status/2115091598321000527"],
-  "s14": ["VLR 이적 로그", "https://www.vlr.gg/transfers"],
-  "s15": ["Sheep Esports", "https://www.sheepesports.com/en/articles/mibr-allows-its-roster-to-explore-options-ahead-of-2027-vct-season/en"],
-  "s17": ["VLR", "https://www.vlr.gg/772672/zander-set-to-leave-shopify-rebellion-black-after-one-year"],
-  "s18": ["VLR", "https://www.vlr.gg/757970/shopify-rebellion-black-allows-nature-to-explore-options"],
-  "s20": ["VLR", "https://www.vlr.gg/780736/gentle-mates-part-ways-with-full-roster-and-coaching-staff"],
-  "s22": ["VLR", "https://www.vlr.gg/769206/net-leaves-giantx-after-one-split"],
-  "s23": ["VLR", "https://www.vlr.gg/780100/ara-set-to-leave-giantx-after-two-seasons"],
-  "s24": ["VLR", "https://www.vlr.gg/770954/pcific-igl-qpert-to-enter-free-agency"],
-  "s25": ["VLR", "https://www.vlr.gg/778860/wo0t-leaves-team-heretics-ending-three-year-run"],
-  "s26": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-nats-set-to-continue-with-team-liquid-ahead-of-vct-2027-season/en"],
-  "s31": ["VLR", "https://www.vlr.gg/774843/ex-gambit-m3c-player-d3ffo-leaves-boom-esports-after-one-year"],
-  "s32": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-meiy-set-to-return-to-crazy-raccoon-for-2027-vct-pacific-season/en"],
-  "s35": ["VLR", "https://www.vlr.gg/780037/primmie-to-explore-options-outside-of-full-sense"],
-  "s36": ["VLR", "https://www.vlr.gg/777318/global-esports-exits-esports-to-begin-anew-as-ai-studio"],
-  "s37": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-kr1stal-set-to-join-full-sense-for-2027-vct-pacific-season/en"],
-  "s38": ["VLR", "https://www.vlr.gg/778104/udotan-xavi8k-announce-free-agency-from-global-esports"],
-  "s40": ["VLR", "https://www.vlr.gg/778910/krx-announces-mass-exodus-following-partnership-snub"],
-  "s44": ["VLR", "https://www.vlr.gg/767709/xan-leaves-rex-regum-qeon"],
-  "s47": ["VLR", "https://www.vlr.gg/767715/zeta-division-allows-xdll-to-explore-options"],
-  "s48": ["VLR", "https://www.vlr.gg/779869/zeta-division-allows-eko-syouta-and-absol-to-explore-options"],
-  "s49": ["VLR", "https://www.vlr.gg/780790/dragon-ranger-gaming-allows-vo0kashu-to-explore-options"],
-  "s51": ["VLR", "https://www.vlr.gg/773446/xi-lai-gaming-allows-rarga-to-explore-options"],
-  "s52": ["VLR", "https://www.vlr.gg/773734/xi-lai-set-to-enter-offseason-rebuild-without-mr-3k-noman"],
-  "s53": ["VLR", "https://www.vlr.gg/777953/cloud9-head-coach-veer-set-to-enter-free-agency"],
-  "s54": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-faded-set-to-join-rex-regum-qeon-ahead-of-2027-vct-season/en"],
-  "s55": ["VLR", "https://www.vlr.gg/778901/balax-departs-loud-after-assisting-in-champions-winning-run"],
-  "s57": ["VLR", "https://www.vlr.gg/780109/g2-esports-allows-assistant-coach-shhhack-to-explore-options"],
-  "s58": ["VLR", "https://www.vlr.gg/778820/gentle-mates-to-part-with-head-coach-kundikundi"],
-  "s59": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-vorz-set-to-join-crazy-raccoon-as-head-coach-for-2027-vct-pacific-season/en"],
-  "s60": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-frost-set-to-not-continue-with-full-sense-for-2027-vct-season/en"],
-  "s62": ["VLR", "https://www.vlr.gg/780032/yoman-departs-nongshim-redforce-after-one-year-coaching-stint"],
-  "s63": ["VLR", "https://www.vlr.gg/780118/wendler-to-leave-paper-rex-after-nearly-one-year"],
-  "s64": ["Liquipedia", "https://liquipedia.net/valorant/Portal:Transfers"],
-  "s67": ["VCT Roster Tracker (X)", "https://x.com/VCTTracker"],
-  "s68": ["TheSpike", "https://www.thespike.gg/valorant/news/fns-s0m-florescent-form-new-superteam-for-vct-2027-open-qualifiers/9105"],
-  "s69": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-marteen-set-to-join-fnatic-for-the-2027-season/en"],
-  "s71": ["Sheep Esports", "https://www.sheepesports.com/en/articles/vct-pacific-all-players-out-of-contract-in-2026/en"],
-  "s73": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-s0pp-set-to-join-eternal-fire-ahead-of-2027-vct-emea-season/en"],
-  "s74": ["TheSpike", "https://www.thespike.gg/valorant/news/navi-release-entire-roster-ahead-of-the-2027-season/9130"],
-  "s75": ["TheSpike", "https://www.thespike.gg/valorant/news/derke-boo-and-trexx-join-aurora-gaming-ahead-of-vct-emea-2027/9133"],
-  "s77": ["VALO2ASIA (X)", "https://x.com/VALO2ASIA/status/2115388140907098418"],
-  "s78": ["VLR", "https://www.vlr.gg/781616/kru-parts-ways-with-mwzera-and-heat"],
-  "s79": ["Sheep X", "https://x.com/Sheep_VALORANT/status/2115911234906427801"],
-  "s80": ["Sheep X", "https://x.com/Sheep_VALORANT/status/2115878758066348090"],
-  "s81": ["WIP Esports (X)", "https://x.com/WIP_EsportsTeam/status/2115851164353020026"],
-  "s82": ["VLR", "https://www.vlr.gg/team/11232/joblife"],
-  "s83": ["VLR", "https://www.vlr.gg/781651/alexrr-and-deryeon-announce-free-agency-after-wolves-stints"],
-  "s84": ["FURIA (X)", "https://x.com/FURIA/status/2116293769909928158"],
-  "s85": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-eeiu-set-to-join-nrg-for-2027-vct-americas-season/en"],
-  "s86": ["TheSpike", "https://www.thespike.gg/valorant/news/luk-xo-apologizes-to-fans-and-confirms-he-s-leaving-loud/9138"],
-  "s87": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-boaster-set-to-join-gentle-mates-for-valorant-emea-2027/en"],
-  "s88": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-patmen-set-to-return-to-paper-rex-for-vct-2027/en"],
-  "s90": ["VLR", "https://www.vlr.gg/782283/sentinels-release-jonahp-and-jerrwin"],
-  "s91": ["Sheep X", "https://x.com/Sheep_VALORANT/status/2107187466893742372"],
-  "s92": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-monsteerr-set-to-join-barca-esports-for-vct-emea-2027/en"],
-  "s93": ["Liquipedia", "https://liquipedia.net/valorant/Spear"],
-  "s94": ["VLR", "https://www.vlr.gg/762009/barca-pa1ze"],
-  "s95": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-proxh-set-to-join-barca-esports-for-the-2027-vct-season/en"],
-  "s96": ["Sheep X", "https://x.com/Sheep_VALORANT/status/2110129091106255096"],
-  "s97": ["Strafe", "https://www.strafe.com/news/read/paper-rex-announces-jinggg-and-d4v41-departures-ahead-of-vct-2027/"],
-  "s98": ["Strafe", "https://www.strafe.com/news/read/furia-confirms-exit-from-mixed-valorant-competition-in-2027/"],
-  "s99": ["Sheep Esports", "https://www.sheepesports.com/en/all/transfers"],
-  "s100": ["Liquipedia", "https://liquipedia.net/valorant/Absol"],
-  "s101": ["Liquipedia", "https://liquipedia.net/valorant/Al0rante"],
-  "s102": ["Liquipedia", "https://liquipedia.net/valorant/AlexRr"],
-  "s103": ["VLR", "https://www.vlr.gg/player/25716/alti"],
-  "s104": ["Liquipedia", "https://liquipedia.net/valorant/Alvinboy"],
-  "s105": ["Liquipedia", "https://liquipedia.net/valorant/ANGE1"],
-  "s106": ["Liquipedia", "https://liquipedia.net/valorant/Ara"],
-  "s107": ["Liquipedia", "https://liquipedia.net/valorant/Argency"],
-  "s108": ["Liquipedia", "https://liquipedia.net/valorant/Artzin"],
-  "s109": ["Liquipedia", "https://liquipedia.net/valorant/Aspas"],
-  "s110": ["Liquipedia", "https://liquipedia.net/valorant/Audaz"],
-  "s111": ["Liquipedia", "https://liquipedia.net/valorant/Balax"],
-  "s112": ["Liquipedia", "https://liquipedia.net/valorant/Bao_(Vietnamese_player)"],
-  "s113": ["Liquipedia", "https://liquipedia.net/valorant/Basic"],
-  "s114": ["Liquipedia", "https://liquipedia.net/valorant/BeYN"],
-  "s115": ["Liquipedia", "https://liquipedia.net/valorant/Boaster"],
-  "s116": ["Liquipedia", "https://liquipedia.net/valorant/Boni"],
-  "s117": ["Liquipedia", "https://liquipedia.net/valorant/Boo"],
-  "s118": ["Liquipedia", "https://liquipedia.net/valorant/C0M"],
-  "s119": ["Liquipedia", "https://liquipedia.net/valorant/Caedye"],
-  "s120": ["Liquipedia", "https://liquipedia.net/valorant/CheongGak"],
-  "s121": ["Liquipedia", "https://liquipedia.net/valorant/Chloric"],
-  "s122": ["Liquipedia", "https://liquipedia.net/valorant/CyvOph"],
-  "s123": ["Liquipedia", "https://liquipedia.net/valorant/D3ffo"],
-  "s124": ["Liquipedia", "https://liquipedia.net/valorant/Dambi"],
-  "s125": ["Liquipedia", "https://liquipedia.net/valorant/Derke"],
-  "s126": ["Liquipedia", "https://liquipedia.net/valorant/Deryeon"],
-  "s127": ["Liquipedia", "https://liquipedia.net/valorant/Dgzin"],
-  "s128": ["Liquipedia", "https://liquipedia.net/valorant/DH"],
-  "s129": ["Liquipedia", "https://liquipedia.net/valorant/Eeiu"],
-  "s130": ["Liquipedia", "https://liquipedia.net/valorant/Efina"],
-  "s131": ["Liquipedia", "https://liquipedia.net/valorant/EKo"],
-  "s132": ["Liquipedia", "https://liquipedia.net/valorant/Erde"],
-  "s133": ["Liquipedia", "https://liquipedia.net/valorant/ExiT"],
-  "s134": ["Liquipedia", "https://liquipedia.net/valorant/Faded"],
-  "s135": ["Liquipedia", "https://liquipedia.net/valorant/Freeing"],
-  "s136": ["Liquipedia", "https://liquipedia.net/valorant/FrosT"],
-  "s137": ["Liquipedia", "https://liquipedia.net/valorant/H1ber"],
-  "s138": ["Liquipedia", "https://liquipedia.net/valorant/Heat"],
-  "s139": ["Liquipedia", "https://liquipedia.net/valorant/Hiro"],
-  "s140": ["Liquipedia", "https://liquipedia.net/valorant/Hvoya"],
-  "s141": ["Liquipedia", "https://liquipedia.net/valorant/HYUNMIN"],
-  "s142": ["Liquipedia", "https://liquipedia.net/valorant/Ion2x"],
-  "s143": ["Liquipedia", "https://liquipedia.net/valorant/Jackk"],
-  "s144": ["Liquipedia", "https://liquipedia.net/valorant/Jamelinho213"],
-  "s145": ["Liquipedia", "https://liquipedia.net/valorant/Jerrwin"],
-  "s146": ["Liquipedia", "https://liquipedia.net/valorant/Jesse"],
-  "s147": ["Liquipedia", "https://liquipedia.net/valorant/JonahP"],
-  "s148": ["Liquipedia", "https://liquipedia.net/valorant/Kamino"],
-  "s149": ["Liquipedia", "https://liquipedia.net/valorant/Kaplan"],
-  "s150": ["Liquipedia", "https://liquipedia.net/valorant/Keiko"],
-  "s151": ["Liquipedia", "https://liquipedia.net/valorant/KEN"],
-  "s152": ["Liquipedia", "https://liquipedia.net/valorant/Kicks"],
-  "s153": ["Liquipedia", "https://liquipedia.net/valorant/Koalanoob"],
-  "s154": ["Liquipedia", "https://liquipedia.net/valorant/Koshmaras"],
-  "s155": ["Liquipedia", "https://liquipedia.net/valorant/Kr1stal"],
-  "s156": ["Liquipedia", "https://liquipedia.net/valorant/KUNDIKUNDI"],
-  "s157": ["Liquipedia", "https://liquipedia.net/valorant/Kyu"],
-  "s158": ["Liquipedia", "https://liquipedia.net/valorant/Lukxo"],
-  "s159": ["Liquipedia", "https://liquipedia.net/valorant/MaKo"],
-  "s160": ["Liquipedia", "https://liquipedia.net/valorant/Marteen"],
-  "s161": ["Liquipedia", "https://liquipedia.net/valorant/Mavera"],
-  "s162": ["Liquipedia", "https://liquipedia.net/valorant/Mazino"],
-  "s163": ["Liquipedia", "https://liquipedia.net/valorant/Meiy"],
-  "s164": ["Liquipedia", "https://liquipedia.net/valorant/Meteor"],
-  "s165": ["VLR", "https://vlr.gg/player/9800/mindfreak"],
-  "s166": ["Liquipedia", "https://liquipedia.net/valorant/MiniBoo"],
-  "s167": ["Liquipedia", "https://liquipedia.net/valorant/Minny"],
-  "s168": ["Liquipedia", "https://liquipedia.net/valorant/MONSTEERR"],
-  "s169": ["Liquipedia", "https://liquipedia.net/valorant/Munchkin"],
-  "s170": ["Liquipedia", "https://liquipedia.net/valorant/Mwzera"],
-  "s171": ["Liquipedia", "https://liquipedia.net/valorant/NAts"],
-  "s172": ["Liquipedia", "https://liquipedia.net/valorant/NaturE"],
-  "s173": ["Liquipedia", "https://liquipedia.net/valorant/Nekky"],
-  "s174": ["Liquipedia", "https://liquipedia.net/valorant/NeT"],
-  "s175": ["Liquipedia", "https://liquipedia.net/valorant/NINJA"],
-  "s176": ["Liquipedia", "https://liquipedia.net/valorant/NoMan"],
-  "s177": ["Liquipedia", "https://liquipedia.net/valorant/OXY"],
-  "s178": ["Liquipedia", "https://liquipedia.net/valorant/Pa1ze"],
-  "s179": ["Liquipedia", "https://liquipedia.net/valorant/Paincakes"],
-  "s180": ["Liquipedia", "https://liquipedia.net/valorant/PAL"],
-  "s181": ["Liquipedia", "https://liquipedia.net/valorant/PatMen"],
-  "s182": ["Liquipedia", "https://liquipedia.net/valorant/PipsoN"],
-  "s183": ["Liquipedia", "https://liquipedia.net/valorant/Potter_(Christine_Chi)"],
-  "s184": ["Liquipedia", "https://liquipedia.net/valorant/Primmie"],
-  "s185": ["Liquipedia", "https://liquipedia.net/valorant/Proxh"],
-  "s186": ["Liquipedia", "https://liquipedia.net/valorant/Purp0"],
-  "s187": ["Liquipedia", "https://liquipedia.net/valorant/Qpert"],
-  "s188": ["Liquipedia", "https://liquipedia.net/valorant/Quail"],
-  "s189": ["Liquipedia", "https://liquipedia.net/valorant/Rarga"],
-  "s190": ["Liquipedia", "https://liquipedia.net/valorant/Ruxic"],
-  "s191": ["Liquipedia", "https://liquipedia.net/valorant/S0pp"],
-  "s192": ["Liquipedia", "https://liquipedia.net/valorant/ShaW"],
-  "s193": ["Liquipedia", "https://liquipedia.net/valorant/Shhhack"],
-  "s194": ["Liquipedia", "https://liquipedia.net/valorant/Shyy"],
-  "s195": ["Liquipedia", "https://liquipedia.net/valorant/SkRossi"],
-  "s196": ["Liquipedia", "https://liquipedia.net/valorant/Spaz"],
-  "s197": ["Liquipedia", "https://liquipedia.net/valorant/Starxo"],
-  "s198": ["Liquipedia", "https://liquipedia.net/valorant/STYRON"],
-  "s199": ["Liquipedia", "https://liquipedia.net/valorant/Supamen"],
-  "s200": ["Liquipedia", "https://liquipedia.net/valorant/SyouTa"],
-  "s201": ["Liquipedia", "https://liquipedia.net/valorant/TenZ"],
-  "s202": ["Liquipedia", "https://liquipedia.net/valorant/Termi"],
-  "s203": ["Liquipedia", "https://liquipedia.net/valorant/Tex"],
-  "s204": ["Liquipedia", "https://liquipedia.net/valorant/Thinkii"],
-  "s205": ["Liquipedia", "https://liquipedia.net/valorant/Thyy"],
-  "s206": ["Liquipedia", "https://liquipedia.net/valorant/Trexx"],
-  "s207": ["Liquipedia", "https://liquipedia.net/valorant/UdoTan"],
-  "s208": ["Liquipedia", "https://liquipedia.net/valorant/V1c"],
-  "s209": ["Liquipedia", "https://liquipedia.net/valorant/Valyn"],
-  "s210": ["Liquipedia", "https://liquipedia.net/valorant/Veer"],
-  "s211": ["Liquipedia", "https://liquipedia.net/valorant/Veqaj"],
-  "s212": ["Liquipedia", "https://liquipedia.net/valorant/Verno"],
-  "s213": ["Liquipedia", "https://liquipedia.net/valorant/Vlad"],
-  "s214": ["Liquipedia", "https://liquipedia.net/valorant/Vo0kashu"],
-  "s215": ["Liquipedia", "https://liquipedia.net/valorant/Vorz"],
-  "s216": ["Liquipedia", "https://liquipedia.net/valorant/Waddle"],
-  "s217": ["Liquipedia", "https://liquipedia.net/valorant/Wo0t"],
-  "s218": ["Liquipedia", "https://liquipedia.net/valorant/Xavi8k"],
-  "s219": ["Liquipedia", "https://liquipedia.net/valorant/Xdll"],
-  "s220": ["Liquipedia", "https://liquipedia.net/valorant/Xeus"],
-  "s221": ["Liquipedia", "https://liquipedia.net/valorant/Yatsuka"],
-  "s222": ["Liquipedia", "https://liquipedia.net/valorant/Yuvi"],
-  "s223": ["Liquipedia", "https://liquipedia.net/valorant/ZaeS"],
-  "s224": ["Liquipedia", "https://liquipedia.net/valorant/Zander"],
-  "s225": ["Liquipedia", "https://liquipedia.net/valorant/Zekken"],
-  "s226": ["Liquipedia", "https://liquipedia.net/valorant/Zerona"],
-  "s227": ["VLR", "https://www.vlr.gg/782884/eternal-fire-allows-spear-to-explore-options"],
-  "s228": ["VLR", "https://www.vlr.gg/782881/fut-esports-set-to-part-ways-with-xeus"],
-  "s230": ["VLR", "https://www.vlr.gg/783167/t1-parts-ways-with-meteor-munchkin-dh-kdg-and-cheonggak"],
-  "s231": ["DFM 공식", "https://team-detonation.net/news/52654"],
-  "s233": ["VLR", "https://www.vlr.gg/player/1348/hvoya"],
-  "s234": ["AG 공식 X", "https://x.com/AG_VALORANT/status/2117207493504114726"],
-  "s235": ["什么值得买", "https://post.smzdm.com/p/ak83pr39/"],
-  "s236": ["Liquipedia", "https://liquipedia.net/valorant/Akame"],
-  "s237": ["Liquipedia", "https://liquipedia.net/valorant/Melofovia"],
-  "s238": ["Liquipedia", "https://liquipedia.net/valorant/NorthernLights"],
-  "s239": ["VLR", "https://www.vlr.gg/755211/bbl-esports-allows-ros-lovers-rock-crewen-and-viento-to-explore-options"],
-  "s240": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-hyunmin-set-to-join-g2-esports-ahead-of-2027-vct-season/en"],
-  "s242": ["FNATIC (X)", "https://x.com/FNATIC/status/2117255771788341288"],
-  "s243": ["VLR", "https://www.vlr.gg/755764/rex-regum-qeon-allows-head-coach-jovi-to-explore-options"],
-  "s244": ["VLR", "https://www.vlr.gg/757192/warbirds-set-to-leave-the-rex-regum-qeon-flock"],
-  "s245": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-jawgemo-set-to-join-team-vitality-for-2027/en"],
-  "s246": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-ucam-finalize-2027-roster-with-flickless-waddle-filu-buld-and-kamyk/en"],
-  "s247": ["VLR", "https://www.vlr.gg/player/25017/ha-hyun-cheol"],
-  "s248": ["VALO2ASIA", "https://x.com/VALO2ASIA/status/2117233008264859657"],
-  "s249": ["Dot Esports", "https://dotesports.com/valorant/news/sentinels-oxy-official"],
-  "s250": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-tenz-set-to-join-t1-s-competitive-roster-for-vct-return/en"],
-  "s251": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-crashies-set-to-join-t1-ahead-of-2027-vct-pacific/en"],
-  "s252": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-akame-set-to-join-crazy-raccoon-for-vct-2027-se/en"],
-  "s253": ["Gen.G (X)", "https://x.com/geng_gold/status/2117406401396085141"],
-  "s254": ["Gen.G (X)", "https://x.com/geng_gold/status/2117406653293195518"],
-  "s255": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-dambi-set-to-join-gen-g-esports-ahead-of-vct-pacific-2027-season/en"],
-  "s256": ["Gen.G (X)", "https://x.com/geng_gold/status/2117406904913703205"],
-  "s257": ["VLR", "https://www.vlr.gg/783483/ed101-leaves-all-gamers-head-coaching-post-for-any-questions"],
-  "s258": ["Sheep Esports", "https://www.sheepesports.com/en/articles/team-heretics-complete-vct-emea-2027-roster/en"],
-  "s259": ["VLR", "https://www.vlr.gg/player/2170/andrej-francisty"],
-  "s260": ["VLR", "https://www.vlr.gg/player/2172/brock-somerhalder"],
-  "s261": ["VLR", "https://www.vlr.gg/player/5568/volkan-yonal"],
-  "s262": ["VLR", "https://www.vlr.gg/player/4666/cha-il-hwan"],
-  "s263": ["VLR", "https://www.vlr.gg/player/195/casper-rasmussen"],
-  "s264": ["VLR", "https://www.vlr.gg/player/53027/philipp-schickor"],
-  "s265": ["VLR", "https://vlr.gg/player/19677"],
-  "s266": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-babybay-set-to-join-weibo-gaming-for-2027-vct-china-season/en"],
-  "s267": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-darker-has-reached-a-verbal-agreement-to-join-kru-esports-for-vct-americas-2027-season/en"],
-  "s268": ["TheSpike", "https://www.thespike.gg/valorant/news/kru-esports-reach-an-agreement-to-sign-darker-for-the-vct-2027/9176"],
-  "s269": ["VLR", "https://www.vlr.gg/784105/giantx-parts-ways-with-ara-flickless-and-westside"],
-  "s270": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-d4v41-set-to-join-xi-lai-gaming-ahead-of-2027-vct-season/en"],
-  "s271": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-sacy-set-to-join-t1-as-head-coach-for-2027-vct-season/en"],
-  "s272": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-krue-esports-part-ways-with-saadhak-and-dantedeu5/en"],
-  "s273": ["Liquipedia", "https://liquipedia.net/valorant/All_Gamers"],
-  "s274": ["Liquipedia", "https://liquipedia.net/valorant/Titan_Esports_Club"],
-  "s275": ["VLR", "https://www.vlr.gg/player/727/saadhak"],
-  "s276": ["VLR", "https://www.vlr.gg/player/41135/dantedeu5"],
-  "s277": ["VLR", "https://www.vlr.gg/player/4720/haodong"],
-  "s278": ["VLR", "https://www.vlr.gg/player/52101/bai"],
-  "s279": ["VLR", "https://www.vlr.gg/player/8643/after"],
-  "s280": ["VLR", "https://www.vlr.gg/player/42154/3water"],
-  "s281": ["VLR", "https://www.vlr.gg/player/29401/muggle"],
-  "s282": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-jinggg-set-to-join-all-gamers-for-2027-vct-china-season/en"],
-  "s283": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-smoggy-is-set-to-join-bilibili-gaming-for-the-2027-vct-china-season/en"],
-  "s284": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-spring-set-to-join-all-gamers-for-the-2027-vct-season/en"],
-  "s285": ["VLR", "https://www.vlr.gg/player/4041/park-min-soo"],
-  "s286": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-basic-reaches-verbal-agreement-with-loud-for-2027/en"],
-  "s287": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-tkzin-reaches-verbal-agreement-with-loud-for-2027/en"],
-  "s288": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-alfajer-set-to-join-gentle-mates-for-2027/en"],
-  "s289": ["VLR", "https://www.vlr.gg/player/8376/johann-hernandez"],
-  "s290": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-mako-set-to-join-gen-g-esports-ahead-of-2027-vct-season/en"],
-  "s291": ["VLR", "https://www.vlr.gg/player/46135/zeus"],
-  "s292": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-chichoo-set-to-join-trace-esports-for-2027/en"],
-  "s293": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-nobody-set-to-join-trace-esports-for-2027-vct-china-season/en"],
-  "s294": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-pipson-set-to-join-tyloo-for-vct-2027-season/en"],
-  "s295": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-cortezia-reaches-verbal-agreement-with-loud-for-2027/en"],
-  "s296": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-fayde-set-to-join-all-gamers-as-head-coach-for-2027/en"],
-  "s297": ["VLR", "https://www.vlr.gg/player/9810/emir-ali-beder"],
-  "s298": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-rossy-set-to-join-edward-gaming-for-2027-vct-season/en"],
-  "s299": ["Strafe", "https://www.strafe.com/news/read/loud-reportedly-reach-agreements-with-cortezia-artzin-and-basic-for-2027/"],
-  "s300": ["TalkEsport(FUT 공식 X 인용)", "https://www.talkesport.com/news/valorant/fut-esports-wo0t-batujnax-hezacoil-vct-2027/"],
-  "s301": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-zmjjkk-kk-set-to-join-xi-lai-gaming-ahead-of-2027-vct-season/en"],
-  "s302": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-canezerra-reaches-verbal-agreement-with-sentinels-for-2027/en"],
-  "s303": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-batujnax-set-to-join-fut-esports-for-2027-vct-season/en"],
-  "s304": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-hezacoil-set-to-join-fut-esports-for-2027-vct-season/en"],
-  "s305": ["Liquipedia", "https://liquipedia.net/valorant/Rossy"],
-  "s306": ["Liquipedia", "https://liquipedia.net/valorant/ZmjjKK"],
-  "s307": ["Liquipedia", "https://liquipedia.net/valorant/Canezerra"],
-  "s308": ["Liquipedia", "https://liquipedia.net/valorant/Hezacoil"],
-  "s309": ["Liquipedia", "https://liquipedia.net/valorant/Batujnax"],
-  "s310": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-after-set-to-join-trace-esports-as-head-coach-for-vct-2027/en"],
-  "s311": ["VARREL 공식 X", "https://x.com/VARREL_VALORANT/status/2117466803656110527"],
-  "s312": ["Liquipedia 100 Thieves", "https://liquipedia.net/valorant/100_Thieves"],
-  "s313": ["Liquipedia G2 Esports", "https://liquipedia.net/valorant/G2_Esports"],
-  "s314": ["Liquipedia KRÜ Esports", "https://liquipedia.net/valorant/KRÜ_Esports"],
-  "s315": ["Liquipedia Leviatán", "https://liquipedia.net/valorant/Leviatán"],
-  "s316": ["Liquipedia LOUD", "https://liquipedia.net/valorant/LOUD"],
-  "s317": ["Liquipedia NRG", "https://liquipedia.net/valorant/NRG"],
-  "s318": ["Liquipedia Sentinels", "https://liquipedia.net/valorant/Sentinels"],
-  "s319": ["Liquipedia BBL Esports", "https://liquipedia.net/valorant/BBL_Esports"],
-  "s320": ["Liquipedia Fnatic", "https://liquipedia.net/valorant/Fnatic"],
-  "s321": ["Liquipedia FUT Esports", "https://liquipedia.net/valorant/FUT_Esports"],
-  "s322": ["Liquipedia Karmine Corp", "https://liquipedia.net/valorant/Karmine_Corp"],
-  "s323": ["Liquipedia Team Heretics", "https://liquipedia.net/valorant/Team_Heretics"],
-  "s324": ["Liquipedia Team Liquid", "https://liquipedia.net/valorant/Team_Liquid"],
-  "s325": ["Liquipedia Team Vitality", "https://liquipedia.net/valorant/Team_Vitality"],
-  "s326": ["Liquipedia FULL SENSE", "https://liquipedia.net/valorant/FULL_SENSE"],
-  "s327": ["Liquipedia Gen.G", "https://liquipedia.net/valorant/Gen.G"],
-  "s328": ["Liquipedia Paper Rex", "https://liquipedia.net/valorant/Paper_Rex"],
-  "s329": ["Liquipedia Rex Regum Qeon", "https://liquipedia.net/valorant/Rex_Regum_Qeon"],
-  "s330": ["Liquipedia T1", "https://liquipedia.net/valorant/T1"],
-  "s331": ["Liquipedia ZETA DIVISION", "https://liquipedia.net/valorant/ZETA_DIVISION"],
-  "s332": ["Liquipedia Bilibili Gaming", "https://liquipedia.net/valorant/Bilibili_Gaming"],
-  "s333": ["Liquipedia EDward Gaming", "https://liquipedia.net/valorant/EDward_Gaming"],
-  "s334": ["Liquipedia JD Gaming", "https://liquipedia.net/valorant/JD_Gaming"],
-  "s335": ["Liquipedia Trace Esports", "https://liquipedia.net/valorant/Trace_Esports"],
-  "s336": ["Liquipedia TYLOO", "https://liquipedia.net/valorant/TYLOO"],
-  "s337": ["Liquipedia Weibo Gaming", "https://liquipedia.net/valorant/Weibo_Gaming"],
-  "s338": ["Liquipedia Xi Lai Gaming", "https://liquipedia.net/valorant/Xi_Lai_Gaming"],
-  "s339": ["Liquipedia Dragon Ranger Gaming", "https://liquipedia.net/valorant/Dragon_Ranger_Gaming"],
-  "s340": ["Liquipedia Nova Esports", "https://liquipedia.net/valorant/Nova_Esports"],
-  "s341": ["Sentinels 공식 X", "https://x.com/Sentinels/status/2119173511956861296"],
-  "s342": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-keiko-set-to-join-sentinels-for-2027/en"],
-  "s343": ["QT DIG∞ 공식 X", "https://x.com/qt_dig/status/2119281758386753865"],
-  "s344": ["Cloud9 공식 X", "https://x.com/C9VAL/status/2119157946785599724"],
-  "s345": ["TheSpike", "https://www.thespike.gg/valorant/news/g2-esports-bid-farewell-to-jawgemo-ahead-of-2027/9200"],
-  "s346": ["VLR", "https://www.vlr.gg/786622/loud-bids-farewell-to-tkzin"],
-  "s347": ["VLR", "https://www.vlr.gg/786615/pcific-releases-full-roster"],
-  "s348": ["Sheep Esports", "https://www.sheepesports.com/en/articles/t1-finalize-roster-for-vct-pacific-2027/en"],
-  "s349": ["Liquipedia", "https://liquipedia.net/valorant/D4v41"],
-  "s350": ["Liquipedia", "https://liquipedia.net/valorant/Jinggg"],
-  "s351": ["Liquipedia", "https://liquipedia.net/valorant/TenTen"],
-  "s352": ["Liquipedia", "https://liquipedia.net/valorant/Zellsis"],
-  "s353": ["Liquipedia", "https://liquipedia.net/valorant/Alym"],
-  "s354": ["Liquipedia", "https://liquipedia.net/valorant/Derrek"],
-  "s355": ["Liquipedia", "https://liquipedia.net/valorant/Nightz"],
-  "s356": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-aace-set-to-join-crazy-raccoon-for-the-2027-vct-pacific-season/en"],
-  "s357": ["Strafe: Gen.G Signs MaKo and Dambi for VCT 2027", "https://www.strafe.com/news/read/geng-signs-mako-and-dambi-for-vct-2027/"],
-  "s358": ["Liquipedia", "https://liquipedia.net/valorant/gyen"],
-  "s359": ["Liquipedia", "https://liquipedia.net/valorant/JoXJo"],
-  "s360": ["Liquipedia", "https://liquipedia.net/valorant/Persia"],
-  "s361": ["Liquipedia", "https://liquipedia.net/valorant/RvK"],
-  "s362": ["Esports Earnings: Conner GLYPH Garcia", "https://www.esportsearnings.com/players/91584-glyph-conner-garcia"],
-  "s363": ["VLR", "https://www.vlr.gg/786620/shopify-rebellion-black-unveils-new-roster"],
-  "s364": ["VLR", "https://www.vlr.gg/787826/full-sense-allows-jitboys-killua-sushiboys-to-explore-options"],
-  "s365": ["VLR", "https://www.vlr.gg/787805/xi-lai-gaming-allows-igl-wsleo-to-explore-options"],
-  "s366": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-crazyguy-set-to-join-gam-esports-for-vct-pacific-2027/en"],
-  "s367": ["BOOM Esports 공식 X", "https://x.com/boomesportsid/status/2119754376038285451"],
-  "s368": ["BOOM Esports 공식 X", "https://x.com/boomesportsid/status/2120026173799584007"],
-  "s369": ["VLR", "https://www.vlr.gg/player/9805/ji-dong-jun"],
-  "s370": ["Sentinels 공식 X", "https://x.com/Sentinels/status/2120275179658162556"],
-  "s371": ["VLR", "https://www.vlr.gg/788401/sentinels-release-cortezia-and-reduxx"],
-  "s372": ["https://www.vlr.gg/788583/anaks-joins-titan-esports-club-following-blg-stint", "https://www.vlr.gg/788583/anaks-joins-titan-esports-club-following-blg-stint"],
-  "s373": ["VLR", "https://www.vlr.gg/788702/the-dawg-joins-the-hive-team-vitality-signs-jawgemo"],
-  "s374": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-aspas-set-to-join-fut-esports-for-2027/en"],
-  "s375": ["VLR", "https://www.vlr.gg/788378/turning-back-t1me-crashies-returns-to-t1"],
-  "s376": ["VLR", "https://www.vlr.gg/788578/smoggy-turns-the-page-on-edg-joins-bilibili-gaming"],
-  "s377": ["Team Vitality 공식 X", "https://x.com/TeamVitalityVAL/status/2120204290375471109"],
-  "s378": ["THESPIKE", "https://www.thespike.gg/valorant/news/aspas-turns-down-multimillion-vct-china-offer-agrees-deal-with-fut-esports/9222"],
-  "s379": ["Sheep Esports", "https://www.sheepesports.com/en/articles/g2-esports-complete-roster-for-vct-americas-2027/en"],
-  "s380": ["VLR", "https://www.vlr.gg/788383/eternal-fire-completes-roster-with-badrex"],
-  "s381": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-ray-set-to-join-gen-g-for-2027-vct-season/en"],
-  "s382": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-sugarz3ro-set-to-join-crazy-raccoon-for-vct-pacific-2027/en"],
-  "s383": ["Sheep Esports", "https://www.sheepesports.com/en/articles/sources-clz-set-to-join-crazy-raccoon-for-vct-pacific-2026/en"],
-  "s384": ["VLR", "https://www.vlr.gg/789198/the-king-returnz-tenz-returns-to-competitive-play-with-t1"]
+ "s3": [
+  "VLR",
+  "https://www.vlr.gg/777970/cloud9-allows-v1c-to-explore-options"
+ ],
+ "s4": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-oxy-set-to-join-sentinels-for-vct-americas-2027/en"
+ ],
+ "s5": [
+  "VLR",
+  "https://www.vlr.gg/769367/ion-enters-restricted-free-agency"
+ ],
+ "s6": [
+  "Pley.gg",
+  "https://pley.gg/valorant/riot-confirm-all-32-vct-partners-for-2027-as-t1-and-paper-rex-stay-in-and-drx-miss-out/"
+ ],
+ "s9": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-valyn-set-to-join-fnatic-for-the-2027-season/en"
+ ],
+ "s11": [
+  "VLR",
+  "https://www.vlr.gg/777472/kyu-enters-free-agency-after-second-run-with-m80"
+ ],
+ "s12": [
+  "EGamersWorld",
+  "https://egamersworld.com/blog/valorant-roster-changes-after-champions-2026-bL_BRlux42"
+ ],
+ "s13": [
+  "ShwN (X)",
+  "https://x.com/20shwn/status/2115091598321000527"
+ ],
+ "s14": [
+  "VLR 이적 로그",
+  "https://www.vlr.gg/transfers"
+ ],
+ "s15": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/mibr-allows-its-roster-to-explore-options-ahead-of-2027-vct-season/en"
+ ],
+ "s17": [
+  "VLR",
+  "https://www.vlr.gg/772672/zander-set-to-leave-shopify-rebellion-black-after-one-year"
+ ],
+ "s18": [
+  "VLR",
+  "https://www.vlr.gg/757970/shopify-rebellion-black-allows-nature-to-explore-options"
+ ],
+ "s20": [
+  "VLR",
+  "https://www.vlr.gg/780736/gentle-mates-part-ways-with-full-roster-and-coaching-staff"
+ ],
+ "s22": [
+  "VLR",
+  "https://www.vlr.gg/769206/net-leaves-giantx-after-one-split"
+ ],
+ "s23": [
+  "VLR",
+  "https://www.vlr.gg/780100/ara-set-to-leave-giantx-after-two-seasons"
+ ],
+ "s24": [
+  "VLR",
+  "https://www.vlr.gg/770954/pcific-igl-qpert-to-enter-free-agency"
+ ],
+ "s25": [
+  "VLR",
+  "https://www.vlr.gg/778860/wo0t-leaves-team-heretics-ending-three-year-run"
+ ],
+ "s26": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-nats-set-to-continue-with-team-liquid-ahead-of-vct-2027-season/en"
+ ],
+ "s31": [
+  "VLR",
+  "https://www.vlr.gg/774843/ex-gambit-m3c-player-d3ffo-leaves-boom-esports-after-one-year"
+ ],
+ "s32": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-meiy-set-to-return-to-crazy-raccoon-for-2027-vct-pacific-season/en"
+ ],
+ "s35": [
+  "VLR",
+  "https://www.vlr.gg/780037/primmie-to-explore-options-outside-of-full-sense"
+ ],
+ "s36": [
+  "VLR",
+  "https://www.vlr.gg/777318/global-esports-exits-esports-to-begin-anew-as-ai-studio"
+ ],
+ "s37": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-kr1stal-set-to-join-full-sense-for-2027-vct-pacific-season/en"
+ ],
+ "s38": [
+  "VLR",
+  "https://www.vlr.gg/778104/udotan-xavi8k-announce-free-agency-from-global-esports"
+ ],
+ "s40": [
+  "VLR",
+  "https://www.vlr.gg/778910/krx-announces-mass-exodus-following-partnership-snub"
+ ],
+ "s44": [
+  "VLR",
+  "https://www.vlr.gg/767709/xan-leaves-rex-regum-qeon"
+ ],
+ "s47": [
+  "VLR",
+  "https://www.vlr.gg/767715/zeta-division-allows-xdll-to-explore-options"
+ ],
+ "s48": [
+  "VLR",
+  "https://www.vlr.gg/779869/zeta-division-allows-eko-syouta-and-absol-to-explore-options"
+ ],
+ "s49": [
+  "VLR",
+  "https://www.vlr.gg/780790/dragon-ranger-gaming-allows-vo0kashu-to-explore-options"
+ ],
+ "s51": [
+  "VLR",
+  "https://www.vlr.gg/773446/xi-lai-gaming-allows-rarga-to-explore-options"
+ ],
+ "s52": [
+  "VLR",
+  "https://www.vlr.gg/773734/xi-lai-set-to-enter-offseason-rebuild-without-mr-3k-noman"
+ ],
+ "s53": [
+  "VLR",
+  "https://www.vlr.gg/777953/cloud9-head-coach-veer-set-to-enter-free-agency"
+ ],
+ "s54": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-faded-set-to-join-rex-regum-qeon-ahead-of-2027-vct-season/en"
+ ],
+ "s55": [
+  "VLR",
+  "https://www.vlr.gg/778901/balax-departs-loud-after-assisting-in-champions-winning-run"
+ ],
+ "s57": [
+  "VLR",
+  "https://www.vlr.gg/780109/g2-esports-allows-assistant-coach-shhhack-to-explore-options"
+ ],
+ "s58": [
+  "VLR",
+  "https://www.vlr.gg/778820/gentle-mates-to-part-with-head-coach-kundikundi"
+ ],
+ "s59": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-vorz-set-to-join-crazy-raccoon-as-head-coach-for-2027-vct-pacific-season/en"
+ ],
+ "s60": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-frost-set-to-not-continue-with-full-sense-for-2027-vct-season/en"
+ ],
+ "s62": [
+  "VLR",
+  "https://www.vlr.gg/780032/yoman-departs-nongshim-redforce-after-one-year-coaching-stint"
+ ],
+ "s63": [
+  "VLR",
+  "https://www.vlr.gg/780118/wendler-to-leave-paper-rex-after-nearly-one-year"
+ ],
+ "s64": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Portal:Transfers"
+ ],
+ "s67": [
+  "VCT Roster Tracker (X)",
+  "https://x.com/VCTTracker"
+ ],
+ "s68": [
+  "TheSpike",
+  "https://www.thespike.gg/valorant/news/fns-s0m-florescent-form-new-superteam-for-vct-2027-open-qualifiers/9105"
+ ],
+ "s69": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-marteen-set-to-join-fnatic-for-the-2027-season/en"
+ ],
+ "s71": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/vct-pacific-all-players-out-of-contract-in-2026/en"
+ ],
+ "s73": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-s0pp-set-to-join-eternal-fire-ahead-of-2027-vct-emea-season/en"
+ ],
+ "s74": [
+  "TheSpike",
+  "https://www.thespike.gg/valorant/news/navi-release-entire-roster-ahead-of-the-2027-season/9130"
+ ],
+ "s75": [
+  "TheSpike",
+  "https://www.thespike.gg/valorant/news/derke-boo-and-trexx-join-aurora-gaming-ahead-of-vct-emea-2027/9133"
+ ],
+ "s77": [
+  "VALO2ASIA (X)",
+  "https://x.com/VALO2ASIA/status/2115388140907098418"
+ ],
+ "s78": [
+  "VLR",
+  "https://www.vlr.gg/781616/kru-parts-ways-with-mwzera-and-heat"
+ ],
+ "s79": [
+  "Sheep X",
+  "https://x.com/Sheep_VALORANT/status/2115911234906427801"
+ ],
+ "s80": [
+  "Sheep X",
+  "https://x.com/Sheep_VALORANT/status/2115878758066348090"
+ ],
+ "s81": [
+  "WIP Esports (X)",
+  "https://x.com/WIP_EsportsTeam/status/2115851164353020026"
+ ],
+ "s82": [
+  "VLR",
+  "https://www.vlr.gg/team/11232/joblife"
+ ],
+ "s83": [
+  "VLR",
+  "https://www.vlr.gg/781651/alexrr-and-deryeon-announce-free-agency-after-wolves-stints"
+ ],
+ "s84": [
+  "FURIA (X)",
+  "https://x.com/FURIA/status/2116293769909928158"
+ ],
+ "s85": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-eeiu-set-to-join-nrg-for-2027-vct-americas-season/en"
+ ],
+ "s86": [
+  "TheSpike",
+  "https://www.thespike.gg/valorant/news/luk-xo-apologizes-to-fans-and-confirms-he-s-leaving-loud/9138"
+ ],
+ "s87": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-boaster-set-to-join-gentle-mates-for-valorant-emea-2027/en"
+ ],
+ "s88": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-patmen-set-to-return-to-paper-rex-for-vct-2027/en"
+ ],
+ "s90": [
+  "VLR",
+  "https://www.vlr.gg/782283/sentinels-release-jonahp-and-jerrwin"
+ ],
+ "s91": [
+  "Sheep X",
+  "https://x.com/Sheep_VALORANT/status/2107187466893742372"
+ ],
+ "s92": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-monsteerr-set-to-join-barca-esports-for-vct-emea-2027/en"
+ ],
+ "s93": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Spear"
+ ],
+ "s94": [
+  "VLR",
+  "https://www.vlr.gg/762009/barca-pa1ze"
+ ],
+ "s95": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-proxh-set-to-join-barca-esports-for-the-2027-vct-season/en"
+ ],
+ "s96": [
+  "Sheep X",
+  "https://x.com/Sheep_VALORANT/status/2110129091106255096"
+ ],
+ "s97": [
+  "Strafe",
+  "https://www.strafe.com/news/read/paper-rex-announces-jinggg-and-d4v41-departures-ahead-of-vct-2027/"
+ ],
+ "s98": [
+  "Strafe",
+  "https://www.strafe.com/news/read/furia-confirms-exit-from-mixed-valorant-competition-in-2027/"
+ ],
+ "s99": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/all/transfers"
+ ],
+ "s100": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Absol"
+ ],
+ "s101": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Al0rante"
+ ],
+ "s102": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/AlexRr"
+ ],
+ "s103": [
+  "VLR",
+  "https://www.vlr.gg/player/25716/alti"
+ ],
+ "s104": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Alvinboy"
+ ],
+ "s105": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/ANGE1"
+ ],
+ "s106": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Ara"
+ ],
+ "s107": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Argency"
+ ],
+ "s108": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Artzin"
+ ],
+ "s109": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Aspas"
+ ],
+ "s110": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Audaz"
+ ],
+ "s111": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Balax"
+ ],
+ "s112": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Bao_(Vietnamese_player)"
+ ],
+ "s113": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Basic"
+ ],
+ "s114": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/BeYN"
+ ],
+ "s115": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Boaster"
+ ],
+ "s116": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Boni"
+ ],
+ "s117": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Boo"
+ ],
+ "s118": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/C0M"
+ ],
+ "s119": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Caedye"
+ ],
+ "s120": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/CheongGak"
+ ],
+ "s121": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Chloric"
+ ],
+ "s122": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/CyvOph"
+ ],
+ "s123": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/D3ffo"
+ ],
+ "s124": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Dambi"
+ ],
+ "s125": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Derke"
+ ],
+ "s126": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Deryeon"
+ ],
+ "s127": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Dgzin"
+ ],
+ "s128": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/DH"
+ ],
+ "s129": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Eeiu"
+ ],
+ "s130": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Efina"
+ ],
+ "s131": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/EKo"
+ ],
+ "s132": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Erde"
+ ],
+ "s133": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/ExiT"
+ ],
+ "s134": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Faded"
+ ],
+ "s135": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Freeing"
+ ],
+ "s136": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/FrosT"
+ ],
+ "s137": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/H1ber"
+ ],
+ "s138": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Heat"
+ ],
+ "s139": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Hiro"
+ ],
+ "s140": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Hvoya"
+ ],
+ "s141": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/HYUNMIN"
+ ],
+ "s142": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Ion2x"
+ ],
+ "s143": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Jackk"
+ ],
+ "s144": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Jamelinho213"
+ ],
+ "s145": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Jerrwin"
+ ],
+ "s146": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Jesse"
+ ],
+ "s147": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/JonahP"
+ ],
+ "s148": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Kamino"
+ ],
+ "s149": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Kaplan"
+ ],
+ "s150": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Keiko"
+ ],
+ "s151": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/KEN"
+ ],
+ "s152": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Kicks"
+ ],
+ "s153": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Koalanoob"
+ ],
+ "s154": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Koshmaras"
+ ],
+ "s155": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Kr1stal"
+ ],
+ "s156": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/KUNDIKUNDI"
+ ],
+ "s157": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Kyu"
+ ],
+ "s158": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Lukxo"
+ ],
+ "s159": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/MaKo"
+ ],
+ "s160": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Marteen"
+ ],
+ "s161": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Mavera"
+ ],
+ "s162": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Mazino"
+ ],
+ "s163": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Meiy"
+ ],
+ "s164": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Meteor"
+ ],
+ "s165": [
+  "VLR",
+  "https://vlr.gg/player/9800/mindfreak"
+ ],
+ "s166": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/MiniBoo"
+ ],
+ "s167": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Minny"
+ ],
+ "s168": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/MONSTEERR"
+ ],
+ "s169": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Munchkin"
+ ],
+ "s170": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Mwzera"
+ ],
+ "s171": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/NAts"
+ ],
+ "s172": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/NaturE"
+ ],
+ "s173": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Nekky"
+ ],
+ "s174": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/NeT"
+ ],
+ "s175": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/NINJA"
+ ],
+ "s176": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/NoMan"
+ ],
+ "s177": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/OXY"
+ ],
+ "s178": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Pa1ze"
+ ],
+ "s179": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Paincakes"
+ ],
+ "s180": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/PAL"
+ ],
+ "s181": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/PatMen"
+ ],
+ "s182": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/PipsoN"
+ ],
+ "s183": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Potter_(Christine_Chi)"
+ ],
+ "s184": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Primmie"
+ ],
+ "s185": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Proxh"
+ ],
+ "s186": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Purp0"
+ ],
+ "s187": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Qpert"
+ ],
+ "s188": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Quail"
+ ],
+ "s189": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Rarga"
+ ],
+ "s190": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Ruxic"
+ ],
+ "s191": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/S0pp"
+ ],
+ "s192": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/ShaW"
+ ],
+ "s193": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Shhhack"
+ ],
+ "s194": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Shyy"
+ ],
+ "s195": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/SkRossi"
+ ],
+ "s196": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Spaz"
+ ],
+ "s197": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Starxo"
+ ],
+ "s198": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/STYRON"
+ ],
+ "s199": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Supamen"
+ ],
+ "s200": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/SyouTa"
+ ],
+ "s201": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/TenZ"
+ ],
+ "s202": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Termi"
+ ],
+ "s203": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Tex"
+ ],
+ "s204": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Thinkii"
+ ],
+ "s205": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Thyy"
+ ],
+ "s206": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Trexx"
+ ],
+ "s207": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/UdoTan"
+ ],
+ "s208": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/V1c"
+ ],
+ "s209": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Valyn"
+ ],
+ "s210": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Veer"
+ ],
+ "s211": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Veqaj"
+ ],
+ "s212": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Verno"
+ ],
+ "s213": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Vlad"
+ ],
+ "s214": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Vo0kashu"
+ ],
+ "s215": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Vorz"
+ ],
+ "s216": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Waddle"
+ ],
+ "s217": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Wo0t"
+ ],
+ "s218": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Xavi8k"
+ ],
+ "s219": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Xdll"
+ ],
+ "s220": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Xeus"
+ ],
+ "s221": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Yatsuka"
+ ],
+ "s222": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Yuvi"
+ ],
+ "s223": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/ZaeS"
+ ],
+ "s224": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Zander"
+ ],
+ "s225": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Zekken"
+ ],
+ "s226": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Zerona"
+ ],
+ "s227": [
+  "VLR",
+  "https://www.vlr.gg/782884/eternal-fire-allows-spear-to-explore-options"
+ ],
+ "s228": [
+  "VLR",
+  "https://www.vlr.gg/782881/fut-esports-set-to-part-ways-with-xeus"
+ ],
+ "s230": [
+  "VLR",
+  "https://www.vlr.gg/783167/t1-parts-ways-with-meteor-munchkin-dh-kdg-and-cheonggak"
+ ],
+ "s231": [
+  "DFM 공식",
+  "https://team-detonation.net/news/52654"
+ ],
+ "s233": [
+  "VLR",
+  "https://www.vlr.gg/player/1348/hvoya"
+ ],
+ "s234": [
+  "AG 공식 X",
+  "https://x.com/AG_VALORANT/status/2117207493504114726"
+ ],
+ "s235": [
+  "什么值得买",
+  "https://post.smzdm.com/p/ak83pr39/"
+ ],
+ "s236": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Akame"
+ ],
+ "s237": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Melofovia"
+ ],
+ "s238": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/NorthernLights"
+ ],
+ "s239": [
+  "VLR",
+  "https://www.vlr.gg/755211/bbl-esports-allows-ros-lovers-rock-crewen-and-viento-to-explore-options"
+ ],
+ "s240": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-hyunmin-set-to-join-g2-esports-ahead-of-2027-vct-season/en"
+ ],
+ "s242": [
+  "FNATIC (X)",
+  "https://x.com/FNATIC/status/2117255771788341288"
+ ],
+ "s243": [
+  "VLR",
+  "https://www.vlr.gg/755764/rex-regum-qeon-allows-head-coach-jovi-to-explore-options"
+ ],
+ "s244": [
+  "VLR",
+  "https://www.vlr.gg/757192/warbirds-set-to-leave-the-rex-regum-qeon-flock"
+ ],
+ "s245": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-jawgemo-set-to-join-team-vitality-for-2027/en"
+ ],
+ "s246": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-ucam-finalize-2027-roster-with-flickless-waddle-filu-buld-and-kamyk/en"
+ ],
+ "s247": [
+  "VLR",
+  "https://www.vlr.gg/player/25017/ha-hyun-cheol"
+ ],
+ "s248": [
+  "VALO2ASIA",
+  "https://x.com/VALO2ASIA/status/2117233008264859657"
+ ],
+ "s249": [
+  "Dot Esports",
+  "https://dotesports.com/valorant/news/sentinels-oxy-official"
+ ],
+ "s250": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-tenz-set-to-join-t1-s-competitive-roster-for-vct-return/en"
+ ],
+ "s251": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-crashies-set-to-join-t1-ahead-of-2027-vct-pacific/en"
+ ],
+ "s252": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-akame-set-to-join-crazy-raccoon-for-vct-2027-se/en"
+ ],
+ "s253": [
+  "Gen.G (X)",
+  "https://x.com/geng_gold/status/2117406401396085141"
+ ],
+ "s254": [
+  "Gen.G (X)",
+  "https://x.com/geng_gold/status/2117406653293195518"
+ ],
+ "s255": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-dambi-set-to-join-gen-g-esports-ahead-of-vct-pacific-2027-season/en"
+ ],
+ "s256": [
+  "Gen.G (X)",
+  "https://x.com/geng_gold/status/2117406904913703205"
+ ],
+ "s257": [
+  "VLR",
+  "https://www.vlr.gg/783483/ed101-leaves-all-gamers-head-coaching-post-for-any-questions"
+ ],
+ "s258": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/team-heretics-complete-vct-emea-2027-roster/en"
+ ],
+ "s259": [
+  "VLR",
+  "https://www.vlr.gg/player/2170/andrej-francisty"
+ ],
+ "s260": [
+  "VLR",
+  "https://www.vlr.gg/player/2172/brock-somerhalder"
+ ],
+ "s261": [
+  "VLR",
+  "https://www.vlr.gg/player/5568/volkan-yonal"
+ ],
+ "s262": [
+  "VLR",
+  "https://www.vlr.gg/player/4666/cha-il-hwan"
+ ],
+ "s263": [
+  "VLR",
+  "https://www.vlr.gg/player/195/casper-rasmussen"
+ ],
+ "s264": [
+  "VLR",
+  "https://www.vlr.gg/player/53027/philipp-schickor"
+ ],
+ "s265": [
+  "VLR",
+  "https://vlr.gg/player/19677"
+ ],
+ "s266": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-babybay-set-to-join-weibo-gaming-for-2027-vct-china-season/en"
+ ],
+ "s267": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-darker-has-reached-a-verbal-agreement-to-join-kru-esports-for-vct-americas-2027-season/en"
+ ],
+ "s268": [
+  "TheSpike",
+  "https://www.thespike.gg/valorant/news/kru-esports-reach-an-agreement-to-sign-darker-for-the-vct-2027/9176"
+ ],
+ "s269": [
+  "VLR",
+  "https://www.vlr.gg/784105/giantx-parts-ways-with-ara-flickless-and-westside"
+ ],
+ "s270": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-d4v41-set-to-join-xi-lai-gaming-ahead-of-2027-vct-season/en"
+ ],
+ "s271": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-sacy-set-to-join-t1-as-head-coach-for-2027-vct-season/en"
+ ],
+ "s272": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-krue-esports-part-ways-with-saadhak-and-dantedeu5/en"
+ ],
+ "s273": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/All_Gamers"
+ ],
+ "s274": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Titan_Esports_Club"
+ ],
+ "s275": [
+  "VLR",
+  "https://www.vlr.gg/player/727/saadhak"
+ ],
+ "s276": [
+  "VLR",
+  "https://www.vlr.gg/player/41135/dantedeu5"
+ ],
+ "s277": [
+  "VLR",
+  "https://www.vlr.gg/player/4720/haodong"
+ ],
+ "s278": [
+  "VLR",
+  "https://www.vlr.gg/player/52101/bai"
+ ],
+ "s279": [
+  "VLR",
+  "https://www.vlr.gg/player/8643/after"
+ ],
+ "s280": [
+  "VLR",
+  "https://www.vlr.gg/player/42154/3water"
+ ],
+ "s281": [
+  "VLR",
+  "https://www.vlr.gg/player/29401/muggle"
+ ],
+ "s282": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-jinggg-set-to-join-all-gamers-for-2027-vct-china-season/en"
+ ],
+ "s283": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-smoggy-is-set-to-join-bilibili-gaming-for-the-2027-vct-china-season/en"
+ ],
+ "s284": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-spring-set-to-join-all-gamers-for-the-2027-vct-season/en"
+ ],
+ "s285": [
+  "VLR",
+  "https://www.vlr.gg/player/4041/park-min-soo"
+ ],
+ "s286": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-basic-reaches-verbal-agreement-with-loud-for-2027/en"
+ ],
+ "s287": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-tkzin-reaches-verbal-agreement-with-loud-for-2027/en"
+ ],
+ "s288": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-alfajer-set-to-join-gentle-mates-for-2027/en"
+ ],
+ "s289": [
+  "VLR",
+  "https://www.vlr.gg/player/8376/johann-hernandez"
+ ],
+ "s290": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-mako-set-to-join-gen-g-esports-ahead-of-2027-vct-season/en"
+ ],
+ "s291": [
+  "VLR",
+  "https://www.vlr.gg/player/46135/zeus"
+ ],
+ "s292": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-chichoo-set-to-join-trace-esports-for-2027/en"
+ ],
+ "s293": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-nobody-set-to-join-trace-esports-for-2027-vct-china-season/en"
+ ],
+ "s294": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-pipson-set-to-join-tyloo-for-vct-2027-season/en"
+ ],
+ "s295": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-cortezia-reaches-verbal-agreement-with-loud-for-2027/en"
+ ],
+ "s296": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-fayde-set-to-join-all-gamers-as-head-coach-for-2027/en"
+ ],
+ "s297": [
+  "VLR",
+  "https://www.vlr.gg/player/9810/emir-ali-beder"
+ ],
+ "s298": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-rossy-set-to-join-edward-gaming-for-2027-vct-season/en"
+ ],
+ "s299": [
+  "Strafe",
+  "https://www.strafe.com/news/read/loud-reportedly-reach-agreements-with-cortezia-artzin-and-basic-for-2027/"
+ ],
+ "s300": [
+  "TalkEsport(FUT 공식 X 인용)",
+  "https://www.talkesport.com/news/valorant/fut-esports-wo0t-batujnax-hezacoil-vct-2027/"
+ ],
+ "s301": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-zmjjkk-kk-set-to-join-xi-lai-gaming-ahead-of-2027-vct-season/en"
+ ],
+ "s302": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-canezerra-reaches-verbal-agreement-with-sentinels-for-2027/en"
+ ],
+ "s303": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-batujnax-set-to-join-fut-esports-for-2027-vct-season/en"
+ ],
+ "s304": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-hezacoil-set-to-join-fut-esports-for-2027-vct-season/en"
+ ],
+ "s305": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Rossy"
+ ],
+ "s306": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/ZmjjKK"
+ ],
+ "s307": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Canezerra"
+ ],
+ "s308": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Hezacoil"
+ ],
+ "s309": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Batujnax"
+ ],
+ "s310": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-after-set-to-join-trace-esports-as-head-coach-for-vct-2027/en"
+ ],
+ "s311": [
+  "VARREL 공식 X",
+  "https://x.com/VARREL_VALORANT/status/2117466803656110527"
+ ],
+ "s312": [
+  "Liquipedia 100 Thieves",
+  "https://liquipedia.net/valorant/100_Thieves"
+ ],
+ "s313": [
+  "Liquipedia G2 Esports",
+  "https://liquipedia.net/valorant/G2_Esports"
+ ],
+ "s314": [
+  "Liquipedia KRÜ Esports",
+  "https://liquipedia.net/valorant/KRÜ_Esports"
+ ],
+ "s315": [
+  "Liquipedia Leviatán",
+  "https://liquipedia.net/valorant/Leviatán"
+ ],
+ "s316": [
+  "Liquipedia LOUD",
+  "https://liquipedia.net/valorant/LOUD"
+ ],
+ "s317": [
+  "Liquipedia NRG",
+  "https://liquipedia.net/valorant/NRG"
+ ],
+ "s318": [
+  "Liquipedia Sentinels",
+  "https://liquipedia.net/valorant/Sentinels"
+ ],
+ "s319": [
+  "Liquipedia BBL Esports",
+  "https://liquipedia.net/valorant/BBL_Esports"
+ ],
+ "s320": [
+  "Liquipedia Fnatic",
+  "https://liquipedia.net/valorant/Fnatic"
+ ],
+ "s321": [
+  "Liquipedia FUT Esports",
+  "https://liquipedia.net/valorant/FUT_Esports"
+ ],
+ "s322": [
+  "Liquipedia Karmine Corp",
+  "https://liquipedia.net/valorant/Karmine_Corp"
+ ],
+ "s323": [
+  "Liquipedia Team Heretics",
+  "https://liquipedia.net/valorant/Team_Heretics"
+ ],
+ "s324": [
+  "Liquipedia Team Liquid",
+  "https://liquipedia.net/valorant/Team_Liquid"
+ ],
+ "s325": [
+  "Liquipedia Team Vitality",
+  "https://liquipedia.net/valorant/Team_Vitality"
+ ],
+ "s326": [
+  "Liquipedia FULL SENSE",
+  "https://liquipedia.net/valorant/FULL_SENSE"
+ ],
+ "s327": [
+  "Liquipedia Gen.G",
+  "https://liquipedia.net/valorant/Gen.G"
+ ],
+ "s328": [
+  "Liquipedia Paper Rex",
+  "https://liquipedia.net/valorant/Paper_Rex"
+ ],
+ "s329": [
+  "Liquipedia Rex Regum Qeon",
+  "https://liquipedia.net/valorant/Rex_Regum_Qeon"
+ ],
+ "s330": [
+  "Liquipedia T1",
+  "https://liquipedia.net/valorant/T1"
+ ],
+ "s331": [
+  "Liquipedia ZETA DIVISION",
+  "https://liquipedia.net/valorant/ZETA_DIVISION"
+ ],
+ "s332": [
+  "Liquipedia Bilibili Gaming",
+  "https://liquipedia.net/valorant/Bilibili_Gaming"
+ ],
+ "s333": [
+  "Liquipedia EDward Gaming",
+  "https://liquipedia.net/valorant/EDward_Gaming"
+ ],
+ "s334": [
+  "Liquipedia JD Gaming",
+  "https://liquipedia.net/valorant/JD_Gaming"
+ ],
+ "s335": [
+  "Liquipedia Trace Esports",
+  "https://liquipedia.net/valorant/Trace_Esports"
+ ],
+ "s336": [
+  "Liquipedia TYLOO",
+  "https://liquipedia.net/valorant/TYLOO"
+ ],
+ "s337": [
+  "Liquipedia Weibo Gaming",
+  "https://liquipedia.net/valorant/Weibo_Gaming"
+ ],
+ "s338": [
+  "Liquipedia Xi Lai Gaming",
+  "https://liquipedia.net/valorant/Xi_Lai_Gaming"
+ ],
+ "s339": [
+  "Liquipedia Dragon Ranger Gaming",
+  "https://liquipedia.net/valorant/Dragon_Ranger_Gaming"
+ ],
+ "s340": [
+  "Liquipedia Nova Esports",
+  "https://liquipedia.net/valorant/Nova_Esports"
+ ],
+ "s341": [
+  "Sentinels 공식 X",
+  "https://x.com/Sentinels/status/2119173511956861296"
+ ],
+ "s342": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-keiko-set-to-join-sentinels-for-2027/en"
+ ],
+ "s343": [
+  "QT DIG∞ 공식 X",
+  "https://x.com/qt_dig/status/2119281758386753865"
+ ],
+ "s344": [
+  "Cloud9 공식 X",
+  "https://x.com/C9VAL/status/2119157946785599724"
+ ],
+ "s345": [
+  "TheSpike",
+  "https://www.thespike.gg/valorant/news/g2-esports-bid-farewell-to-jawgemo-ahead-of-2027/9200"
+ ],
+ "s346": [
+  "VLR",
+  "https://www.vlr.gg/786622/loud-bids-farewell-to-tkzin"
+ ],
+ "s347": [
+  "VLR",
+  "https://www.vlr.gg/786615/pcific-releases-full-roster"
+ ],
+ "s348": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/t1-finalize-roster-for-vct-pacific-2027/en"
+ ],
+ "s349": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/D4v41"
+ ],
+ "s350": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Jinggg"
+ ],
+ "s351": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/TenTen"
+ ],
+ "s352": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Zellsis"
+ ],
+ "s353": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Alym"
+ ],
+ "s354": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Derrek"
+ ],
+ "s355": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Nightz"
+ ],
+ "s356": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-aace-set-to-join-crazy-raccoon-for-the-2027-vct-pacific-season/en"
+ ],
+ "s357": [
+  "Strafe: Gen.G Signs MaKo and Dambi for VCT 2027",
+  "https://www.strafe.com/news/read/geng-signs-mako-and-dambi-for-vct-2027/"
+ ],
+ "s358": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/gyen"
+ ],
+ "s359": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/JoXJo"
+ ],
+ "s360": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Persia"
+ ],
+ "s361": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/RvK"
+ ],
+ "s362": [
+  "Esports Earnings: Conner GLYPH Garcia",
+  "https://www.esportsearnings.com/players/91584-glyph-conner-garcia"
+ ],
+ "s363": [
+  "VLR",
+  "https://www.vlr.gg/786620/shopify-rebellion-black-unveils-new-roster"
+ ],
+ "s364": [
+  "VLR",
+  "https://www.vlr.gg/787826/full-sense-allows-jitboys-killua-sushiboys-to-explore-options"
+ ],
+ "s365": [
+  "VLR",
+  "https://www.vlr.gg/787805/xi-lai-gaming-allows-igl-wsleo-to-explore-options"
+ ],
+ "s366": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-crazyguy-set-to-join-gam-esports-for-vct-pacific-2027/en"
+ ],
+ "s367": [
+  "BOOM Esports 공식 X",
+  "https://x.com/boomesportsid/status/2119754376038285451"
+ ],
+ "s368": [
+  "BOOM Esports 공식 X",
+  "https://x.com/boomesportsid/status/2120026173799584007"
+ ],
+ "s369": [
+  "VLR",
+  "https://www.vlr.gg/player/9805/ji-dong-jun"
+ ],
+ "s370": [
+  "Sentinels 공식 X",
+  "https://x.com/Sentinels/status/2120275179658162556"
+ ],
+ "s371": [
+  "VLR",
+  "https://www.vlr.gg/788401/sentinels-release-cortezia-and-reduxx"
+ ],
+ "s372": [
+  "https://www.vlr.gg/788583/anaks-joins-titan-esports-club-following-blg-stint",
+  "https://www.vlr.gg/788583/anaks-joins-titan-esports-club-following-blg-stint"
+ ],
+ "s373": [
+  "VLR",
+  "https://www.vlr.gg/788702/the-dawg-joins-the-hive-team-vitality-signs-jawgemo"
+ ],
+ "s374": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-aspas-set-to-join-fut-esports-for-2027/en"
+ ],
+ "s375": [
+  "VLR",
+  "https://www.vlr.gg/788378/turning-back-t1me-crashies-returns-to-t1"
+ ],
+ "s376": [
+  "VLR",
+  "https://www.vlr.gg/788578/smoggy-turns-the-page-on-edg-joins-bilibili-gaming"
+ ],
+ "s377": [
+  "Team Vitality 공식 X",
+  "https://x.com/TeamVitalityVAL/status/2120204290375471109"
+ ],
+ "s378": [
+  "THESPIKE",
+  "https://www.thespike.gg/valorant/news/aspas-turns-down-multimillion-vct-china-offer-agrees-deal-with-fut-esports/9222"
+ ],
+ "s379": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/g2-esports-complete-roster-for-vct-americas-2027/en"
+ ],
+ "s380": [
+  "VLR",
+  "https://www.vlr.gg/788383/eternal-fire-completes-roster-with-badrex"
+ ],
+ "s381": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-ray-set-to-join-gen-g-for-2027-vct-season/en"
+ ],
+ "s382": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-sugarz3ro-set-to-join-crazy-raccoon-for-vct-pacific-2027/en"
+ ],
+ "s383": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-clz-set-to-join-crazy-raccoon-for-vct-pacific-2026/en"
+ ],
+ "s384": [
+  "VLR",
+  "https://www.vlr.gg/789198/the-king-returnz-tenz-returns-to-competitive-play-with-t1"
+ ],
+ "s385": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/murash-gaming-unveils-2027-roster-with-seoldam-caedye-and-xdll/en"
+ ],
+ "s386": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-yatsuka-set-to-join-zeta-division-for-the-2027-vct-season/en"
+ ],
+ "s387": [
+  "UR 공식 Weibo",
+  "https://weibo.com/6408345675/5364094968531151"
+ ],
+ "s388": [
+  "Sheep Esports",
+  "https://www.sheepesports.com/en/articles/sources-itopata-set-to-join-bilibili-gaming-ahead-of-2027-vct-season/en"
+ ],
+ "s389": [
+  "UR 공식 Weibo",
+  "https://weibo.com/6408345675/5364094703241535"
+ ],
+ "s390": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Yiyee"
+ ],
+ "s391": [
+  "Liquipedia",
+  "https://liquipedia.net/valorant/Itopata"
+ ]
 }
