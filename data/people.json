@@ -346,5 +346,7 @@
   {"id": "kring", "name": "Kring", "kind": "player", "realName": "Cristopher Rhuan Pastorio", "nationality": "Brazil", "birth": "2002-03-09", "src": "s399"},
   {"id": "turkish", "name": "Turkish", "kind": "player", "realName": "João Pedro Osorio", "nationality": "Brazil", "birth": "2005-11-25", "src": "s399"},
   {"id": "raised", "name": "raised", "kind": "player", "realName": "Paulo Victor Carvalho", "role": "Duelist", "nationality": "Brazil", "src": "s397"},
-  {"id": "david", "name": "David", "kind": "player", "realName": "David Olivares", "nationality": "Chile", "src": "s397"}
+  {"id": "david", "name": "David", "kind": "player", "realName": "David Olivares", "nationality": "Chile", "src": "s397"},
+  {"id": "aluba", "name": "aluba", "kind": "player", "realName": "Zhong Haojun", "role": "IGL", "nationality": "China", "birth": "2000-10-04", "career": [{"team": "wolves-esports", "from": "2024-01", "to": "2024-11"}, {"team": "wolves-esports", "from": "2026-06", "to": "2026-11"}], "links": {"vlr": "https://www.vlr.gg/player/14441/zhong-haojun", "liquipedia": "https://liquipedia.net/valorant/Aluba"}, "src": "s404"},
+  {"id": "glacier", "name": "glacier", "kind": "player", "realName": "Liang Zhe-kai", "nationality": "Taiwan", "birth": "2008-03-31", "career": [{"team": "wolves-esports", "from": "2026-03", "to": "2026-11"}, {"team": "jd-gaming", "from": "2026-11", "to": null}], "links": {"vlr": "https://www.vlr.gg/player/49973/liang-zhekai", "liquipedia": "https://liquipedia.net/valorant/Glacier_(Taiwanese_player)"}, "src": "s405"}
 ]
