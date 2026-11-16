@@ -99,8 +99,8 @@ function checkDefs(label, rows, set) {
   });
 }
 if (hasTeams) checkDefs("teams", teams, tIds);
-// 등급: 없으면 괜찮다. "other" 는 운영 종료 팀이고 이름표가 없으니 따로 허용한다.
-if (hasTeams) for (const r of teams) if (r.tier !== undefined && r.tier !== "other" && !TIERS.includes(r.tier)) errors.push(`teams ${r.id}: 등급 "${r.tier}" 을(를) 알 수 없습니다 (partner·ascended·challengers·academy·other 중 하나)`);
+// 등급: 없거나 빈 글자(시트의 빈 칸)면 괜찮다. "other" 는 운영 종료 팀이고 이름표가 없으니 따로 허용한다.
+if (hasTeams) for (const r of teams) if (r.tier !== undefined && r.tier !== "" && r.tier !== "other" && !TIERS.includes(r.tier)) errors.push(`teams ${r.id}: 등급 "${r.tier}" 을(를) 알 수 없습니다 (partner·ascended·challengers·academy·other 중 하나)`);
 if (hasPeople) checkDefs("people", people, pIds);
 
 // 참조 값: 형식은 항상, 존재 여부는 그 파일이 있을 때만 본다.

@@ -1032,3 +1032,8 @@ Liquipedia | 8 | 6 | 14
 - 남은 일: `short` 없는 팀 39개를 시트나 예약 작업 지시문에 채워야 `c9` 같은 검색이 된다. 기록: `docs/sessions/2026-11-10-pr30-search-current-team.md`. 브랜치 `feat/search-current-team` 에 커밋·푸시했다.
 - 악센트 무시(PR 30 후속): 목록 검색(`matches`)과 로스터 검색(`searchCard`)이 `fold()` 로 검색어와 글을 같이 맞춘다(소문자, 악센트 제거, 한글은 NFC 로 다시 붙임). `ı`·`ł` 는 따로 바꾼다(시트 데이터에 있는 글자만). 기록: `docs/sessions/2026-11-10-pr30-accent-fold.md`. 커밋 전.
 - PR 31(검색은 인물 이름과 팀만): 목록 검색은 이름·소속 팀·도착 팀(`next`)·팀 ID·짧은 이름·별칭만 보고, 로스터 검색은 이름·실명만 본다. 포지션·국적·상태·비고·지역 글자로는 안 찾는다. 악센트 무시는 그대로 유지. `sen` 선수 탭 21 → 11, `pac` 49 → 0, `kor` 23 → 0. 시험 183 통과. 기록: `docs/sessions/2026-11-10-pr31-search-name-team-only.md`. 커밋 전.
+
+## 배포 실패 수정: 빈 팀 등급 (2026-11-16)
+
+- c2643d5 에서 팀 272곳에 `"tier": ""` 가 들어가 validate 오류 → 단위 시험 실패 → 배포 중단. validate 가 빈 등급을 없는 것으로 본다.
+- 확인: 시험 183 통과, validate·build 통과. 기록: `docs/sessions/2026-11-16-validate-empty-tier.md`. 브랜치 `fix/teams-empty-tier`, main 병합은 16:05 이후.
