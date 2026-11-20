@@ -353,5 +353,6 @@
   {"id": "besiktas-esports", "name": "Beşiktaş Esports", "short": "BJK", "region": "EMEA", "country": "Turkey", "tier": "other", "active": true, "note": "2027 VCT 비파트너(비VCT). 2027 VALORANT 로스터 공식 발표(Beşiktaş 공식 X 11/14 16:03 UTC)", "aliases": ["Besiktas Esports"]},
   {"id": "mibr-academy", "name": "MIBR Academy", "short": "", "region": "Americas", "country": "Brazil", "tier": "academy", "active": true, "note": "", "aliases": ["MIBR Academy"]},
   {"id": "time-do-b3m", "name": "TIME DO B3M", "short": "", "region": "Americas", "country": "Brazil", "tier": "other", "active": true, "note": "", "aliases": ["TIME DO B3M"]},
-  {"id": "any-questions-gaming", "name": "Any Questions Gaming", "short": "", "region": "China", "country": "China", "tier": "challengers", "active": true, "note": "VCT 2027 China Kickoff 본선 미확정(Threshold 탈락, China National Tournament S7 프로 예선 진행 중). 11/16 Scales(전 TYLOO) 공식 합류 발표(VLR 뉴스 11/16)"}
+  {"id": "any-questions-gaming", "name": "Any Questions Gaming", "short": "", "region": "China", "country": "China", "tier": "challengers", "active": true, "note": "VCT 2027 China Kickoff 본선 미확정(Threshold 탈락, China National Tournament S7 프로 예선 진행 중). 11/16 Scales(전 TYLOO) 공식 합류 발표(VLR 뉴스 11/16)"},
+  {"id": "9z-globant", "name": "9z Globant", "short": "", "region": "Americas", "country": "", "tier": "other", "active": true, "note": "LATAM South Qualifier Playoffs 출전 로스터 발표(VLR 뉴스 11/19). 2부 팀 — KRÜ Dantedeu5 합류 반영용으로 추가 (1부 기준 외)", "aliases": ["9z Team"]}
 ]
