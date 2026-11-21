@@ -224,7 +224,7 @@
   {"id": "incognito", "name": "Incognito", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "inside-games", "name": "Inside Games", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "irregulars", "name": "IRREGULARS", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
-  {"id": "jadeite", "name": "Jadeite", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
+  {"id": "jadeite", "name": "Jadeite", "short": "", "region": "", "country": "", "tier": "", "active": false, "note": ""},
   {"id": "keyd-stars", "name": "Keyd Stars", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "kizuna-esports", "name": "Kizuna Esports", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "kpi-gaming", "name": "KPI Gaming", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
@@ -314,7 +314,7 @@
   {"id": "team-liquid-brazil", "name": "Team Liquid Brazil", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "team-queso", "name": "Team Queso", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "team-singularity", "name": "Team Singularity", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
-  {"id": "team-solid", "name": "Team Solid", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
+  {"id": "team-solid", "name": "Team Solid", "short": "", "region": "Americas", "country": "Brazil", "tier": "challengers", "active": true, "note": "2부 팀 — Americas Kickoff Brazil Qualifier Playoffs 출전. 11/19 mwzera(전 KRÜ)·cauanzin·Bruxo 영입 공식 발표(TheSpike BR 11/19). mwzera 반영 — 1부 기준 외", "aliases": ["Team Solid"]},
   {"id": "the-goose-house", "name": "The Goose House", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "those-guys", "name": "THOSE GUYS", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "tnl-esports", "name": "TNL Esports", "short": "", "region": "", "country": "", "tier": "", "active": true, "note": ""},
@@ -354,5 +354,6 @@
   {"id": "mibr-academy", "name": "MIBR Academy", "short": "", "region": "Americas", "country": "Brazil", "tier": "academy", "active": true, "note": "", "aliases": ["MIBR Academy"]},
   {"id": "time-do-b3m", "name": "TIME DO B3M", "short": "", "region": "Americas", "country": "Brazil", "tier": "other", "active": true, "note": "", "aliases": ["TIME DO B3M"]},
   {"id": "any-questions-gaming", "name": "Any Questions Gaming", "short": "", "region": "China", "country": "China", "tier": "challengers", "active": true, "note": "VCT 2027 China Kickoff 본선 미확정(Threshold 탈락, China National Tournament S7 프로 예선 진행 중). 11/16 Scales(전 TYLOO) 공식 합류 발표(VLR 뉴스 11/16)"},
-  {"id": "9z-globant", "name": "9z Globant", "short": "", "region": "Americas", "country": "", "tier": "other", "active": true, "note": "LATAM South Qualifier Playoffs 출전 로스터 발표(VLR 뉴스 11/19). 2부 팀 — KRÜ Dantedeu5 합류 반영용으로 추가 (1부 기준 외)", "aliases": ["9z Team"]}
+  {"id": "9z-globant", "name": "9z Globant", "short": "", "region": "Americas", "country": "", "tier": "other", "active": true, "note": "LATAM South Qualifier Playoffs 출전 로스터 발표(VLR 뉴스 11/19). 2부 팀 — KRÜ Dantedeu5 합류 반영용으로 추가 (1부 기준 외)", "aliases": ["9z Team"]},
+  {"id": "wildcard", "name": "Wildcard", "short": "", "region": "Americas", "country": "", "tier": "challengers", "active": true, "note": "2부 팀 — VCT 2027 Americas Kickoff NA Qualifier Playoffs 출전. 11/20 로스터 공식 발표(VLR 뉴스 11/20): icy·neT·nerve·Spaz·zerona. 1부 출신 합류(neT·Spaz·zerona·nerve) 반영용으로 추가 (1부 기준 외)", "aliases": ["Wildcard"]}
 ]
