@@ -70,7 +70,7 @@
   {"id": "wip-esports", "name": "WIP Esports", "short": "WIP", "region": "EMEA", "country": "France", "tier": "challengers", "active": true, "note": ""},
   {"id": "zerance", "name": "ZERANCE", "short": "", "region": "EMEA", "country": "France", "tier": "", "active": true, "note": ""},
   {"id": "bleed-esports", "name": "Bleed Esports", "short": "", "region": "Pacific", "country": "", "tier": "", "active": true, "note": ""},
-  {"id": "boom-esports", "name": "BOOM Esports", "short": "BME", "region": "Pacific", "country": "Indonesia", "tier": "challengers", "active": true, "note": "2026 1부 (2027 파트너 발표, Liquipedia VCT/2027/Partnered_Teams)"},
+  {"id": "boom-esports", "name": "BOOM Esports", "short": "BME", "region": "Pacific", "country": "Indonesia", "tier": "challengers", "active": true, "note": "2026 1부 (2027 파트너 발표, Liquipedia VCT/2027/Partnered_Teams) / 11/20 BOOM Esports와 합병 공식 발표(Team Secret 공식 X 11/20 13:00 UTC), 합병 팀 'Team Secret x BOOM'(team-secret-x-boom)", "aliases": ["Team Secret x BOOM"]},
   {"id": "crazy-raccoon", "name": "Crazy Raccoon", "short": "CR", "region": "Pacific", "country": "Japan", "tier": "partner", "active": true, "note": "(2027 파트너 발표, Liquipedia VCT/2027/Partnered_Teams)"},
   {"id": "detonation-focusme", "name": "DetonatioN FocusMe", "short": "DFM", "region": "Pacific", "country": "", "tier": "challengers", "active": true, "note": "2027 VCT 파트너 탈락. 11/2 선수 4·코치 3 계약 종료 공식 공지, 도전자로 신규 로스터 모집 중 2026 1부 (2027 파트너 발표, Liquipedia VCT/2027/Partnered_Teams)"},
   {"id": "f4q", "name": "F4Q", "short": "", "region": "Pacific", "country": "South Korea", "tier": "", "active": true, "note": ""},
@@ -95,7 +95,7 @@
   {"id": "t1", "name": "T1", "short": "T1", "region": "Pacific", "country": "South Korea", "tier": "partner", "active": true, "note": ""},
   {"id": "talon-esports", "name": "TALON", "short": "", "region": "Pacific", "country": "", "tier": "", "active": true, "note": ""},
   {"id": "talon-academy", "name": "TALON Academy", "short": "", "region": "Pacific", "country": "", "tier": "academy", "active": true, "note": ""},
-  {"id": "team-secret", "name": "Team Secret", "short": "TS", "region": "Pacific", "country": "Philippines", "tier": "challengers", "active": true, "note": "2026 1부 (2027 파트너 발표, Liquipedia VCT/2027/Partnered_Teams)"},
+  {"id": "team-secret", "name": "Team Secret", "short": "TS", "region": "Pacific", "country": "Philippines", "tier": "challengers", "active": true, "note": "2026 1부 (2027 파트너 발표, Liquipedia VCT/2027/Partnered_Teams) / 11/20 BOOM Esports와 합병 공식 발표(Team Secret 공식 X 11/20 13:00 UTC), 합병 팀 'Team Secret x BOOM'(team-secret-x-boom)", "aliases": ["Team Secret x BOOM"]},
   {"id": "vision-strikers", "name": "Vision Strikers", "short": "", "region": "Pacific", "country": "South Korea", "tier": "", "active": true, "note": ""},
   {"id": "zeta-division", "name": "ZETA DIVISION", "short": "ZETA", "region": "Pacific", "country": "Japan", "tier": "partner", "active": true, "note": ""},
   {"id": "zeta-division-academy", "name": "ZETA DIVISION ACADEMY", "short": "", "region": "Pacific", "country": "Japan", "tier": "academy", "active": true, "note": ""},
@@ -355,5 +355,7 @@
   {"id": "time-do-b3m", "name": "TIME DO B3M", "short": "", "region": "Americas", "country": "Brazil", "tier": "other", "active": true, "note": "", "aliases": ["TIME DO B3M"]},
   {"id": "any-questions-gaming", "name": "Any Questions Gaming", "short": "", "region": "China", "country": "China", "tier": "challengers", "active": true, "note": "VCT 2027 China Kickoff 본선 미확정(Threshold 탈락, China National Tournament S7 프로 예선 진행 중). 11/16 Scales(전 TYLOO) 공식 합류 발표(VLR 뉴스 11/16)"},
   {"id": "9z-globant", "name": "9z Globant", "short": "", "region": "Americas", "country": "", "tier": "other", "active": true, "note": "LATAM South Qualifier Playoffs 출전 로스터 발표(VLR 뉴스 11/19). 2부 팀 — KRÜ Dantedeu5 합류 반영용으로 추가 (1부 기준 외)", "aliases": ["9z Team"]},
-  {"id": "wildcard", "name": "Wildcard", "short": "", "region": "Americas", "country": "", "tier": "challengers", "active": true, "note": "2부 팀 — VCT 2027 Americas Kickoff NA Qualifier Playoffs 출전. 11/20 로스터 공식 발표(VLR 뉴스 11/20): icy·neT·nerve·Spaz·zerona. 1부 출신 합류(neT·Spaz·zerona·nerve) 반영용으로 추가 (1부 기준 외)", "aliases": ["Wildcard"]}
+  {"id": "wildcard", "name": "Wildcard", "short": "", "region": "Americas", "country": "", "tier": "challengers", "active": true, "note": "2부 팀 — VCT 2027 Americas Kickoff NA Qualifier Playoffs 출전. 11/20 로스터 공식 발표(VLR 뉴스 11/20): icy·neT·nerve·Spaz·zerona. 1부 출신 합류(neT·Spaz·zerona·nerve) 반영용으로 추가 (1부 기준 외)", "aliases": ["Wildcard"]},
+  {"id": "team-secret-x-boom", "name": "Team Secret x BOOM", "short": "TSB", "region": "Pacific", "country": "Indonesia", "tier": "challengers", "active": true, "note": "2026 1부 승계(모팀 Team Secret·BOOM Esports 모두 2026 1부). 2026-11-20 합병 공식 발표(Team Secret 공식 X 11/20 13:00 UTC), VLR 팀 페이지 'Team Secret x BOOM'(TSB) 등재. Sheep Pacific 허브 Kickoff 10팀에는 미포함(2027 파트너 아님)", "aliases": ["Team Secret x BOOM Esports"]},
+  {"id": "g2-gozen", "name": "G2 Gozen", "short": "", "region": "EMEA", "country": "", "tier": "other", "active": true, "note": "G2 Esports 산하 Game Changers 팀(비1부). jtay 이전 소속(VLR 이적 로그 11/6)"}
 ]
